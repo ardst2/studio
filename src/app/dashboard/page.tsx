@@ -1,3 +1,4 @@
+
 // src/app/dashboard/page.tsx
 "use client";
 
@@ -10,6 +11,7 @@ import AirdropList from '@/components/dashboard/airdrop-list';
 import AddAirdropModal from '@/components/dashboard/add-airdrop-modal';
 import AirdropDetailModal from '@/components/dashboard/AirdropDetailModal';
 import TodaysDeadlinesModal from '@/components/dashboard/TodaysDeadlinesModal';
+import EditProfileModal from '@/components/dashboard/edit-profile-modal'; // Import EditProfileModal
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
@@ -19,6 +21,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import UserInfoCard from '@/components/dashboard/user-info-card';
 import EmptyAirdropDayCard from '@/components/dashboard/empty-airdrop-day-card';
 import { useAuth } from '@/hooks/use-auth';
+import { auth } from '@/lib/firebase'; // Import auth
+import { updateProfile } from 'firebase/auth'; // Import updateProfile
 
 function DashboardPageContent() {
   const { user, loading: authLoading } = useAuth();
@@ -51,8 +55,10 @@ function DashboardPageContent() {
   const [editingAirdrop, setEditingAirdrop] = useState<Airdrop | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedAirdropForDetail, setSelectedAirdropForDetail] = useState<Airdrop | null>(null);
-  
   const [isTodaysDeadlinesModalOpen, setIsTodaysDeadlinesModalOpen] = useState(false);
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false); // State for EditProfileModal
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
     if (airdropToEdit) {
@@ -188,6 +194,33 @@ function DashboardPageContent() {
     handleOpenDetailModal(airdrop);
   };
 
+  // Handlers for EditProfileModal
+  const handleOpenEditProfileModal = () => setIsEditProfileModalOpen(true);
+  const handleCloseEditProfileModal = () => setIsEditProfileModalOpen(false);
+
+  const handleSaveProfile = async (data: { displayName: string; photoURL?: string }) => {
+    if (!auth.currentUser) {
+      toast({ variant: "destructive", title: "Error", description: "Pengguna tidak terautentikasi." });
+      return;
+    }
+    setIsSavingProfile(true);
+    try {
+      await updateProfile(auth.currentUser, {
+        displayName: data.displayName,
+        photoURL: data.photoURL || null, // Pass null if empty to clear photoURL
+      });
+      toast({ title: "Profil Diperbarui", description: "Informasi profil Anda berhasil disimpan." });
+      handleCloseEditProfileModal();
+      // useAuth's onAuthStateChanged should automatically update the user state
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({ variant: "destructive", title: "Gagal Menyimpan Profil", description: "Terjadi kesalahan saat memperbarui profil." });
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+
   if (authLoading || airdropsLoading || (!authLoading && !user) ) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -201,7 +234,11 @@ function DashboardPageContent() {
       <DashboardHeader />
       <main className="flex-1 p-4 md:p-8 space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
-          <UserInfoCard airdrops={allAirdrops} />
+          <UserInfoCard 
+            airdrops={allAirdrops} 
+            user={user} 
+            onOpenProfileModal={handleOpenEditProfileModal} 
+          />
           <Card className="shadow-xl h-full bg-card text-card-foreground p-6 flex flex-col justify-center">
             <CardHeader className="p-0 pb-4">
               <CardTitle className="font-headline text-xl text-foreground">Kelola Airdrop Anda</CardTitle>
@@ -254,6 +291,13 @@ function DashboardPageContent() {
         onClose={handleCloseTodaysDeadlinesModal}
         airdropsDueToday={airdropsDueToday}
         onSelectAirdrop={handleSelectAirdropFromTodaysList}
+      />
+      <EditProfileModal
+        isOpen={isEditProfileModalOpen}
+        onClose={handleCloseEditProfileModal}
+        user={user}
+        onSave={handleSaveProfile}
+        isSaving={isSavingProfile}
       />
        <footer className="py-6 px-4 md:px-8 border-t border-border/50 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} AirdropAce. Ditenagai oleh antusiasme Web3.
