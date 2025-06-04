@@ -7,14 +7,22 @@ import { Bell, Download, LogOut } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
 import type { Airdrop } from '@/types/airdrop';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { useState } from 'react';
 
 const DashboardHeader = () => {
   const { toast } = useToast();
   const { allAirdrops } = useAirdropsStore();
 
-  const handleDownloadAirdrops = () => {
+  const [downloadPopoverOpen, setDownloadPopoverOpen] = useState(false);
+  const [downloadMessage, setDownloadMessage] = useState("");
+  const [notificationPopoverOpen, setNotificationPopoverOpen] = useState(false);
+  const [notificationMessage, _setNotificationMessage] = useState("Tidak ada notifikasi baru saat ini."); // Content is static for now
+
+  const handleDownloadAirdropsClick = () => {
     if (allAirdrops.length === 0) {
-      toast({ title: "Tidak Ada Data", description: "Tidak ada airdrop untuk diunduh." });
+      setDownloadMessage("Tidak ada data untuk diunduh.");
+      setDownloadPopoverOpen(true);
       return;
     }
 
@@ -41,17 +49,16 @@ const DashboardHeader = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      toast({ title: "Unduhan Dimulai", description: "Data airdrop sedang diunduh sebagai CSV." });
+      setDownloadMessage("Data airdrop sedang diunduh sebagai CSV.");
     } else {
-      toast({ variant: "destructive", title: "Gagal Mengunduh", description: "Browser Anda tidak mendukung fitur unduhan ini." });
+      setDownloadMessage("Gagal Mengunduh: Browser Anda tidak mendukung fitur unduhan ini.");
     }
+    setDownloadPopoverOpen(true);
   };
 
   const handleNotificationsClick = () => {
-    toast({
-      title: "Notifikasi",
-      description: "Tidak ada notifikasi baru saat ini.",
-    });
+    // Popover is controlled by PopoverTrigger, this can be empty or set message if dynamic
+    // For this case, the message is static in PopoverContent
   };
 
   const handleSignOutClick = () => {
@@ -69,12 +76,50 @@ const DashboardHeader = () => {
       </div>
       
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" aria-label="Download Data Airdrop" onClick={handleDownloadAirdrops} className="header-icon-button">
-          <Download className="h-5 w-5" />
-        </Button>
-        <Button variant="ghost" size="icon" aria-label="Notifications" onClick={handleNotificationsClick} className="header-icon-button">
-          <Bell className="h-5 w-5" />
-        </Button>
+        <Popover open={downloadPopoverOpen} onOpenChange={setDownloadPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              aria-label="Download Data Airdrop" 
+              onClick={handleDownloadAirdropsClick} 
+              className="header-icon-button"
+            >
+              <Download className="h-5 w-5" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent 
+            className="w-auto p-3 popover-gradient-border text-sm" 
+            align="end" 
+            sideOffset={10}
+            onOpenAutoFocus={(e) => e.preventDefault()} 
+          >
+            {downloadMessage || " "}
+          </PopoverContent>
+        </Popover>
+
+        <Popover open={notificationPopoverOpen} onOpenChange={setNotificationPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              aria-label="Notifications" 
+              onClick={handleNotificationsClick} 
+              className="header-icon-button"
+            >
+              <Bell className="h-5 w-5" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent 
+            className="w-auto p-3 popover-gradient-border text-sm" 
+            align="end" 
+            sideOffset={10}
+            onOpenAutoFocus={(e) => e.preventDefault()}
+          >
+            {notificationMessage}
+          </PopoverContent>
+        </Popover>
+
         <Button variant="ghost" size="icon" aria-label="Sign Out" onClick={handleSignOutClick} className="header-icon-button">
           <LogOut className="h-5 w-5" />
         </Button>
@@ -84,3 +129,5 @@ const DashboardHeader = () => {
 };
 
 export default DashboardHeader;
+
+    

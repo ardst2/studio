@@ -306,27 +306,22 @@ body {
 
 /* Styling for header icons hover effect */
 .header-icon-button:hover {
-  background-color: transparent !important; /* Override button's own hover bg */
-}
-
-.header-icon-button svg {
-  /* Lucide icons are typically stroke-based. Ensure SVG container has no fill by default. */
-  fill: none;
+  background-color: transparent !important;
 }
 
 .header-icon-button:hover svg {
   background: linear-gradient(to right, hsl(var(--gradient-theme-start)), hsl(var(--gradient-theme-mid)), hsl(var(--gradient-theme-end)));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent !important; /* Makes 'currentColor' (used by strokes in Lucide) transparent */
-  fill: none !important; /* Ensure SVG container itself has no fill that would obscure the background */
+  color: transparent !important; 
 }
 
-/* This rule ensures that the actual drawing elements (path, line, etc.) within the SVG
-   use the (now transparent) 'currentColor' for their stroke and have no fill.
-   This allows the SVG's gradient background (clipped to 'text') to show through. */
-.header-icon-button:hover svg * {
-  stroke: currentColor !important;
+.header-icon-button:hover svg path,
+.header-icon-button:hover svg line,
+.header-icon-button:hover svg polyline,
+.header-icon-button:hover svg rect,
+.header-icon-button:hover svg circle {
+  stroke: currentColor !important; /* currentColor will be transparent */
   fill: none !important;
 }
 
@@ -345,6 +340,26 @@ body {
 }
     
 
+/* Popover with gradient border */
+.popover-gradient-border {
+  border-width: 1.5px; /* Adjust thickness of the gradient border */
+  border-style: solid;
+  border-color: transparent; /* Important: make the actual border transparent */
+  
+  /* Double background trick for gradient border */
+  background-image: linear-gradient(hsl(var(--popover)), hsl(var(--popover))), 
+                    linear-gradient(135deg, 
+                                    hsl(var(--gradient-theme-start)), 
+                                    hsl(var(--gradient-theme-mid)), 
+                                    hsl(var(--gradient-theme-end)));
+  background-origin: padding-box, border-box;
+  background-clip: padding-box, border-box;
+  
+  /* Ensure ShadCN's default border is overridden if necessary */
+  box-shadow: 0 0 0 0px hsl(var(--border)) !important; /* Override ShadCN's border shadow */
+}
+
+
     
 
 
@@ -352,3 +367,6 @@ body {
 
 
 
+
+
+    
