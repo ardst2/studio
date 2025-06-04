@@ -3,6 +3,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Import useRouter
 import DashboardHeader from '@/components/dashboard/dashboard-header';
 import AddAirdropButton from '@/components/dashboard/add-airdrop-button';
 import SummaryStats from '@/components/dashboard/summary-stats';
@@ -17,16 +18,26 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import UserInfoCard from '@/components/dashboard/user-info-card';
 import EmptyAirdropDayCard from '@/components/dashboard/empty-airdrop-day-card';
-import { useAuth } from '@/hooks/use-auth'; // Import useAuth to check user status
+import { useAuth } from '@/hooks/use-auth';
 
 function DashboardPageContent() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth(); // Get user and auth loading state
 
+  // Efek untuk mengarahkan jika tidak terautentikasi
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace('/login');
+    }
+  }, [user, authLoading, router]);
+
+  // Inisialisasi state dan fungsi terkait airdrop store
+  // Hook ini dirancang untuk menangani user yang null pada awalnya
   const {
-    airdrops: filteredAirdrops, // These are already filtered by status and search term
-    allAirdrops, // Unfiltered airdrops for summary stats
-    isLoading: airdropsLoading, // Loading state from the store
+    airdrops: filteredAirdrops,
+    allAirdrops,
+    isLoading: airdropsLoading,
     searchTerm,
     setSearchTerm,
     filterStatus,
@@ -41,8 +52,6 @@ function DashboardPageContent() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingAirdrop, setEditingAirdrop] = useState<Airdrop | null>(null);
-  
-  // State for Detail Modal
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedAirdropForDetail, setSelectedAirdropForDetail] = useState<Airdrop | null>(null);
 
@@ -50,7 +59,7 @@ function DashboardPageContent() {
     if (airdropToEdit) {
       setEditingAirdrop(airdropToEdit);
       const draftData = {
-        userId: airdropToEdit.userId, // ensure userId is part of the draft if needed
+        userId: airdropToEdit.userId,
         name: airdropToEdit.name,
         startDate: airdropToEdit.startDate,
         deadline: airdropToEdit.deadline,
@@ -60,7 +69,7 @@ function DashboardPageContent() {
       updateNewAirdropDraft(draftData);
     } else {
       setEditingAirdrop(null);
-      resetNewAirdropDraft(); // This will use the current user's ID from the store
+      resetNewAirdropDraft();
     }
     setIsAddModalOpen(true);
   };
@@ -73,14 +82,11 @@ function DashboardPageContent() {
   const handleSaveAirdrop = async (data: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => {
     try {
       if (editingAirdrop) {
-        // Preserve original createdAt and userId for updates
         const updatedData: Airdrop = {
             ...editingAirdrop, 
             ...data,
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
-
-        // Recalculate status
         const now = Date.now();
         let status: Airdrop['status'] = 'Upcoming';
         if (updatedData.startDate && updatedData.startDate <= now) status = 'Active';
@@ -93,18 +99,16 @@ function DashboardPageContent() {
         updatedData.status = status;
         
         await storeUpdateAirdrop(updatedData);
-        toast({ title: "Airdrop Diperbarui", description: `"${data.name}" berhasil diperbarui.` });
+        toast({ title: "Airdrop Diperbarui", description: `"${updatedData.name}" berhasil diperbarui.` });
       } else {
-        // For new airdrops, userId is already in newAirdropDraft from the store
         const newAirdropDataWithTaskIds = {
-            ...data, // data from form
+            ...data,
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
         await storeAddAirdrop(newAirdropDataWithTaskIds);
         toast({ title: "Airdrop Ditambahkan", description: `"${data.name}" berhasil ditambahkan.` });
       }
       handleCloseAddModal();
-      // resetNewAirdropDraft() is called by storeAddAirdrop
     } catch (error) {
       console.error("Error saving airdrop:", error);
       toast({ variant: "destructive", title: "Gagal Menyimpan", description: "Terjadi kesalahan saat menyimpan airdrop." });
@@ -143,7 +147,6 @@ function DashboardPageContent() {
       
       try {
         await storeUpdateAirdrop(updatedAirdrop);
-        // Optional: toast for task toggle
       } catch (error) {
         console.error("Error updating task status:", error);
         toast({ variant: "destructive", title: "Gagal Update Tugas", description: "Terjadi kesalahan." });
@@ -151,7 +154,6 @@ function DashboardPageContent() {
     }
   };
 
-  // Handlers for Detail Modal
   const handleOpenDetailModal = (airdrop: Airdrop) => {
     setSelectedAirdropForDetail(airdrop);
     setIsDetailModalOpen(true);
@@ -162,27 +164,17 @@ function DashboardPageContent() {
     setIsDetailModalOpen(false);
   };
 
-  // Combined loading state
-  if (authLoading || airdropsLoading) {
+  // Tampilkan loader jika autentikasi sedang berjalan, airdrops sedang dimuat, atau jika pengguna tidak terautentikasi (pengalihan sedang berlangsung)
+  if (authLoading || airdropsLoading || (!authLoading && !user) ) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader variant="page" size="lg" />
       </div>
     );
   }
+
+  // Jika kode sampai di sini, pengguna terautentikasi dan data telah dimuat atau sedang dimuat oleh store.
   
-  // If auth is done, but no user, redirect or show message (handled by useAuth redirect mostly)
-  if (!user && !authLoading) {
-    // This case should ideally be handled by a route guard or redirect in _app or layout
-    // For now, showing a simple message or relying on useAuth's redirect to /login
-    return (
-         <div className="flex h-screen items-center justify-center bg-background">
-            <p>Silakan login untuk mengakses dashboard.</p>
-        </div>
-    );
-  }
-
-
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <DashboardHeader />
@@ -225,7 +217,7 @@ function DashboardPageContent() {
         isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
         onSave={handleSaveAirdrop}
-        initialData={editingAirdrop ? newAirdropDraft : undefined} // Pass the store's draft for editing
+        initialData={editingAirdrop ? newAirdropDraft : undefined}
       />
       <AirdropDetailModal 
         isOpen={isDetailModalOpen}
@@ -240,7 +232,5 @@ function DashboardPageContent() {
 }
 
 export default function DashboardPage() {
-  // AuthProvider should wrap this if not already done at a higher level (e.g. layout or _app)
-  // Assuming AuthProvider is in RootLayout or a similar higher-order component.
   return <DashboardPageContent />;
 }
