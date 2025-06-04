@@ -63,7 +63,7 @@ const SheetsIntegrationCard = () => {
   };
 
   return (
-    <Card className="shadow-xl w-full h-full bg-card text-card-foreground flex flex-col justify-center p-6">
+    <Card className="shadow-xl w-full h-full bg-card text-card-foreground flex flex-col p-6 border border-transparent">
       <CardHeader className="p-0 pb-2">
         <CardTitle className="font-headline text-lg text-foreground flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-gradient-theme"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/></svg>
@@ -73,7 +73,7 @@ const SheetsIntegrationCard = () => {
           Import airdrops from a Google Sheet.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2 p-0 pt-2 flex-grow flex flex-col justify-center">
+      <CardContent className="space-y-1 p-0 pt-2 flex-grow flex flex-col">
         <div>
           <Label htmlFor="sheetId" className="mb-0.5 block text-xs font-medium">Google Sheet ID</Label>
           <InputWrapper>
@@ -107,7 +107,7 @@ const SheetsIntegrationCard = () => {
           </Button>
         </div>
       </CardContent>
-       <p className="text-[0.65rem] text-muted-foreground pt-1 leading-tight mt-auto">
+       <p className="text-[10px] text-muted-foreground pt-1 leading-tight mt-auto">
            Format: Name, Desc, StartDate (YYYY-MM-DD), Deadline (YYYY-MM-DD), Tasks (text;...), Status. Header di baris pertama.
       </p>
     </Card>
