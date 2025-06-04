@@ -1,15 +1,15 @@
-
 // src/app/dashboard/page.tsx
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useEffect, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
 import AddAirdropButton from '@/components/dashboard/add-airdrop-button';
 import SummaryStats from '@/components/dashboard/summary-stats';
 import AirdropList from '@/components/dashboard/airdrop-list';
 import AddAirdropModal from '@/components/dashboard/add-airdrop-modal';
 import AirdropDetailModal from '@/components/dashboard/AirdropDetailModal';
+import TodaysDeadlinesModal from '@/components/dashboard/TodaysDeadlinesModal';
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
@@ -25,15 +25,12 @@ function DashboardPageContent() {
   const router = useRouter();
   const { toast } = useToast();
 
-  // Efek untuk mengarahkan jika tidak terautentikasi
   useEffect(() => {
     if (!authLoading && !user) {
       router.replace('/login');
     }
   }, [user, authLoading, router]);
 
-  // Inisialisasi state dan fungsi terkait airdrop store
-  // Hook ini dirancang untuk menangani user yang null pada awalnya
   const {
     airdrops: filteredAirdrops,
     allAirdrops,
@@ -54,6 +51,8 @@ function DashboardPageContent() {
   const [editingAirdrop, setEditingAirdrop] = useState<Airdrop | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedAirdropForDetail, setSelectedAirdropForDetail] = useState<Airdrop | null>(null);
+  
+  const [isTodaysDeadlinesModalOpen, setIsTodaysDeadlinesModalOpen] = useState(false);
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
     if (airdropToEdit) {
@@ -164,7 +163,31 @@ function DashboardPageContent() {
     setIsDetailModalOpen(false);
   };
 
-  // Tampilkan loader jika autentikasi sedang berjalan, airdrops sedang dimuat, atau jika pengguna tidak terautentikasi (pengalihan sedang berlangsung)
+  const handleOpenTodaysDeadlinesModal = () => {
+    setIsTodaysDeadlinesModalOpen(true);
+  };
+
+  const handleCloseTodaysDeadlinesModal = () => {
+    setIsTodaysDeadlinesModalOpen(false);
+  };
+  
+  const airdropsDueToday = useMemo(() => {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    return allAirdrops.filter(airdrop => {
+      if (!airdrop.deadline) return false;
+      const deadlineDate = new Date(airdrop.deadline);
+      return deadlineDate >= todayStart && deadlineDate <= todayEnd && airdrop.status !== 'Completed';
+    });
+  }, [allAirdrops]);
+
+  const handleSelectAirdropFromTodaysList = (airdrop: Airdrop) => {
+    handleOpenDetailModal(airdrop);
+  };
+
   if (authLoading || airdropsLoading || (!authLoading && !user) ) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -172,8 +195,6 @@ function DashboardPageContent() {
       </div>
     );
   }
-
-  // Jika kode sampai di sini, pengguna terautentikasi dan data telah dimuat atau sedang dimuat oleh store.
   
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -193,7 +214,11 @@ function DashboardPageContent() {
             </CardContent>
           </Card>
           <SummaryStats airdrops={allAirdrops} />
-          <EmptyAirdropDayCard onAddNewAirdrop={() => handleOpenAddModal()} airdrops={allAirdrops} />
+          <EmptyAirdropDayCard 
+            onShowTodaysDeadlines={handleOpenTodaysDeadlinesModal}
+            onAddNewAirdrop={() => handleOpenAddModal()} 
+            airdrops={allAirdrops} 
+          />
         </div>
 
         <div className="mt-8">
@@ -223,6 +248,12 @@ function DashboardPageContent() {
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetailModal}
         airdrop={selectedAirdropForDetail}
+      />
+      <TodaysDeadlinesModal
+        isOpen={isTodaysDeadlinesModalOpen}
+        onClose={handleCloseTodaysDeadlinesModal}
+        airdropsDueToday={airdropsDueToday}
+        onSelectAirdrop={handleSelectAirdropFromTodaysList}
       />
        <footer className="py-6 px-4 md:px-8 border-t border-border/50 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} AirdropAce. Ditenagai oleh antusiasme Web3.
