@@ -1,3 +1,4 @@
+
 // src/components/dashboard/TodaysDeadlinesModal.tsx
 "use client";
 
@@ -24,66 +25,76 @@ const TodaysDeadlinesModal = ({ isOpen, onClose, airdropsDueToday, onSelectAirdr
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-lg shadow-2xl border-border/60 p-0">
-        <DialogHeader className="p-6 pb-4 border-b border-border">
-          <DialogTitle className="font-headline text-2xl text-foreground flex items-center">
-            <CalendarCheck className="w-6 h-6 mr-2 text-gradient-theme" /> Deadline Hari Ini
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            {airdropsDueToday.length > 0
-              ? `Berikut adalah ${airdropsDueToday.length} airdrop yang jatuh tempo hari ini.`
-              : "Tidak ada airdrop yang jatuh tempo hari ini."}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-lg shadow-2xl border-border/60 p-0 max-h-[85vh] overflow-hidden">
+        {/* Decorative gradient lines */}
+        <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-[1]"></div>
+        <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-[1]"></div>
+        
+        <div className="relative flex flex-col h-full">
+          <DialogHeader className="p-6 pb-4 border-b border-border shrink-0">
+            <DialogTitle className="font-headline text-2xl text-foreground flex items-center">
+              <CalendarCheck className="w-6 h-6 mr-2 text-gradient-theme" /> Deadline Hari Ini
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              {airdropsDueToday.length > 0
+                ? `Berikut adalah ${airdropsDueToday.length} airdrop yang jatuh tempo hari ini.`
+                : "Tidak ada airdrop yang jatuh tempo hari ini."}
+            </DialogDescription>
+          </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] p-6">
-          {airdropsDueToday.length > 0 ? (
-            <ul className="space-y-3">
-              {airdropsDueToday.map(airdrop => (
-                <li key={airdrop.id}>
-                  <Card 
-                    className="bg-input hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => handleAirdropClick(airdrop)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleAirdropClick(airdrop);}}
-                    aria-label={`Lihat detail ${airdrop.name}`}
-                  >
-                    <CardHeader className="p-3 flex flex-row items-center justify-between">
-                      <CardTitle className="text-base font-medium text-foreground">{airdrop.name}</CardTitle>
-                      <Info className="w-4 h-4 text-primary" />
-                    </CardHeader>
-                    {airdrop.tasks && airdrop.tasks.length > 0 && (
-                      <CardContent className="p-3 pt-0 text-xs">
-                        <p className="text-muted-foreground">
-                          {airdrop.tasks.filter(t => t.completed).length} / {airdrop.tasks.length} tugas selesai
-                        </p>
-                      </CardContent>
-                    )}
-                  </Card>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="text-center py-8">
-              <ListChecks className="mx-auto h-12 w-12 text-muted-foreground opacity-70" />
-              <p className="mt-4 text-sm text-muted-foreground">
-                Semua aman! Tidak ada yang perlu dikejar hari ini.
-              </p>
+          <ScrollArea className="flex-grow overflow-y-auto min-h-0">
+            <div className="p-6">
+              {airdropsDueToday.length > 0 ? (
+                <ul className="space-y-3">
+                  {airdropsDueToday.map(airdrop => (
+                    <li key={airdrop.id}>
+                      <Card 
+                        className="bg-input hover:bg-muted/50 transition-colors cursor-pointer"
+                        onClick={() => handleAirdropClick(airdrop)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleAirdropClick(airdrop);}}
+                        aria-label={`Lihat detail ${airdrop.name}`}
+                      >
+                        <CardHeader className="p-3 flex flex-row items-center justify-between">
+                          <CardTitle className="text-base font-medium text-foreground">{airdrop.name}</CardTitle>
+                          <Info className="w-4 h-4 text-primary" />
+                        </CardHeader>
+                        {airdrop.tasks && airdrop.tasks.length > 0 && (
+                          <CardContent className="p-3 pt-0 text-xs">
+                            <p className="text-muted-foreground">
+                              {airdrop.tasks.filter(t => t.completed).length} / {airdrop.tasks.length} tugas selesai
+                            </p>
+                          </CardContent>
+                        )}
+                      </Card>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="text-center py-8">
+                  <ListChecks className="mx-auto h-12 w-12 text-muted-foreground opacity-70" />
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Semua aman! Tidak ada yang perlu dikejar hari ini.
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </ScrollArea>
+          </ScrollArea>
 
-        <DialogFooter className="p-6 pt-4 border-t border-border">
-          <DialogClose asChild>
-            <Button type="button" variant="outline">
-              <X className="mr-2 h-4 w-4" /> Tutup
-            </Button>
-          </DialogClose>
-        </DialogFooter>
+          <DialogFooter className="p-6 pt-4 border-t border-border shrink-0">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                <X className="mr-2 h-4 w-4" /> Tutup
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
 };
 
 export default TodaysDeadlinesModal;
+
+    

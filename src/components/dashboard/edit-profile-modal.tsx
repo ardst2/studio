@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Camera, Save, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
 
 const profileSchema = z.object({
   displayName: z.string().min(1, "Nama tampilan tidak boleh kosong.").max(50, "Nama tampilan maksimal 50 karakter."),
@@ -75,71 +76,83 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, isSaving }: EditProfi
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-lg shadow-2xl border-border/60 p-0">
-        <DialogHeader className="p-6 pb-4 border-b border-border">
-          <DialogTitle className="font-headline text-2xl text-foreground flex items-center">
-            <Camera className="w-6 h-6 mr-2 text-gradient-theme" /> Edit Profil
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Perbarui nama tampilan dan URL foto profil Anda.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-lg shadow-2xl border-border/60 p-0 max-h-[85vh] overflow-hidden">
+        {/* Decorative gradient lines */}
+        <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-[1]"></div>
+        <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-[1]"></div>
 
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6 space-y-6">
-          <div className="flex flex-col items-center space-y-3">
-            <Avatar className="h-24 w-24 border-4 border-primary/30">
-              <AvatarImage src={avatarImageSrc} alt={displayName || 'User'} />
-              <AvatarFallback className="text-3xl font-bold bg-muted text-muted-foreground">
-                {getInitials(displayName)}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-
-          <div>
-            <Label htmlFor="displayName" className="mb-1 block text-sm font-medium text-foreground">Nama Tampilan</Label>
-            <InputWrapper>
-              <Input
-                id="displayName"
-                {...register('displayName')}
-                placeholder="Nama Anda"
-                className={errors.displayName ? 'border-destructive' : ''}
-              />
-            </InputWrapper>
-            {errors.displayName && <p className="mt-1 text-xs text-destructive">{errors.displayName.message}</p>}
-          </div>
-
-          <div>
-            <Label htmlFor="photoURL" className="mb-1 block text-sm font-medium text-foreground">URL Foto Profil</Label>
-            <InputWrapper>
-              <Input
-                id="photoURL"
-                {...register('photoURL')}
-                placeholder="https://example.com/foto.png"
-                className={errors.photoURL ? 'border-destructive' : ''}
-              />
-            </InputWrapper>
-            {errors.photoURL && <p className="mt-1 text-xs text-destructive">{errors.photoURL.message}</p>}
-          </div>
+        <div className="relative flex flex-col h-full">
+          <DialogHeader className="p-6 pb-4 border-b border-border shrink-0">
+            <DialogTitle className="font-headline text-2xl text-foreground flex items-center">
+              <Camera className="w-6 h-6 mr-2 text-gradient-theme" /> Edit Profil
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Perbarui nama tampilan dan URL foto profil Anda.
+            </DialogDescription>
+          </DialogHeader>
           
-          <DialogFooter className="pt-2">
-            <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isSaving} onClick={onClose}>
-                <X className="mr-2 h-4 w-4" /> Batal
-              </Button>
-            </DialogClose>
-            <Button type="submit" className="btn-gradient" disabled={isSaving}>
-              {isSaving ? (
-                <div className="gradient-spinner w-5 h-5 after:w-3 after:h-3 mr-2"></div>
-              ) : (
-                <Save className="mr-2 h-4 w-4" />
-              )}
-              {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
-            </Button>
-          </DialogFooter>
-        </form>
+          <ScrollArea className="flex-grow overflow-y-auto min-h-0">
+            <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6 space-y-6">
+              <div className="flex flex-col items-center space-y-3">
+                <Avatar className="h-24 w-24 border-4 border-primary/30">
+                  <AvatarImage src={avatarImageSrc} alt={displayName || 'User'} />
+                  <AvatarFallback className="text-3xl font-bold bg-muted text-muted-foreground">
+                    {getInitials(displayName)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+
+              <div>
+                <Label htmlFor="displayName" className="mb-1 block text-sm font-medium text-foreground">Nama Tampilan</Label>
+                <InputWrapper>
+                  <Input
+                    id="displayName"
+                    {...register('displayName')}
+                    placeholder="Nama Anda"
+                    className={errors.displayName ? 'border-destructive' : ''}
+                  />
+                </InputWrapper>
+                {errors.displayName && <p className="mt-1 text-xs text-destructive">{errors.displayName.message}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="photoURL" className="mb-1 block text-sm font-medium text-foreground">URL Foto Profil</Label>
+                <InputWrapper>
+                  <Input
+                    id="photoURL"
+                    {...register('photoURL')}
+                    placeholder="https://example.com/foto.png"
+                    className={errors.photoURL ? 'border-destructive' : ''}
+                  />
+                </InputWrapper>
+                {errors.photoURL && <p className="mt-1 text-xs text-destructive">{errors.photoURL.message}</p>}
+              </div>
+              
+              {/* Footer is moved inside the form and thus inside ScrollArea */}
+              <DialogFooter className="pt-2">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline" disabled={isSaving} onClick={onClose}>
+                    <X className="mr-2 h-4 w-4" /> Batal
+                  </Button>
+                </DialogClose>
+                <Button type="submit" className="btn-gradient" disabled={isSaving}>
+                  {isSaving ? (
+                    <div className="gradient-spinner w-5 h-5 after:w-3 after:h-3 mr-2"></div>
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </ScrollArea>
+          {/* DialogFooter removed from here if form needs its own submission footer */}
+        </div>
       </DialogContent>
     </Dialog>
   );
 };
 
 export default EditProfileModal;
+
+    

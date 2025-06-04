@@ -5,7 +5,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
-import AddAirdropButton from '@/components/dashboard/add-airdrop-button';
+// import AddAirdropButton from '@/components/dashboard/add-airdrop-button'; // Removed
 import SummaryStats from '@/components/dashboard/summary-stats';
 import AirdropList from '@/components/dashboard/airdrop-list';
 import AddAirdropModal from '@/components/dashboard/add-airdrop-modal';
@@ -25,6 +25,7 @@ import EmptyAirdropDayCard from '@/components/dashboard/empty-airdrop-day-card';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
+import { cn } from '@/lib/utils';
 
 function DashboardPageContent() {
   const { user, loading: authLoading } = useAuth();
@@ -247,16 +248,21 @@ function DashboardPageContent() {
             />
           </div>
           <div className="card-gradient-glow-wrapper h-72">
-            <Card className="w-full h-full bg-card text-card-foreground p-6 flex flex-col justify-center">
-              <CardHeader className="p-0 pb-4">
+            <Card 
+              className="w-full h-full bg-card text-card-foreground p-6 flex flex-col justify-center cursor-pointer"
+              onClick={() => handleOpenAddModal()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAddModal(); }}
+              aria-label="Tambah airdrop baru"
+            >
+              <CardHeader className="p-0 pb-4 text-center">
                 <CardTitle className="font-headline text-xl text-foreground">Kelola Airdrop Anda</CardTitle>
                 <CardDescription className="text-muted-foreground">
                   Pantau peluang baru dan tugas yang sedang berjalan.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-0">
-                <AddAirdropButton onClick={() => handleOpenAddModal()} />
-              </CardContent>
+              {/* CardContent is removed as AddAirdropButton is removed */}
             </Card>
           </div>
           <div className="card-gradient-glow-wrapper h-72">
@@ -330,3 +336,5 @@ function DashboardPageContent() {
 export default function DashboardPage() {
   return <DashboardPageContent />;
 }
+
+    
