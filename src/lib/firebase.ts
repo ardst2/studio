@@ -5,12 +5,12 @@ import { getFirestore } from "firebase/firestore";
 
 // TODO: Replace with your actual Firebase project configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "YOUR_AUTH_DOMAIN_HERE",
-  projectId: "YOUR_PROJECT_ID_HERE",
-  storageBucket: "YOUR_STORAGE_BUCKET_HERE",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID_HERE",
-  appId: "YOUR_APP_ID_HERE",
+  apiKey: "AIzaSyC_ZN2d-3b_RuxzfU3LDnsRG6572hU2cxU",
+  authDomain: "named-trilogy-457001-i1.firebaseapp.com",
+  projectId: "named-trilogy-457001-i1",
+  storageBucket: "named-trilogy-457001-i1.firebasestorage.app",
+  messagingSenderId: "591055461757",
+  appId: "1:591055461757:web:579ff20f8aa66ee95e8014",
 };
 
 let app;
