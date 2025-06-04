@@ -69,14 +69,14 @@ const DashboardHeader = () => {
       </div>
       
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" aria-label="Download Data Airdrop" onClick={handleDownloadAirdrops}>
-          <Download className="h-5 w-5 text-foreground/80 hover:text-foreground" />
+        <Button variant="ghost" size="icon" aria-label="Download Data Airdrop" onClick={handleDownloadAirdrops} className="header-icon-button">
+          <Download className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Notifications" onClick={handleNotificationsClick}>
-          <Bell className="h-5 w-5 text-foreground/80 hover:text-foreground" />
+        <Button variant="ghost" size="icon" aria-label="Notifications" onClick={handleNotificationsClick} className="header-icon-button">
+          <Bell className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Sign Out" onClick={handleSignOutClick}>
-          <LogOut className="h-5 w-5 text-foreground/80 hover:text-foreground" />
+        <Button variant="ghost" size="icon" aria-label="Sign Out" onClick={handleSignOutClick} className="header-icon-button">
+          <LogOut className="h-5 w-5" />
         </Button>
       </div>
     </header>

@@ -50,7 +50,7 @@ body {
     --gradient-orange: 25 100% 55%;
     --gradient-yellow: 45 100% 55%;
     
-    /* Warna gradien tombol Simpan (Pinkish-Red ke Yellow) */
+    /* Warna gradien tombol Simpan & Ikon Header (Pinkish-Red ke Yellow) */
     --gradient-pink: 340 100% 60%;
     /* --gradient-red, --gradient-orange, --gradient-yellow sudah ada */
 
@@ -119,7 +119,7 @@ body {
   z-index: -1; 
   clip-path: circle(0% at 100% 100%); 
   transition: clip-path 350ms ease-out;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .input-gradient-glow-wrapper:hover::before,
@@ -282,10 +282,19 @@ body {
   opacity: 0.8;
 }
 
-/* Ensure Dialog Overlay has backdrop blur */
-.fixed.inset-0.z-50.bg-black\/80.backdrop-blur-sm { /* Targeting DialogOverlay by its classes */
-  /* backdrop-blur-sm is already applied via Dialog.tsx if present */
+/* Styling for header icons hover effect */
+.header-icon-button svg {
+  color: hsl(var(--foreground) / 0.8); /* Default icon color */
+  transition: color 0.2s ease-out; /* Smooth transition for fallback */
 }
 
+.header-icon-button:hover svg {
+  background: linear-gradient(to right, hsl(var(--gradient-pink)), hsl(var(--gradient-red)), hsl(var(--gradient-orange)), hsl(var(--gradient-yellow)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; /* Makes currentColor (used by Lucide's stroke) transparent, revealing the gradient background */
+  /* For Webkit browsers if the above doesn't work perfectly for SVG stroke */
+  -webkit-text-fill-color: transparent;
+}
 
     

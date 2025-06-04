@@ -32,13 +32,13 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl bg-card shadow-2xl border-primary/30 p-0">
+      <DialogContent className="sm:max-w-2xl p-0">
         <div className="relative">
           {/* Optional: Decorative gradient lines for futuristic feel */}
-          <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-primary to-transparent rounded-tl-lg"></div>
-          <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-primary to-transparent rounded-br-lg"></div>
+          <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-pink))] via-[hsl(var(--gradient-red))] to-transparent rounded-tl-lg"></div>
+          <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-pink))] via-[hsl(var(--gradient-red))] to-transparent rounded-br-lg"></div>
           
-          <DialogHeader className="p-6 pb-4 border-b border-border">
+          <DialogHeader className="p-6 pb-4 border-b border-border/30">
             <DialogTitle className="font-headline text-2xl text-foreground">
               {initialData ? 'Edit Airdrop' : 'Tambah Airdrop Baru'}
             </DialogTitle>
