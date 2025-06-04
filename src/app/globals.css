@@ -44,7 +44,7 @@ body {
     --radius-md: calc(var(--radius) - 2px); 
     --radius-sm: calc(var(--radius) - 4px); 
 
-    /* Warna gradien untuk input outline (Indigo, Merah, Oranye, Kuning) */
+    /* Warna gradien untuk input outline (Indigo, Merah, Oranye, Kuning) - LEBIH ELEGAN */
     --gradient-indigo: 271 100% 51%;
     --gradient-red: 0 100% 55%;
     --gradient-orange: 25 100% 55%;
@@ -111,7 +111,7 @@ body {
   inset: -1.5px; 
   border-radius: inherit; 
   background: linear-gradient(to top left,
-    hsl(var(--gradient-indigo)), /* Diubah kembali ke Indigo untuk outline elegan */
+    hsl(var(--gradient-indigo)), 
     hsl(var(--gradient-red)),
     hsl(var(--gradient-orange)),
     hsl(var(--gradient-yellow))
@@ -119,7 +119,7 @@ body {
   z-index: -1; 
   clip-path: circle(0% at 100% 100%); 
   transition: clip-path 350ms ease-out;
-  pointer-events: none; /* Memastikan klik tembus ke elemen di bawahnya */
+  pointer-events: none; 
 }
 
 .input-gradient-glow-wrapper:hover::before,
@@ -130,31 +130,37 @@ body {
 .input-gradient-glow-wrapper input,
 .input-gradient-glow-wrapper textarea,
 .input-gradient-glow-wrapper div[role="combobox"], /* Untuk SelectTrigger */
-.input-gradient-glow-wrapper button { 
+.input-gradient-glow-wrapper button { /* Generic button styling inside wrapper */
   position: relative; 
-  z-index: 1; /* Pastikan elemen input di atas pseudo-element */
+  z-index: 1; 
   border-radius: calc(var(--radius-sm) - 1.5px); 
   width: 100%;
   outline: none !important; 
   box-shadow: none !important; 
-}
-
-/* Styling untuk Input, Textarea, dan SelectTrigger di dalam wrapper */
-.input-gradient-glow-wrapper input,
-.input-gradient-glow-wrapper textarea,
-.input-gradient-glow-wrapper div[role="combobox"] { /* SelectTrigger adalah div dengan role combobox */
-  border: 1px solid hsl(var(--border)) !important; 
-  background-color: hsl(var(--input)) !important; /* Pastikan background diterapkan */
-  color: hsl(var(--foreground)) !important; /* Pastikan warna teks diterapkan */
-}
-
-/* Styling spesifik untuk button (seperti date picker trigger) di dalam wrapper */
-.input-gradient-glow-wrapper button {
   border: 1px solid hsl(var(--border)) !important; 
   background-color: hsl(var(--input)) !important; 
+  color: hsl(var(--foreground)) !important; 
+}
+
+/* Specific styling for buttons that might need different text/bg inside the wrapper */
+.input-gradient-glow-wrapper button.text-muted-foreground {
   color: hsl(var(--muted-foreground)) !important; 
 }
-.input-gradient-glow-wrapper button.text-foreground { /* Jika tombol perlu warna teks foreground */
+.input-gradient-glow-wrapper button.text-foreground { 
+  color: hsl(var(--foreground)) !important; 
+}
+
+/* Special style for AddAirdropButton when inside the wrapper */
+.input-gradient-glow-wrapper button.add-airdrop-style {
+  background-color: hsl(var(--custom-black)) !important; 
+  color: hsl(var(--custom-gray-text)) !important; 
+  border: none !important; /* Override the generic border for this specific button */
+  transition: background-color 0.2s ease-out, color 0.2s ease-out;
+}
+
+.input-gradient-glow-wrapper:hover button.add-airdrop-style,
+.input-gradient-glow-wrapper:focus-within button.add-airdrop-style { /* Also apply on focus-within for consistency */
+  background-color: hsl(var(--custom-gray-700)) !important; 
   color: hsl(var(--foreground)) !important; 
 }
 
@@ -171,7 +177,7 @@ body {
   display: inline-block;
   position: relative;
   background: conic-gradient(from 0deg at 50% 50%,
-    hsl(var(--gradient-pink)), /* Spinner tetap menggunakan pink untuk konsistensi tombol save */
+    hsl(var(--gradient-pink)), 
     hsl(var(--gradient-red)),
     hsl(var(--gradient-orange)),
     transparent 100%
@@ -211,35 +217,22 @@ body {
   background-position: right center;
 }
 
-.input-gradient-glow-wrapper button.add-airdrop-style {
-  background-color: hsl(var(--custom-black)) !important; 
-  color: hsl(var(--custom-gray-text)) !important; 
-  border: none !important; 
-  transition: background-color 0.2s ease-out, color 0.2s ease-out;
-}
-
-.input-gradient-glow-wrapper:hover button.add-airdrop-style {
-  background-color: hsl(var(--custom-gray-700)) !important; 
-  color: hsl(var(--foreground)) !important; 
-}
-
 /* Calendar specific styling */
 .rdp {
   --rdp-cell-size: 40px;
   --rdp-accent-color: hsl(var(--primary));
   --rdp-background-color: hsl(var(--primary-foreground));
-  /* rdp-accent-color-dark and rdp-background-color-dark are not standard, remove or verify usage */
   --rdp-outline: 2px solid hsl(var(--primary)); 
   --rdp-outline-selected: 3px solid hsl(var(--primary));
-  margin: 1em 0; /* Adjust margin for better fit in popover */
-  background-color: hsl(var(--popover)); /* Calendar background */
+  margin: 1em 0; 
+  background-color: hsl(var(--popover)); 
   border-radius: var(--radius-md);
   border: 1px solid hsl(var(--border));
 }
 
 .rdp-caption_label,
 .rdp-head_cell {
-  color: hsl(var(--popover-foreground)); /* Text color for popover */
+  color: hsl(var(--popover-foreground)); 
   font-size: 0.875rem;
 }
 .rdp-caption {
@@ -289,3 +282,7 @@ body {
   opacity: 0.8;
 }
 
+/* Ensure Dialog Overlay has backdrop blur */
+.fixed.inset-0.z-50.bg-black\/80.backdrop-blur-sm { /* Targeting DialogOverlay by its classes */
+  /* backdrop-blur-sm is already applied via Dialog.tsx if present */
+}
