@@ -9,76 +9,81 @@ body {
 
 @layer base {
   :root {
-    /* Dark Theme based on image */
-    --background: 224 71% 4%; /* Very Dark Blue/Almost Black */
-    --foreground: 210 40% 98%; /* Light Gray/Almost White for text */
+    /* Dark Theme - Hitam Pekat */
+    --background: 0 0% 2%; /* Sangat Hitam */
+    --foreground: 0 0% 98%; /* Putih */
 
-    --card: 220 70% 7%; /* Dark Blue-Gray for cards */
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 5%; /* Abu-abu sangat gelap untuk kartu */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 70% 6%; /* Slightly darker for popovers */
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 4%; /* Sedikit lebih gelap untuk popover */
+    --popover-foreground: 0 0% 98%;
 
-    /* Primary action color from image button gradient (Orange-Red dominant) */
-    --primary: 16 100% 50%; /* Vibrant Orange-Red */
-    --primary-foreground: 0 0% 10%; /* Dark text for contrast on orange-red */
+    /* Warna aksi utama - Oranye-Merah Dominan */
+    --primary: 16 100% 50%; /* Oranye-Merah Menyala */
+    --primary-foreground: 0 0% 10%; /* Teks gelap untuk kontras di atas oranye-merah */
 
-    --secondary: 215 30% 15%; /* Muted Dark Blue for secondary elements */
-    --secondary-foreground: 210 40% 95%;
+    --secondary: 0 0% 12%; /* Abu-abu gelap untuk elemen sekunder */
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 220 40% 12%; /* Muted dark blue/gray */
-    --muted-foreground: 220 15% 65%; /* Softer gray for muted text */
+    --muted: 0 0% 8%; /* Abu-abu gelap yang diredam */
+    --muted-foreground: 0 0% 65%; /* Abu-abu lebih lembut untuk teks yang diredam */
 
-    /* Accent color - can be same as primary or a distinct color from image */
-    --accent: 16 100% 50%; /* Using the same Orange-Red as primary */
+    /* Warna aksen - bisa sama dengan primer atau warna khas lainnya */
+    --accent: 16 100% 50%; /* Menggunakan Oranye-Merah yang sama dengan primer */
     --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 70% 50%; /* Red for destructive actions */
+    --destructive: 0 70% 50%; /* Merah untuk aksi destruktif */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 40% 18%; /* Darker border for elements */
-    --input: 220 50% 10%;  /* Background for input fields, slightly lighter than card */
-    --ring: 16 100% 50%; /* Ring color matching new primary/accent */
+    --border: 0 0% 15%; /* Border lebih gelap untuk elemen */
+    --input: 0 0% 7%;  /* Latar belakang untuk kolom input, sedikit lebih terang dari kartu */
+    --ring: 16 100% 50%; /* Warna ring sesuai primer/aksen baru */
 
-    --radius: 0.75rem; /* Base radius */
+    --radius: 0.75rem; /* Radius dasar */
     --radius-md: calc(var(--radius) - 2px); /* 0.625rem */
-    --radius-sm: calc(var(--radius) - 4px); /* 0.5rem - Less rounded */
+    --radius-sm: calc(var(--radius) - 4px); /* 0.5rem - Kurang bulat */
 
-    /* Gradient colors based on the PRD (indigo, red, orange, yellow) for input glow */
+    /* Warna gradien berdasarkan PRD (indigo, merah, oranye, kuning) untuk glow input */
     --gradient-indigo: 271 100% 51%;
     --gradient-red: 0 100% 55%;
     --gradient-orange: 25 100% 55%;
     --gradient-yellow: 45 100% 55%;
 
-    /* Button gradient colors from image (Pinkish-Red to Yellow) */
+    /* Warna gradien tombol dari gambar (Pinkish-Red ke Yellow) - untuk tombol Simpan */
     --gradient-pink: 340 100% 60%;
-    /* --gradient-red is already defined */
-    /* --gradient-orange is already defined */
-    /* --gradient-yellow is already defined */
+    /* --gradient-red sudah didefinisikan */
+    /* --gradient-orange sudah didefinisikan */
+    /* --gradient-yellow sudah didefinisikan */
 
-    /* Avatar gradient from image */
+    /* Gradien avatar dari gambar */
     --gradient-blue: 210 100% 50%;
+
+    /* Warna kustom untuk tombol Tambah Airdrop */
+    --custom-black: 0 0% 0%;
+    --custom-gray-700: 0 0% 20%; /* Abu-abu untuk hover */
+    --custom-gray-text: 0 0% 70%; /* Abu-abu muda untuk teks tombol */
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    --card: 220 70% 7%;
-    --card-foreground: 210 40% 98%;
-    --popover: 220 70% 6%;
-    --popover-foreground: 210 40% 98%;
+    --background: 0 0% 2%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 98%;
     --primary: 16 100% 50%;
     --primary-foreground: 0 0% 10%;
-    --secondary: 215 30% 15%;
-    --secondary-foreground: 210 40% 95%;
-    --muted: 220 40% 12%;
-    --muted-foreground: 220 15% 65%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
     --accent: 16 100% 50%;
     --accent-foreground: 0 0% 10%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 40% 18%;
-    --input: 220 50% 10%;
+    --border: 0 0% 15%;
+    --input: 0 0% 7%;
     --ring: 16 100% 50%;
   }
 }
@@ -125,13 +130,13 @@ body {
 /* Common base for children that should appear 'inside' the glow */
 .input-gradient-glow-wrapper > input,
 .input-gradient-glow-wrapper > textarea,
-.input-gradient-glow-wrapper > div[role="combobox"],
-.input-gradient-glow-wrapper > button { /* Generalizing for all buttons */
+.input-gradient-glow-wrapper > div[role="combobox"], /* For Select component trigger */
+.input-gradient-glow-wrapper > button { /* Generalizing for buttons that act like inputs (e.g., date picker trigger) */
   position: relative;
   z-index: 1;
-  border-radius: calc(var(--radius-sm) - 1.5px);
+  border-radius: calc(var(--radius-sm) - 1.5px); /* Adjust for wrapper padding */
   width: 100%;
-  outline: none !important;
+  outline: none !important; /* Remove default outlines */
   box-shadow: none !important; /* Remove default focus rings */
 }
 
@@ -142,31 +147,16 @@ body {
   border: 1px solid hsl(var(--border)) !important; /* Distinct border for inputs */
   background-color: hsl(var(--input));
   color: hsl(var(--foreground));
-  /* Height/padding usually handled by Shadcn component props e.g. <Input className="h-10..." /> */
 }
 
-/* Specifics for general buttons (like AddAirdropButton or calendar triggers) inside the wrapper */
+/* Specifics for buttons acting as input triggers (like date picker) */
 .input-gradient-glow-wrapper > button {
-  border: 1px solid transparent !important; /* Make its own border transparent to show wrapper's gradient */
-  background-color: hsl(var(--card)) !important; /* Blend with card background */
-  /* Text color needs to be specified per button type if different */
+  border: 1px solid hsl(var(--border)) !important; /* Give them a border like inputs */
+  background-color: hsl(var(--input)) !important; /* Their background should be like input */
+  color: hsl(var(--muted-foreground)) !important; /* Default text color for placeholder-like text */
 }
-
-/* Specific text color for the AddAirdropButton */
-.input-gradient-glow-wrapper > button.add-airdrop-style {
-  color: hsl(var(--primary)) !important; /* Text color for the button - primary orange-red */
-}
-.input-gradient-glow-wrapper:hover > button.add-airdrop-style {
-  /* color: hsl(var(--primary-foreground)) !important; /* Optional: change text color on hover */
-}
-
-
-/* For Calendar PopoverTrigger Buttons, if they are also wrapped */
-.input-gradient-glow-wrapper > button[aria-haspopup="dialog"] {
-   color: hsl(var(--muted-foreground)) !important; /* Calendar icon buttons usually muted */
-   /* They are also styled by AirdropForm.tsx to look like inputs */
-   /* If they are also to be gradient outlined, their bg should be hsl(var(--input)) */
-   /* This rule is now more specific for the AddAirdropButton style. Calendar buttons handled by AirdropForm */
+.input-gradient-glow-wrapper > button.text-foreground {
+  color: hsl(var(--foreground)) !important; /* If button has actual value, use foreground color */
 }
 
 
@@ -203,16 +193,14 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  /* Inner circle matches context: card for modal, background for page */
-  /* Loader component JS logic can override this if needed via className */
-  background: hsl(var(--card)); /* Default to card, can be overridden */
+  background: hsl(var(--card)); /* Default to card, can be overridden by Loader component */
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Big gradient button (filled) - using image-inspired gradient colors */
+/* Big gradient button (filled) - using image-inspired gradient colors - For Save Button */
 .btn-gradient {
   @apply text-primary-foreground;
   background-image: linear-gradient(to right,

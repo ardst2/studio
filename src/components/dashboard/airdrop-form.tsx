@@ -1,3 +1,4 @@
+
 // src/components/dashboard/airdrop-form.tsx
 "use client";
 
@@ -137,9 +138,11 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
+                      variant="ghost" // Use ghost and style manually to look like an input
                       className={cn(
-                        "h-10 w-full justify-start truncate rounded-md border-none bg-input px-3 py-2 text-left text-sm font-normal text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
-                        !field.value && "text-muted-foreground"
+                        "h-10 w-full justify-start truncate rounded-md border-none bg-transparent px-3 py-2 text-left text-sm font-normal ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
+                        !field.value && "text-muted-foreground",
+                        field.value && "text-foreground" // Ensure text color is foreground when a date is selected
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -152,7 +155,11 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
                       selected={field.value}
                       onSelect={field.onChange}
                       initialFocus
-                      className="bg-popover"
+                      className="bg-popover" // Ensure calendar popover matches dark theme
+                       classNames={{
+                        day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90",
+                        day_today: "bg-accent text-accent-foreground",
+                      }}
                     />
                   </PopoverContent>
                 </Popover>
@@ -170,9 +177,11 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
                 <Popover>
                   <PopoverTrigger asChild>
                      <Button
+                        variant="ghost" // Use ghost and style manually
                         className={cn(
-                          "h-10 w-full justify-start truncate rounded-md border-none bg-input px-3 py-2 text-left text-sm font-normal text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
-                          !field.value && "text-muted-foreground"
+                          "h-10 w-full justify-start truncate rounded-md border-none bg-transparent px-3 py-2 text-left text-sm font-normal ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
+                          !field.value && "text-muted-foreground",
+                          field.value && "text-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -189,6 +198,10 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
                       }
                       initialFocus
                       className="bg-popover"
+                      classNames={{
+                        day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90",
+                        day_today: "bg-accent text-accent-foreground",
+                      }}
                     />
                   </PopoverContent>
                 </Popover>
