@@ -3,7 +3,7 @@
 
 import type { Airdrop } from '@/types/airdrop';
 import AirdropItem from './airdrop-item';
-import { AnimatePresence, motion } from 'framer-motion'; // For animations
+import { AnimatePresence, motion } from 'framer-motion';
 import { PackageOpen } from 'lucide-react';
 
 interface AirdropListProps {
@@ -11,9 +11,10 @@ interface AirdropListProps {
   onEditAirdrop: (airdrop: Airdrop) => void;
   onDeleteAirdrop: (airdropId: string) => void;
   onTaskToggle: (airdropId: string, taskId: string) => void;
+  onShowDetail: (airdrop: Airdrop) => void; // New prop
 }
 
-const AirdropList = ({ airdrops, onEditAirdrop, onDeleteAirdrop, onTaskToggle }: AirdropListProps) => {
+const AirdropList = ({ airdrops, onEditAirdrop, onDeleteAirdrop, onTaskToggle, onShowDetail }: AirdropListProps) => {
   if (airdrops.length === 0) {
     return (
       <div className="text-center py-12">
@@ -37,13 +38,14 @@ const AirdropList = ({ airdrops, onEditAirdrop, onDeleteAirdrop, onTaskToggle }:
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
-            className="h-full" // Ensure motion.div takes full height for card inside
+            className="h-full"
           >
             <AirdropItem
               airdrop={airdrop}
               onEdit={onEditAirdrop}
               onDelete={onDeleteAirdrop}
               onTaskToggle={onTaskToggle}
+              onShowDetail={onShowDetail} // Pass down
             />
           </motion.div>
         ))}

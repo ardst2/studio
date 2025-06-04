@@ -8,6 +8,7 @@ import AddAirdropButton from '@/components/dashboard/add-airdrop-button';
 import SummaryStats from '@/components/dashboard/summary-stats';
 import AirdropList from '@/components/dashboard/airdrop-list';
 import AddAirdropModal from '@/components/dashboard/add-airdrop-modal';
+import AirdropDetailModal from '@/components/dashboard/AirdropDetailModal'; // Import new modal
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
@@ -35,9 +36,14 @@ function DashboardPageContent() {
     resetNewAirdropDraft,
   } = useAirdropsStore();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingAirdrop, setEditingAirdrop] = useState<Airdrop | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // State for Detail Modal
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedAirdropForDetail, setSelectedAirdropForDetail] = useState<Airdrop | null>(null);
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -47,7 +53,7 @@ function DashboardPageContent() {
   }, []);
 
 
-  const handleOpenModal = (airdropToEdit?: Airdrop) => {
+  const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
     if (airdropToEdit) {
       setEditingAirdrop(airdropToEdit);
       const draftData = {
@@ -55,18 +61,18 @@ function DashboardPageContent() {
         startDate: airdropToEdit.startDate,
         deadline: airdropToEdit.deadline,
         description: airdropToEdit.description,
-        tasks: airdropToEdit.tasks,
+        tasks: airdropToEdit.tasks.map(task => ({ ...task })), 
       };
       updateNewAirdropDraft(draftData);
     } else {
       setEditingAirdrop(null);
       resetNewAirdropDraft();
     }
-    setIsModalOpen(true);
+    setIsAddModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
     setEditingAirdrop(null);
   };
 
@@ -76,21 +82,32 @@ function DashboardPageContent() {
         const updatedData: Airdrop = {
             ...editingAirdrop,
             ...data,
+             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
         const now = Date.now();
         let status: Airdrop['status'] = 'Upcoming';
         if (updatedData.startDate && updatedData.startDate <= now) status = 'Active';
         const allTasksCompleted = updatedData.tasks.length > 0 && updatedData.tasks.every(t => t.completed);
-        if (allTasksCompleted || (updatedData.deadline && updatedData.deadline < now)) status = 'Completed';
+        if (allTasksCompleted || (updatedData.deadline && updatedData.deadline < now)) {
+             status = 'Completed';
+        } else if (updatedData.startDate && updatedData.startDate <= now) { // Ensure active if not completed yet but started
+            status = 'Active';
+        } else {
+            status = 'Upcoming'; // Default to upcoming if no other conditions met
+        }
         updatedData.status = status;
 
         storeUpdateAirdrop(updatedData);
         toast({ title: "Airdrop Diperbarui", description: `"${data.name}" berhasil diperbarui.` });
       } else {
-        storeAddAirdrop(data);
+        const newAirdropDataWithTaskIds = {
+            ...data,
+            tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
+        };
+        storeAddAirdrop(newAirdropDataWithTaskIds);
         toast({ title: "Airdrop Ditambahkan", description: `"${data.name}" berhasil ditambahkan.` });
       }
-      handleCloseModal();
+      handleCloseAddModal();
       resetNewAirdropDraft();
     } catch (error) {
       console.error("Error saving airdrop:", error);
@@ -111,17 +128,35 @@ function DashboardPageContent() {
         task.id === taskId ? { ...task, completed: !task.completed } : task
       );
       const updatedAirdrop = { ...airdropToUpdate, tasks: updatedTasks };
+      
+      const now = Date.now();
+      let newStatus: Airdrop['status'] = 'Upcoming';
+      if (updatedAirdrop.startDate && updatedAirdrop.startDate <= now) newStatus = 'Active';
       const allTasksCompleted = updatedTasks.length > 0 && updatedTasks.every(t => t.completed);
-      if (allTasksCompleted || (updatedAirdrop.deadline && updatedAirdrop.deadline < Date.now())) {
-        updatedAirdrop.status = 'Completed';
-      } else if (updatedAirdrop.startDate && updatedAirdrop.startDate <= Date.now()) {
-        updatedAirdrop.status = 'Active';
-      } else {
-        updatedAirdrop.status = 'Upcoming';
+      if (allTasksCompleted || (updatedAirdrop.deadline && updatedAirdrop.deadline < now)) {
+          newStatus = 'Completed';
       }
+      // This 'else if' ensures it stays 'Active' if tasks are not all complete and deadline hasn't passed.
+      else if (updatedAirdrop.startDate && updatedAirdrop.startDate <= now) {
+        newStatus = 'Active';
+      }
+      
+      updatedAirdrop.status = newStatus;
       storeUpdateAirdrop(updatedAirdrop);
     }
   };
+
+  // Handlers for Detail Modal
+  const handleOpenDetailModal = (airdrop: Airdrop) => {
+    setSelectedAirdropForDetail(airdrop);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setSelectedAirdropForDetail(null);
+    setIsDetailModalOpen(false);
+  };
+
 
   if (isLoading) {
     return (
@@ -145,11 +180,11 @@ function DashboardPageContent() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <AddAirdropButton onClick={() => handleOpenModal()} />
+              <AddAirdropButton onClick={() => handleOpenAddModal()} />
             </CardContent>
           </Card>
           <SummaryStats airdrops={allAirdrops} />
-          <EmptyAirdropDayCard onAddNewAirdrop={() => handleOpenModal()} />
+          <EmptyAirdropDayCard onAddNewAirdrop={() => handleOpenAddModal()} />
         </div>
 
         <div className="mt-8">
@@ -162,17 +197,23 @@ function DashboardPageContent() {
           />
           <AirdropList
             airdrops={filteredAirdrops}
-            onEditAirdrop={handleOpenModal}
+            onEditAirdrop={handleOpenAddModal}
             onDeleteAirdrop={handleDeleteAirdrop}
             onTaskToggle={handleTaskToggle}
+            onShowDetail={handleOpenDetailModal} // Pass handler
           />
         </div>
       </main>
       <AddAirdropModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={isAddModalOpen}
+        onClose={handleCloseAddModal}
         onSave={handleSaveAirdrop}
         initialData={editingAirdrop ? newAirdropDraft : undefined}
+      />
+      <AirdropDetailModal 
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        airdrop={selectedAirdropForDetail}
       />
        <footer className="py-6 px-4 md:px-8 border-t border-border/50 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} AirdropAce. Ditenagai oleh antusiasme Web3.
@@ -184,3 +225,4 @@ function DashboardPageContent() {
 export default function DashboardPage() {
   return <DashboardPageContent />;
 }
+

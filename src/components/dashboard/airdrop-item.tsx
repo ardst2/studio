@@ -1,7 +1,7 @@
 // src/components/dashboard/airdrop-item.tsx
 "use client";
 
-import type { Airdrop, AirdropTask } from '@/types/airdrop';
+import type { Airdrop } from '@/types/airdrop';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { formatDistanceToNowStrict, format } from 'date-fns';
 import { id as localeID } from 'date-fns/locale';
-import { CalendarDays, Edit3, Trash2, ExternalLink, ClipboardList, AlertTriangle } from 'lucide-react';
+import { CalendarDays, Edit3, Trash2, ClipboardList, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AirdropItemProps {
@@ -17,18 +17,19 @@ interface AirdropItemProps {
   onEdit: (airdrop: Airdrop) => void;
   onDelete: (airdropId: string) => void;
   onTaskToggle: (airdropId: string, taskId: string) => void;
+  onShowDetail: (airdrop: Airdrop) => void; // New prop
 }
 
-const AirdropItem = ({ airdrop, onEdit, onDelete, onTaskToggle }: AirdropItemProps) => {
+const AirdropItem = ({ airdrop, onEdit, onDelete, onTaskToggle, onShowDetail }: AirdropItemProps) => {
   const completedTasks = airdrop.tasks.filter(task => task.completed).length;
   const totalTasks = airdrop.tasks.length;
   const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : (airdrop.status === 'Completed' ? 100 : 0);
 
   const getStatusBadgeVariant = (status: Airdrop['status']): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
-      case 'Active': return 'default'; // Primary color (Indigo)
+      case 'Active': return 'default';
       case 'Upcoming': return 'secondary';
-      case 'Completed': return 'outline'; // Using outline to appear less prominent or green if themed
+      case 'Completed': return 'outline';
       default: return 'secondary';
     }
   };
@@ -36,7 +37,7 @@ const AirdropItem = ({ airdrop, onEdit, onDelete, onTaskToggle }: AirdropItemPro
   const getStatusColorClass = (status: Airdrop['status']): string => {
     switch (status) {
       case 'Active': return 'bg-primary/20 text-primary';
-      case 'Upcoming': return 'bg-blue-500/20 text-blue-400';
+      case 'Upcoming': return 'bg-blue-500/20 text-blue-400'; 
       case 'Completed': return 'bg-green-500/20 text-green-400';
       default: return 'bg-muted text-muted-foreground';
     }
@@ -45,8 +46,30 @@ const AirdropItem = ({ airdrop, onEdit, onDelete, onTaskToggle }: AirdropItemPro
   const timeToDeadline = airdrop.deadline ? formatDistanceToNowStrict(new Date(airdrop.deadline), { addSuffix: true, locale: localeID }) : 'N/A';
   const isDeadlinePassed = airdrop.deadline ? new Date(airdrop.deadline) < new Date() : false;
 
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[role="checkbox"]') || target.closest('label[for*="task-"]')) {
+      return;
+    }
+    onShowDetail(airdrop);
+  };
+
   return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col h-full">
+    <Card 
+      className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col h-full cursor-pointer"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          const target = e.target as HTMLElement;
+           if (!target.closest('button') && !target.closest('[role="checkbox"]')) {
+            onShowDetail(airdrop);
+          }
+        }
+      }}
+      aria-label={`Lihat detail untuk airdrop ${airdrop.name}`}
+    >
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <CardTitle className="font-headline text-lg mb-1">{airdrop.name}</CardTitle>
@@ -83,6 +106,7 @@ const AirdropItem = ({ airdrop, onEdit, onDelete, onTaskToggle }: AirdropItemPro
                     checked={task.completed}
                     onCheckedChange={() => onTaskToggle(airdrop.id, task.id)}
                     disabled={airdrop.status === 'Completed'}
+                    aria-label={`Tandai tugas ${task.text} sebagai ${task.completed ? 'belum selesai' : 'selesai'}`}
                   />
                   <label
                     htmlFor={`${airdrop.id}-task-${task.id}`}
@@ -100,12 +124,10 @@ const AirdropItem = ({ airdrop, onEdit, onDelete, onTaskToggle }: AirdropItemPro
         )}
       </CardContent>
       <CardFooter className="py-3 border-t flex justify-end gap-2">
-        {/* Potential: Add a link button if a URL is in description */}
-        {/* <Button variant="ghost" size="sm"><ExternalLink className="h-4 w-4 mr-1" /> Visit</Button> */}
-        <Button variant="outline" size="icon" onClick={() => onEdit(airdrop)} aria-label="Edit Airdrop">
+        <Button variant="outline" size="icon" onClick={(e) => { e.stopPropagation(); onEdit(airdrop); }} aria-label="Edit Airdrop">
           <Edit3 className="h-4 w-4" />
         </Button>
-        <Button variant="destructiveOutline" size="icon" onClick={() => onDelete(airdrop.id)} aria-label="Hapus Airdrop">
+        <Button variant="destructiveOutline" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(airdrop.id); }} aria-label="Hapus Airdrop">
           <Trash2 className="h-4 w-4" />
         </Button>
       </CardFooter>
