@@ -44,10 +44,10 @@ body {
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
-    /* Warna gradien tema disesuaikan - ungu kurang dominan */
+    /* Warna gradien tema disesuaikan - ungu kurang dominan, lebih banyak oranye/pink */
     --gradient-theme-start: 38 100% 56%; /* Warm Yellow-Orange */
-    --gradient-theme-mid: 330 90% 60%;   /* Strong Pink */
-    --gradient-theme-end: 300 85% 55%;    /* Magenta/Deep Pink */
+    --gradient-theme-mid: 10 90% 58%;   /* Fiery Red-Orange */
+    --gradient-theme-end: 350 85% 62%;  /* Strong Rose Pink */
 
     /* Chart colors */
     --chart-1: 210 90% 55%; /* Blue - Upcoming */
