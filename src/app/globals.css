@@ -9,73 +9,76 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 6%; /* Very Dark Gray/Almost Black */
-    --foreground: 0 0% 95%; /* Light Gray for text */
+    /* Dark Theme based on image */
+    --background: 224 71% 4%; /* Very Dark Blue/Almost Black */
+    --foreground: 210 40% 98%; /* Light Gray/Almost White for text */
 
-    --card: 0 0% 12%; /* Dark Gray for cards */
-    --card-foreground: 0 0% 95%;
+    --card: 220 70% 7%; /* Dark Blue-Gray for cards */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 10%; /* Dark for popovers */
-    --popover-foreground: 0 0% 95%;
+    --popover: 220 70% 6%; /* Slightly darker for popovers */
+    --popover-foreground: 210 40% 98%;
 
-    /* Primary action color, derived from image's button gradient */
+    /* Primary action color from image button gradient (Orange-Red dominant) */
     --primary: 16 100% 50%; /* Vibrant Orange-Red */
     --primary-foreground: 0 0% 10%; /* Dark text for contrast on orange-red */
 
-    --secondary: 0 0% 20%; /* Slightly lighter dark gray for secondary elements */
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 215 30% 15%; /* Muted Dark Blue for secondary elements */
+    --secondary-foreground: 210 40% 95%;
 
-    --muted: 0 0% 15%; /* Muted dark gray */
-    --muted-foreground: 0 0% 60%;
+    --muted: 220 40% 12%; /* Muted dark blue/gray */
+    --muted-foreground: 220 15% 65%; /* Softer gray for muted text */
 
-    /* Accent color, same as primary for consistency from image */
-    --accent: 16 100% 50%; /* Vibrant Orange-Red */
-    --accent-foreground: 0 0% 10%; /* Dark text for contrast */
+    /* Accent color - can be same as primary or a distinct color from image */
+    --accent: 16 100% 50%; /* Using the same Orange-Red as primary */
+    --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 70% 50%; /* Red for destructive actions */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%; /* Border for cards, inputs if not gradient */
-    --input: 0 0% 10%;  /* Background for input fields */
+    --border: 220 40% 18%; /* Darker border for elements */
+    --input: 220 50% 10%;  /* Background for input fields, slightly lighter than card */
     --ring: 16 100% 50%; /* Ring color matching new primary/accent */
 
     --radius: 0.75rem; /* Base radius */
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px); /* 0.625rem */
+    --radius-sm: calc(var(--radius) - 4px); /* 0.5rem - Less rounded */
 
-
-    /* Gradient colors based on the image's button */
-    --gradient-pink: 340 100% 60%; /* Pinkish-Red */
-    --gradient-red: 0 100% 55%;   /* Red */
-    --gradient-orange: 25 100% 55%; /* Orange */
-    --gradient-yellow: 45 100% 55%; /* Yellow */
-    
-    /* Indigo for input glow as per previous PRD, not directly from main image button */
+    /* Gradient colors based on the PRD (indigo, red, orange, yellow) for input glow */
     --gradient-indigo: 271 100% 51%;
-    
+    --gradient-red: 0 100% 55%;
+    --gradient-orange: 25 100% 55%;
+    --gradient-yellow: 45 100% 55%;
+
+    /* Button gradient colors from image (Pinkish-Red to Yellow) */
+    --gradient-pink: 340 100% 60%;
+    /* --gradient-red is already defined */
+    /* --gradient-orange is already defined */
+    /* --gradient-yellow is already defined */
+
     /* Avatar gradient from image */
     --gradient-blue: 210 100% 50%;
   }
 
   .dark {
-    --background: 0 0% 6%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 95%;
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
+    --card: 220 70% 7%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 70% 6%;
+    --popover-foreground: 210 40% 98%;
     --primary: 16 100% 50%;
     --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --secondary: 215 30% 15%;
+    --secondary-foreground: 210 40% 95%;
+    --muted: 220 40% 12%;
+    --muted-foreground: 220 15% 65%;
     --accent: 16 100% 50%;
     --accent-foreground: 0 0% 10%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 10%;
+    --border: 220 40% 18%;
+    --input: 220 50% 10%;
     --ring: 16 100% 50%;
   }
 }
@@ -93,8 +96,8 @@ body {
 .input-gradient-glow-wrapper {
   position: relative;
   padding: 1.5px; /* Space for the gradient outline */
-  border-radius: var(--radius-sm); /* UPDATED: Less rounded */
-  overflow: hidden; /* Important for clip-path */
+  border-radius: var(--radius-sm); /* Use sm for less rounded */
+  overflow: hidden;
   transition: box-shadow 300ms ease-out;
 }
 
@@ -102,12 +105,11 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit; /* Match wrapper's rounding */
-  /* PRD: starting from the bottom right to the top left using indigo, red, orange, and yellow */
-  background: linear-gradient(to top left, 
-    hsl(var(--gradient-indigo)), 
-    hsl(var(--gradient-red)), 
-    hsl(var(--gradient-orange)), 
+  border-radius: inherit;
+  background: linear-gradient(to top left,
+    hsl(var(--gradient-indigo)),
+    hsl(var(--gradient-red)),
+    hsl(var(--gradient-orange)),
     hsl(var(--gradient-yellow))
   );
   z-index: 0;
@@ -120,53 +122,72 @@ body {
   clip-path: circle(150% at 100% 100%); /* Expanded state: reveals from bottom-right */
 }
 
+/* Common base for children that should appear 'inside' the glow */
 .input-gradient-glow-wrapper > input,
 .input-gradient-glow-wrapper > textarea,
-.input-gradient-glow-wrapper > div[role="combobox"], /* For Select component */
-.input-gradient-glow-wrapper > button[aria-haspopup="dialog"] /* For Calendar PopoverTrigger Button */
- {
+.input-gradient-glow-wrapper > div[role="combobox"],
+.input-gradient-glow-wrapper > button { /* Generalizing for all buttons */
   position: relative;
   z-index: 1;
-  border-radius: calc(var(--radius-sm) - 1.5px); /* Adjust to fit inside wrapper padding */
-  border: 1px solid hsl(var(--border)) !important; /* Use --border for a more distinct outline */
+  border-radius: calc(var(--radius-sm) - 1.5px);
   width: 100%;
-  background-color: hsl(var(--input)); /* Ensure input bg matches theme */
-  color: hsl(var(--foreground));
-  outline: none;
-}
-
-/* Specifically target focus state to remove default Tailwind/ShadCN rings */
-.input-gradient-glow-wrapper > input:focus,
-.input-gradient-glow-wrapper > textarea:focus,
-.input-gradient-glow-wrapper > div[role="combobox"]:focus,
-.input-gradient-glow-wrapper > button[aria-haspopup="dialog"]:focus,
-.input-gradient-glow-wrapper > input:focus-visible,
-.input-gradient-glow-wrapper > textarea:focus-visible,
-.input-gradient-glow-wrapper > div[role="combobox"]:focus-visible,
-.input-gradient-glow-wrapper > button[aria-haspopup="dialog"]:focus-visible {
   outline: none !important;
-  box-shadow: none !important;
+  box-shadow: none !important; /* Remove default focus rings */
+}
+
+/* Specifics for text inputs, textareas, comboboxes */
+.input-gradient-glow-wrapper > input,
+.input-gradient-glow-wrapper > textarea,
+.input-gradient-glow-wrapper > div[role="combobox"] {
+  border: 1px solid hsl(var(--border)) !important; /* Distinct border for inputs */
+  background-color: hsl(var(--input));
+  color: hsl(var(--foreground));
+  /* Height/padding usually handled by Shadcn component props e.g. <Input className="h-10..." /> */
+}
+
+/* Specifics for general buttons (like AddAirdropButton or calendar triggers) inside the wrapper */
+.input-gradient-glow-wrapper > button {
+  border: 1px solid transparent !important; /* Make its own border transparent to show wrapper's gradient */
+  background-color: hsl(var(--card)) !important; /* Blend with card background */
+  /* Text color needs to be specified per button type if different */
+}
+
+/* Specific text color for the AddAirdropButton */
+.input-gradient-glow-wrapper > button.add-airdrop-style {
+  color: hsl(var(--primary)) !important; /* Text color for the button - primary orange-red */
+}
+.input-gradient-glow-wrapper:hover > button.add-airdrop-style {
+  /* color: hsl(var(--primary-foreground)) !important; /* Optional: change text color on hover */
 }
 
 
-/* Optional: keep a subtle box-shadow for additional depth if desired */
+/* For Calendar PopoverTrigger Buttons, if they are also wrapped */
+.input-gradient-glow-wrapper > button[aria-haspopup="dialog"] {
+   color: hsl(var(--muted-foreground)) !important; /* Calendar icon buttons usually muted */
+   /* They are also styled by AirdropForm.tsx to look like inputs */
+   /* If they are also to be gradient outlined, their bg should be hsl(var(--input)) */
+   /* This rule is now more specific for the AddAirdropButton style. Calendar buttons handled by AirdropForm */
+}
+
+
+/* Optional: keep a subtle box-shadow for additional depth if desired on the wrapper */
 .input-gradient-glow-wrapper:hover,
 .input-gradient-glow-wrapper:focus-within {
   box-shadow: 0 0 8px 0px hsla(var(--gradient-orange), 0.5);
 }
 
 
-/* Gradient Spinner Loader - using image-inspired gradient colors */
+/* Gradient Spinner Loader - using image-inspired gradient colors (Pink/Red/Orange) */
 .gradient-spinner {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   display: inline-block;
   position: relative;
-  background: conic-gradient(from 0deg at 50% 50%, 
-    hsl(var(--gradient-pink)) 0%, 
-    hsl(var(--gradient-red)) 33%, 
-    hsl(var(--gradient-orange)) 66%, 
+  background: conic-gradient(from 0deg at 50% 50%,
+    hsl(var(--gradient-pink)) 0%,
+    hsl(var(--gradient-red)) 33%,
+    hsl(var(--gradient-orange)) 66%,
     transparent 100%
   );
   animation: spin 1s linear infinite;
@@ -182,20 +203,22 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: hsl(var(--card)); /* Default to card, can be overridden by Loader component */
+  /* Inner circle matches context: card for modal, background for page */
+  /* Loader component JS logic can override this if needed via className */
+  background: hsl(var(--card)); /* Default to card, can be overridden */
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Big gradient button - using image-inspired gradient colors */
+/* Big gradient button (filled) - using image-inspired gradient colors */
 .btn-gradient {
-  @apply text-primary-foreground; 
-  background-image: linear-gradient(to right, 
-    hsl(var(--gradient-pink)), 
-    hsl(var(--gradient-red)), 
-    hsl(var(--gradient-orange)), 
+  @apply text-primary-foreground;
+  background-image: linear-gradient(to right,
+    hsl(var(--gradient-pink)),
+    hsl(var(--gradient-red)),
+    hsl(var(--gradient-orange)),
     hsl(var(--gradient-yellow))
   );
   background-size: 200% auto;
@@ -208,12 +231,12 @@ body {
 /* Ensure primary HSL values are set for ShadCN components (used as solid fallback) */
 :root {
   /* ... other root variables ... */
-  --primary: 16 100% 50%; 
+  --primary: 16 100% 50%;
   --primary-foreground: 0 0% 10%;
 }
 
 .dark {
    /* ... other dark variables ... */
-  --primary: 16 100% 50%; 
+  --primary: 16 100% 50%;
   --primary-foreground: 0 0% 10%;
 }
