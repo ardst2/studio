@@ -26,7 +26,7 @@ body {
     --secondary: 0 0% 12%; /* Abu-abu gelap untuk elemen sekunder, netral */
     --secondary-foreground: 0 0% 80%; /* Abu-abu terang untuk teks di atas sekunder */
 
-    --muted: 0 0% 8%; /* Lebih gelap untuk muted, netral (sebelumnya 5%) */
+    --muted: 0 0% 8%; /* Lebih gelap untuk muted, netral */
     --muted-foreground: 0 0% 65%; /* Abu-abu medium untuk teks muted, netral */
 
     /* Warna aksen - Oranye-Merah */
@@ -36,18 +36,19 @@ body {
     --destructive: 0 70% 50%; /* Merah */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 10%; /* Border yang sangat gelap, netral (sebelumnya 8%) */
-    --input: 0 0% 5%;   /* Input yang sangat gelap, netral (sebelumnya 4%) */
+    --border: 0 0% 10%; /* Border yang sangat gelap, netral */
+    --input: 0 0% 5%;   /* Input yang sangat gelap, netral */
     --ring: 30 90% 55%; /* Oranye untuk focus ring */
 
     --radius: 0.75rem;
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
-    /* Warna gradien tema disesuaikan - ungu kurang dominan, lebih banyak oranye/pink */
+    /* Warna gradien tema disesuaikan: Kuning-Oranye -> Pink Cerah -> Ungu Moderat */
     --gradient-theme-start: 38 100% 56%; /* Warm Yellow-Orange */
-    --gradient-theme-mid: 10 90% 58%;   /* Fiery Red-Orange */
-    --gradient-theme-end: 350 85% 62%;  /* Strong Rose Pink */
+    --gradient-theme-mid: 340 85% 60%;   /* Vibrant Pink */
+    --gradient-theme-end: 280 75% 58%;  /* Moderate Purple */
+
 
     /* Chart colors */
     --chart-1: 210 90% 55%; /* Blue - Upcoming */
@@ -338,3 +339,4 @@ body {
     
 
     
+
