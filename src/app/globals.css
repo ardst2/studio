@@ -9,35 +9,35 @@ body {
 
 @layer base {
   :root {
-    /* Dark Theme - Hitam Pekat (sesuai gambar) */
-    --background: 220 13% 2%; /* Sangat Hitam kebiruan sedikit */
-    --foreground: 210 40% 98%; /* Putih kebiruan sedikit */
+    /* Dark Theme - Hitam Pekat (sesuai permintaan baru) */
+    --background: 0 0% 2%; /* Hitam Pekat sedikit keabu-abuan */
+    --foreground: 0 0% 95%; /* Putih Gading (Off-white) */
 
-    --card: 220 13% 5%; /* Abu-abu sangat gelap untuk kartu, sedikit kebiruan */
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 3%; /* Sangat Gelap Abu-abu, hampir hitam untuk kartu */
+    --card-foreground: 0 0% 95%;
 
-    --popover: 220 13% 3%; /* Lebih gelap untuk popover */
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 1%; /* Lebih gelap lagi untuk popover, hampir hitam murni */
+    --popover-foreground: 0 0% 95%;
 
-    /* Warna aksi utama - Oranye-Merah Dominan (sesuai gambar) */
+    /* Warna aksi utama - Oranye-Merah Dominan (sesuai gambar awal) */
     --primary: 16 100% 50%; /* Oranye-Merah Menyala */
     --primary-foreground: 20 0% 10%; /* Teks gelap untuk kontras di atas oranye-merah */
 
-    --secondary: 215 28% 17%; /* Abu-abu kebiruan gelap untuk elemen sekunder */
-    --secondary-foreground: 210 40% 95%;
+    --secondary: 215 20% 12%; /* Abu-abu kebiruan gelap (lebih gelap dari sebelumnya) */
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 215 20% 10%; /* Abu-abu gelap yang diredam, sedikit kebiruan */
-    --muted-foreground: 215 15% 65%; /* Abu-abu lebih lembut untuk teks yang diredam */
+    --muted: 0 0% 8%; /* Abu-abu sangat gelap yang diredam */
+    --muted-foreground: 0 0% 65%; /* Abu-abu lebih lembut untuk teks yang diredam */
 
-    /* Warna aksen - Oranye-Merah (sesuai gambar) */
+    /* Warna aksen - Oranye-Merah (sesuai gambar awal) */
     --accent: 16 100% 50%;
     --accent-foreground: 20 0% 10%;
 
     --destructive: 0 70% 50%; /* Merah untuk aksi destruktif */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 20% 15%; /* Border lebih gelap untuk elemen, sedikit kebiruan */
-    --input: 220 13% 7%;  /* Latar belakang untuk kolom input, sedikit lebih terang dari kartu */
+    --border: 0 0% 10%; /* Border abu-abu sangat gelap */
+    --input: 0 0% 4%;  /* Latar belakang untuk kolom input, sangat gelap */
     --ring: 16 100% 50%; /* Warna ring sesuai primer/aksen baru */
 
     --radius: 0.75rem; /* Radius dasar */
@@ -61,29 +61,29 @@ body {
 
     /* Warna kustom untuk tombol Tambah Airdrop */
     --custom-black: 0 0% 0%; /* Hitam pekat */
-    --custom-gray-700: 0 0% 15%; /* Abu-abu gelap untuk hover (mirip border) */
+    --custom-gray-700: 0 0% 10%; /* Abu-abu gelap untuk hover */
     --custom-gray-text: 0 0% 70%; /* Abu-abu muda untuk teks tombol */
   }
 
   .dark {
-    --background: 220 13% 2%;
-    --foreground: 210 40% 98%;
-    --card: 220 13% 5%;
-    --card-foreground: 210 40% 98%;
-    --popover: 220 13% 3%;
-    --popover-foreground: 210 40% 98%;
+    --background: 0 0% 2%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 1%;
+    --popover-foreground: 0 0% 95%;
     --primary: 16 100% 50%;
     --primary-foreground: 20 0% 10%;
-    --secondary: 215 28% 17%;
-    --secondary-foreground: 210 40% 95%;
-    --muted: 215 20% 10%;
-    --muted-foreground: 215 15% 65%;
+    --secondary: 215 20% 12%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
     --accent: 16 100% 50%;
     --accent-foreground: 20 0% 10%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 215 20% 15%;
-    --input: 220 13% 7%;
+    --border: 0 0% 10%;
+    --input: 0 0% 4%;
     --ring: 16 100% 50%;
   }
 }
@@ -100,77 +100,68 @@ body {
 /* Custom input field styling with gradient wipe animation */
 .input-gradient-glow-wrapper {
   position: relative;
-  padding: 1.5px; /* Space for the gradient outline */
-  border-radius: var(--radius-sm); /* Gunakan sm agar tidak terlalu bulat */
-  overflow: hidden; /* Penting untuk clip-path */
+  padding: 1.5px; 
+  border-radius: var(--radius-sm); 
+  overflow: hidden; 
   transition: box-shadow 300ms ease-out;
-  /* Pastikan wrapper tidak punya background sendiri yang menutupi ::before jika z-index ::before negatif */
   background-color: transparent; 
 }
 
 .input-gradient-glow-wrapper::before {
   content: '';
   position: absolute;
-  inset: -1.5px; /* Sedikit overlap untuk menutupi padding jika diperlukan */
-  border-radius: inherit; /* Mengikuti radius wrapper */
+  inset: -1.5px; 
+  border-radius: inherit; 
   background: linear-gradient(to top left,
     hsl(var(--gradient-indigo)),
     hsl(var(--gradient-red)),
     hsl(var(--gradient-orange)),
     hsl(var(--gradient-yellow))
   );
-  z-index: -1; /* Di belakang konten input, termasuk background wrapper jika ada */
-  clip-path: circle(0% at 100% 100%); /* Awal: kolaps di kanan bawah */
+  z-index: -1; 
+  clip-path: circle(0% at 100% 100%); 
   transition: clip-path 350ms ease-out;
-  /* pointer-events: none; not strictly needed if z-index is -1, but harmless */
 }
 
 .input-gradient-glow-wrapper:hover::before,
 .input-gradient-glow-wrapper:focus-within::before {
-  clip-path: circle(150% at 100% 100%); /* Akhir: gradien penuh dari kanan bawah */
+  clip-path: circle(150% at 100% 100%); 
 }
 
-/* Common base for children that should appear 'inside' the glow */
 .input-gradient-glow-wrapper input,
 .input-gradient-glow-wrapper textarea,
-.input-gradient-glow-wrapper div[role="combobox"], /* Untuk trigger Select component */
-.input-gradient-glow-wrapper button { /* Untuk tombol yang berfungsi seperti input (mis. date picker trigger) */
-  position: relative; /* Harus relative agar z-index bekerja dalam stacking context wrapper */
-  z-index: 1; /* Di atas pseudo-element gradien (yang sekarang -1) dan background wrapper */
-  border-radius: calc(var(--radius-sm) - 1.5px); /* Disesuaikan dengan padding wrapper */
+.input-gradient-glow-wrapper div[role="combobox"], 
+.input-gradient-glow-wrapper button { 
+  position: relative; 
+  z-index: 1; 
+  border-radius: calc(var(--radius-sm) - 1.5px); 
   width: 100%;
-  outline: none !important; /* Hapus outline default */
-  box-shadow: none !important; /* Hapus focus ring default */
+  outline: none !important; 
+  box-shadow: none !important; 
 }
 
-/* Spesifik untuk text input, textarea, combobox */
 .input-gradient-glow-wrapper input,
 .input-gradient-glow-wrapper textarea,
 .input-gradient-glow-wrapper div[role="combobox"] {
-  border: 1px solid hsl(var(--border)) !important; /* Border jelas untuk input */
+  border: 1px solid hsl(var(--border)) !important; 
   background-color: hsl(var(--input));
   color: hsl(var(--foreground));
 }
 
-/* Spesifik untuk tombol yang berfungsi sebagai trigger input (seperti date picker) */
 .input-gradient-glow-wrapper button {
-  border: 1px solid hsl(var(--border)) !important; /* Beri border seperti input */
-  background-color: hsl(var(--input)) !important; /* Latar belakangnya seperti input */
-  color: hsl(var(--muted-foreground)) !important; /* Warna teks default untuk teks placeholder */
+  border: 1px solid hsl(var(--border)) !important; 
+  background-color: hsl(var(--input)) !important; 
+  color: hsl(var(--muted-foreground)) !important; 
 }
 .input-gradient-glow-wrapper button.text-foreground {
-  color: hsl(var(--foreground)) !important; /* Jika tombol memiliki nilai, gunakan warna foreground */
+  color: hsl(var(--foreground)) !important; 
 }
 
-
-/* Opsional: pertahankan box-shadow untuk kedalaman tambahan jika diinginkan pada wrapper */
 .input-gradient-glow-wrapper:hover,
 .input-gradient-glow-wrapper:focus-within {
   box-shadow: 0 0 8px 0px hsla(var(--gradient-orange), 0.5);
 }
 
-
-/* Gradient Spinner Loader - menggunakan warna gradien dari gambar (Pink/Red/Orange) */
 .gradient-spinner {
   width: 48px;
   height: 48px;
@@ -193,17 +184,16 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 40px; /* Sedikit lebih kecil dari spinner */
+  width: 40px; 
   height: 40px;
   border-radius: 50%;
-  background: hsl(var(--card)); /* Default ke card, bisa dioverride oleh Loader component */
+  background: hsl(var(--card)); 
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Tombol gradien besar (terisi) - menggunakan warna gradien dari gambar - Untuk Tombol Simpan */
 .btn-gradient {
   @apply text-primary-foreground;
   background-image: linear-gradient(to right,
@@ -219,40 +209,35 @@ body {
   background-position: right center;
 }
 
-/* Pastikan nilai HSL primer diatur untuk komponen ShadCN (digunakan sebagai fallback solid) */
 :root {
-  /* ... variabel root lainnya ... */
   --primary: 16 100% 50%;
   --primary-foreground: 20 0% 10%;
 }
 
 .dark {
-   /* ... variabel dark lainnya ... */
   --primary: 16 100% 50%;
   --primary-foreground: 20 0% 10%;
 }
 
-/* Aturan untuk tombol "Tambah Airdrop Baru" agar seperti outline */
 .input-gradient-glow-wrapper button.add-airdrop-style {
-  background-color: hsl(var(--custom-black)) !important; /* Hitam Pekat */
-  color: hsl(var(--custom-gray-text)) !important; /* Abu-abu muda untuk teks */
-  border: none !important; /* Hapus border internal, karena wrapper yang memberi outline */
+  background-color: hsl(var(--custom-black)) !important; 
+  color: hsl(var(--custom-gray-text)) !important; 
+  border: none !important; 
   transition: background-color 0.2s ease-out, color 0.2s ease-out;
 }
 
 .input-gradient-glow-wrapper:hover button.add-airdrop-style {
-  background-color: hsl(var(--custom-gray-700)) !important; /* Abu-abu gelap untuk hover */
-  color: hsl(var(--foreground)) !important; /* Teks putih saat hover */
+  background-color: hsl(var(--custom-gray-700)) !important; 
+  color: hsl(var(--foreground)) !important; 
 }
 
-/* Styling untuk Kalender di dalam Popover agar konsisten dengan tema */
 .rdp {
   --rdp-cell-size: 40px;
   --rdp-accent-color: hsl(var(--primary));
   --rdp-background-color: hsl(var(--primary-foreground));
   --rdp-accent-color-dark: hsl(var(--primary));
   --rdp-background-color-dark: hsl(var(--primary-foreground));
-  --rdp-outline: 2px solid hsl(var(--primary)); /* Warna outline saat fokus */
+  --rdp-outline: 2px solid hsl(var(--primary)); 
   --rdp-outline-selected: 3px solid hsl(var(--primary));
   margin: 1em;
 }
@@ -283,7 +268,4 @@ body {
 .rdp-day_today:not(.rdp-day_selected) {
    background-color: hsl(var(--accent) / 0.1) !important;
 }
-
-    
-
     
