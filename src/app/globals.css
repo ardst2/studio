@@ -3,78 +3,68 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --background: 219 47% 13%; /* Dark Navy #121E33 */
+    --foreground: 0 0% 95%; /* Lighter gray #F2F2F2 */
+
+    --card: 218 38% 16%; /* #1A263A */
+    --card-foreground: 0 0% 95%; /* #F2F2F2 */
+
+    --popover: 218 38% 13%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 275 100% 25.5%; /* Indigo #4B0082 */
+    --primary-foreground: 0 0% 98%; /* White */
+
+    --secondary: 218 30% 25%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 218 25% 20%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 39 100% 50%; /* Yellow-Orange #FFA500 */
+    --accent-foreground: 219 47% 10%; /* Dark text for accent */
+
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --border: 218 34% 25%; /* #2A3B57 */
+    --input: 218 34% 22%;
+    --ring: 39 100% 50%; /* Accent color for focus rings */
+
+    --radius: 0.75rem; /* Softer rounded corners */
+
+    /* Gradient colors */
+    --gradient-indigo: 275 100% 25.5%;
+    --gradient-red: 0 100% 50%;
+    --gradient-orange: 39 100% 50%;
+    --gradient-yellow: 60 100% 50%;
   }
+
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 219 47% 13%;
+    --foreground: 0 0% 95%;
+    --card: 218 38% 16%;
+    --card-foreground: 0 0% 95%;
+    --popover: 218 38% 13%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 275 100% 25.5%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 218 30% 25%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 218 25% 20%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 39 100% 50%;
+    --accent-foreground: 219 47% 10%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 218 34% 25%;
+    --input: 218 34% 22%;
+    --ring: 39 100% 50%;
   }
 }
 
@@ -85,4 +75,82 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom input field styling with gradient glow */
+.input-gradient-glow-wrapper {
+  position: relative;
+  padding: 1px; /* Controls thickness of gradient border */
+  border-radius: calc(var(--radius) + 1px); /* Match input + padding */
+  overflow: hidden;
+  transition: box-shadow 300ms ease-out;
+}
+
+.input-gradient-glow-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to top left, hsl(var(--gradient-yellow)), hsl(var(--gradient-orange)), hsl(var(--gradient-red)), hsl(var(--gradient-indigo)));
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+  z-index: 0;
+}
+
+.input-gradient-glow-wrapper:hover::before,
+.input-gradient-glow-wrapper:focus-within::before {
+  opacity: 1;
+}
+
+.input-gradient-glow-wrapper > input,
+.input-gradient-glow-wrapper > textarea,
+.input-gradient-glow-wrapper > div[role="combobox"] /* For Select component */ {
+  position: relative;
+  z-index: 1;
+  border: 1px solid hsl(var(--input)) !important; /* Ensure input has its own border */
+  width: 100%; /* Ensure input takes full width of wrapper */
+}
+
+.input-gradient-glow-wrapper:hover,
+.input-gradient-glow-wrapper:focus-within {
+  /* Dynamic glow based on gradient accent */
+  box-shadow: 0 0 12px 0px hsla(var(--gradient-orange), 0.6);
+}
+
+
+/* Gradient Spinner Loader */
+.gradient-spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  background: conic-gradient(from 0deg at 50% 50%, hsl(var(--gradient-yellow)) 0%, hsl(var(--gradient-orange)) 25%, hsl(var(--gradient-red)) 50%, hsl(var(--gradient-indigo)) 75%, transparent 100%);
+  animation: spin 1s linear infinite;
+  box-sizing: border-box;
+}
+.gradient-spinner::after {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px; /* Controls thickness, spinner ring width is (48-40)/2 = 4px */
+  height: 40px;
+  border-radius: 50%;
+  background: hsl(var(--card)); /* Use card background for modal, or background for page */
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Big gradient button */
+.btn-gradient {
+  @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white;
+  background-image: linear-gradient(to right, hsl(var(--gradient-indigo)), hsl(var(--gradient-red)), hsl(var(--gradient-orange)), hsl(var(--gradient-yellow)));
+}
+.btn-gradient:hover {
+  background-image: linear-gradient(to right, hsl(var(--gradient-indigo) / 0.9), hsl(var(--gradient-red) / 0.9), hsl(var(--gradient-orange) / 0.9), hsl(var(--gradient-yellow) / 0.9));
 }
