@@ -5,7 +5,7 @@ import type { Airdrop } from '@/types/airdrop';
 import AirdropForm from './airdrop-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Loader from '@/components/ui/loader'; 
-import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
+import { ScrollArea } from '@/components/ui/scroll-area'; 
 import { useState } from 'react';
 
 interface AddAirdropModalProps {
@@ -31,7 +31,7 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl p-0 max-h-[85vh] flex flex-col overflow-hidden relative">
+      <DialogContent className="sm:max-w-2xl p-0 max-h-[80vh] flex flex-col overflow-hidden relative"> {/* Changed max-h from 85vh to 80vh */}
         {/* Decorative gradient lines using new theme colors */}
         <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-[1]"></div>
         <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-[1]"></div>
