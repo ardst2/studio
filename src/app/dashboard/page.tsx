@@ -12,7 +12,7 @@ import AddAirdropModal from '@/components/dashboard/add-airdrop-modal';
 import AirdropDetailModal from '@/components/dashboard/AirdropDetailModal';
 import TodaysDeadlinesModal from '@/components/dashboard/TodaysDeadlinesModal';
 import EditProfileModal from '@/components/dashboard/edit-profile-modal';
-import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal'; // Import AirdropStatsModal
+import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal'; 
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import UserInfoCard from '@/components/dashboard/user-info-card';
 import EmptyAirdropDayCard from '@/components/dashboard/empty-airdrop-day-card';
 import { useAuth } from '@/hooks/use-auth';
-import { auth } from '@/lib/firebase';
+import { auth, storage, storageRef, uploadBytes, getDownloadURL } from '@/lib/firebase'; // Import storage and methods
 import { updateProfile } from 'firebase/auth';
 
 function DashboardPageContent() {
@@ -59,7 +59,7 @@ function DashboardPageContent() {
   const [isTodaysDeadlinesModalOpen, setIsTodaysDeadlinesModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false); // State for AirdropStatsModal
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false); 
 
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
@@ -199,22 +199,41 @@ function DashboardPageContent() {
   const handleOpenEditProfileModal = () => setIsEditProfileModalOpen(true);
   const handleCloseEditProfileModal = () => setIsEditProfileModalOpen(false);
 
-  const handleSaveProfile = async (data: { displayName: string; photoURL?: string }) => {
+  const handleSaveProfile = async (data: { displayName: string; photoFile?: File }) => {
     if (!auth.currentUser) {
       toast({ variant: "destructive", title: "Error", description: "Pengguna tidak terautentikasi." });
       return;
     }
     setIsSavingProfile(true);
     try {
+      let photoURLToUpdate: string | null = auth.currentUser.photoURL; // Default to existing
+
+      if (data.photoFile) {
+        toast({ title: "Mengunggah Foto...", description: "Harap tunggu sebentar." });
+        const file = data.photoFile;
+        const fileRef = storageRef(storage, `profilePictures/${auth.currentUser.uid}/${file.name}`);
+        const uploadResult = await uploadBytes(fileRef, file);
+        photoURLToUpdate = await getDownloadURL(uploadResult.ref);
+        toast({ title: "Foto Terunggah", description: "Foto profil berhasil diunggah." });
+      }
+
       await updateProfile(auth.currentUser, {
         displayName: data.displayName,
-        photoURL: data.photoURL || null,
+        photoURL: photoURLToUpdate, 
       });
+      
+      // The useAuth hook's onAuthStateChanged will pick up the profile update automatically
       toast({ title: "Profil Diperbarui", description: "Informasi profil Anda berhasil disimpan." });
       handleCloseEditProfileModal();
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast({ variant: "destructive", title: "Gagal Menyimpan Profil", description: "Terjadi kesalahan saat memperbarui profil." });
+      let errorMessage = "Terjadi kesalahan saat memperbarui profil.";
+      if (error instanceof Error && error.message.includes('storage/object-not-found')) {
+        errorMessage = "Gagal mendapatkan URL foto setelah unggah.";
+      } else if (error instanceof Error && error.message.includes('storage/unauthorized')) {
+        errorMessage = "Tidak diizinkan mengunggah foto. Periksa aturan penyimpanan Anda.";
+      }
+      toast({ variant: "destructive", title: "Gagal Menyimpan Profil", description: errorMessage });
     } finally {
       setIsSavingProfile(false);
     }
