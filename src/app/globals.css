@@ -311,18 +311,31 @@ body {
 
 .header-icon-button svg {
   color: hsl(var(--foreground) / 0.8);
-  /* Removed transition for color and fill to prevent interference with gradient effect */
-  transition: none;
+  transition: none; /* No transition on the base SVG color/fill */
+  fill: none; /* Lucide icons are typically stroke-based with fill="none" */
 }
 
 .header-icon-button:hover svg {
   background: linear-gradient(to right, hsl(var(--gradient-theme-start)), hsl(var(--gradient-theme-mid)), hsl(var(--gradient-theme-end)));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent !important; /* Ensure SVG color (for currentColor stroke) becomes transparent */
-  fill: transparent !important; /* Ensure SVG fill becomes transparent for complex icons */
-  -webkit-text-fill-color: transparent; /* For Safari/Webkit text rendering */
+  color: transparent !important; /* Makes currentColor (used by stroke) transparent */
+  fill: none !important; /* Explicitly ensure no fill for the SVG container */
+  -webkit-text-fill-color: transparent; /* Safari/Webkit equivalent for color: transparent with background-clip: text */
 }
+
+/* Ensure child elements of the SVG use currentColor for stroke and have no fill,
+   so the parent's clipped gradient background shows through the strokes. */
+.header-icon-button:hover svg path,
+.header-icon-button:hover svg line,
+.header-icon-button:hover svg circle,
+.header-icon-button:hover svg polyline,
+.header-icon-button:hover svg polygon,
+.header-icon-button:hover svg rect {
+  stroke: currentColor !important; /* Uses parent SVG's color (which is transparent on hover) */
+  fill: none !important;
+}
+
 
 /* Gradient text class */
 .text-gradient-theme {
@@ -339,4 +352,5 @@ body {
     
 
     
+
 
