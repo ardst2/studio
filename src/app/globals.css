@@ -89,7 +89,7 @@ body {
 .input-gradient-glow-wrapper {
   position: relative;
   padding: 1.5px; /* Space for the gradient outline */
-  border-radius: var(--radius-md); /* Less rounded */
+  border-radius: var(--radius-sm); /* UPDATED: Less rounded */
   overflow: hidden; /* Important for clip-path */
   transition: box-shadow 300ms ease-out;
 }
@@ -122,12 +122,26 @@ body {
   position: relative;
   z-index: 1;
   /* Inputs themselves should also be less rounded to match the wrapper */
-  border-radius: calc(var(--radius-md) - 1.5px); /* Adjust to fit inside the wrapper padding */
+  border-radius: calc(var(--radius-sm) - 1.5px); /* UPDATED: Adjust to fit inside the wrapper padding with new radius */
   border: 1px solid hsl(var(--input)) !important; /* Fallback border */
   width: 100%;
   background-color: hsl(var(--input)); /* Ensure input bg matches theme */
   color: hsl(var(--foreground));
+  /* Remove default focus ring when inside this wrapper, as the wrapper provides the glow */
+  outline: none;
 }
+
+/* Specifically target focus state to remove default Tailwind/ShadCN rings */
+.input-gradient-glow-wrapper > input:focus,
+.input-gradient-glow-wrapper > textarea:focus,
+.input-gradient-glow-wrapper > div[role="combobox"]:focus,
+.input-gradient-glow-wrapper > input:focus-visible,
+.input-gradient-glow-wrapper > textarea:focus-visible,
+.input-gradient-glow-wrapper > div[role="combobox"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important; /* This overrides Tailwind's ring utility (which uses box-shadow) */
+}
+
 
 /* Optional: keep a subtle box-shadow for additional depth if desired */
 .input-gradient-glow-wrapper:hover,
