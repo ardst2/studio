@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import UserInfoCard from '@/components/dashboard/user-info-card';
 import EmptyAirdropDayCard from '@/components/dashboard/empty-airdrop-day-card';
 import { useAuth } from '@/hooks/use-auth';
-import { auth, storage, storageRef, uploadBytes, getDownloadURL } from '@/lib/firebase'; // Import storage and methods
+import { auth } from '@/lib/firebase'; 
 import { updateProfile } from 'firebase/auth';
 
 function DashboardPageContent() {
@@ -199,27 +199,16 @@ function DashboardPageContent() {
   const handleOpenEditProfileModal = () => setIsEditProfileModalOpen(true);
   const handleCloseEditProfileModal = () => setIsEditProfileModalOpen(false);
 
-  const handleSaveProfile = async (data: { displayName: string; photoFile?: File }) => {
+  const handleSaveProfile = async (data: { displayName: string; photoURL?: string }) => {
     if (!auth.currentUser) {
       toast({ variant: "destructive", title: "Error", description: "Pengguna tidak terautentikasi." });
       return;
     }
     setIsSavingProfile(true);
     try {
-      let photoURLToUpdate: string | null = auth.currentUser.photoURL; // Default to existing
-
-      if (data.photoFile) {
-        toast({ title: "Mengunggah Foto...", description: "Harap tunggu sebentar." });
-        const file = data.photoFile;
-        const fileRef = storageRef(storage, `profilePictures/${auth.currentUser.uid}/${file.name}`);
-        const uploadResult = await uploadBytes(fileRef, file);
-        photoURLToUpdate = await getDownloadURL(uploadResult.ref);
-        toast({ title: "Foto Terunggah", description: "Foto profil berhasil diunggah." });
-      }
-
       await updateProfile(auth.currentUser, {
         displayName: data.displayName,
-        photoURL: photoURLToUpdate, 
+        photoURL: data.photoURL || auth.currentUser.photoURL, // Use new URL, or keep existing if empty
       });
       
       // The useAuth hook's onAuthStateChanged will pick up the profile update automatically
@@ -227,13 +216,7 @@ function DashboardPageContent() {
       handleCloseEditProfileModal();
     } catch (error) {
       console.error("Error updating profile:", error);
-      let errorMessage = "Terjadi kesalahan saat memperbarui profil.";
-      if (error instanceof Error && error.message.includes('storage/object-not-found')) {
-        errorMessage = "Gagal mendapatkan URL foto setelah unggah.";
-      } else if (error instanceof Error && error.message.includes('storage/unauthorized')) {
-        errorMessage = "Tidak diizinkan mengunggah foto. Periksa aturan penyimpanan Anda.";
-      }
-      toast({ variant: "destructive", title: "Gagal Menyimpan Profil", description: errorMessage });
+      toast({ variant: "destructive", title: "Gagal Menyimpan Profil", description: "Terjadi kesalahan saat memperbarui profil." });
     } finally {
       setIsSavingProfile(false);
     }

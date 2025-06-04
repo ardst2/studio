@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,13 +11,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, Save, X, UploadCloud } from 'lucide-react';
+import { Camera, Save, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const profileSchema = z.object({
   displayName: z.string().min(1, "Nama tampilan tidak boleh kosong.").max(50, "Nama tampilan maksimal 50 karakter."),
-  // photoURL is no longer part of the form schema directly, it's handled by file upload
+  photoURL: z.string().url("URL foto tidak valid.").or(z.literal('')).optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -26,7 +26,7 @@ interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
-  onSave: (data: { displayName: string; photoFile?: File }) => Promise<void>;
+  onSave: (data: { displayName: string; photoURL?: string }) => Promise<void>;
   isSaving: boolean;
 }
 
@@ -39,20 +39,25 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, isSaving }: EditProfi
     resolver: zodResolver(profileSchema),
     defaultValues: {
       displayName: user?.displayName || '',
+      photoURL: user?.photoURL || '',
     }
   });
   const { toast } = useToast();
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const displayName = watch('displayName');
+  const photoURL_form = watch('photoURL'); // Watched value from the form
 
   useEffect(() => {
-    if (isOpen) {
-      reset({ displayName: user?.displayName || '' });
-      setImagePreview(user?.photoURL || null);
-      setSelectedFile(null);
+    if (isOpen && user) {
+      reset({
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+      });
+    } else if (isOpen && !user) {
+      reset({
+        displayName: '',
+        photoURL: '',
+      });
     }
   }, [user, isOpen, reset]);
 
@@ -61,49 +66,12 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, isSaving }: EditProfi
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({
-          variant: "destructive",
-          title: "File Terlalu Besar",
-          description: "Ukuran file maksimal adalah 5MB.",
-        });
-        if(fileInputRef.current) fileInputRef.current.value = ""; // Reset file input
-        return;
-      }
-      if (!file.type.startsWith('image/')) {
-        toast({
-          variant: "destructive",
-          title: "Format File Salah",
-          description: "Hanya file gambar yang diperbolehkan.",
-        });
-        if(fileInputRef.current) fileInputRef.current.value = ""; // Reset file input
-        return;
-      }
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      // If no file is selected (e.g., user cancels file dialog), revert to original or clear preview
-      // This part might need adjustment based on desired behavior for "clearing" a selection
-      // For now, let's assume if they cancel, the preview might stay as is or revert to original user photo
-       setSelectedFile(null); // Clear selected file if dialog is cancelled
-       setImagePreview(user?.photoURL || null); // Revert to original if no new file
-    }
-  };
-
   const handleFormSubmit = async (data: ProfileFormData) => {
-    await onSave({ displayName: data.displayName, photoFile: selectedFile });
+    await onSave({ displayName: data.displayName, photoURL: data.photoURL });
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
+  // Determine the image source for the avatar preview
+  const avatarImageSrc = photoURL_form || user?.photoURL || undefined;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -113,41 +81,18 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, isSaving }: EditProfi
             <Camera className="w-6 h-6 mr-2 text-gradient-theme" /> Edit Profil
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Perbarui nama tampilan dan foto profil Anda.
+            Perbarui nama tampilan dan URL foto profil Anda.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6 space-y-6">
           <div className="flex flex-col items-center space-y-3">
-            <div
-              className="relative group cursor-pointer"
-              onClick={triggerFileInput}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') triggerFileInput();}}
-              role="button"
-              tabIndex={0}
-              aria-label="Ubah foto profil"
-            >
-              <Avatar className="h-24 w-24 border-4 border-primary/30 group-hover:opacity-75 transition-opacity">
-                <AvatarImage src={imagePreview || undefined} alt={displayName || 'User'} />
-                <AvatarFallback className="text-3xl font-bold bg-muted text-muted-foreground">
-                  {getInitials(displayName)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
-                <UploadCloud className="h-8 w-8 text-white" />
-              </div>
-            </div>
-            <Button type="button" variant="link" onClick={triggerFileInput} className="text-sm text-primary">
-              Pilih Foto (Max 5MB)
-            </Button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-              id="photoFile"
-            />
+            <Avatar className="h-24 w-24 border-4 border-primary/30">
+              <AvatarImage src={avatarImageSrc} alt={displayName || 'User'} />
+              <AvatarFallback className="text-3xl font-bold bg-muted text-muted-foreground">
+                {getInitials(displayName)}
+              </AvatarFallback>
+            </Avatar>
           </div>
 
           <div>
@@ -161,6 +106,19 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave, isSaving }: EditProfi
               />
             </InputWrapper>
             {errors.displayName && <p className="mt-1 text-xs text-destructive">{errors.displayName.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="photoURL" className="mb-1 block text-sm font-medium text-foreground">URL Foto Profil</Label>
+            <InputWrapper>
+              <Input
+                id="photoURL"
+                {...register('photoURL')}
+                placeholder="https://example.com/foto.png"
+                className={errors.photoURL ? 'border-destructive' : ''}
+              />
+            </InputWrapper>
+            {errors.photoURL && <p className="mt-1 text-xs text-destructive">{errors.photoURL.message}</p>}
           </div>
           
           <DialogFooter className="pt-2">
