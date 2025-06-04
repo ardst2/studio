@@ -295,16 +295,18 @@ body {
 
 .header-icon-button svg {
   color: hsl(var(--foreground) / 0.8);
-  transition: color 0.2s ease-out, fill 0.2s ease-out; /* Added fill transition */
+  /* Removed transition for color and fill to prevent interference with gradient effect */
+  transition: none;
 }
 
 .header-icon-button:hover svg {
   background: linear-gradient(to right, hsl(var(--gradient-theme-start)), hsl(var(--gradient-theme-mid)), hsl(var(--gradient-theme-end)));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent !important; /* Ensure SVG color becomes transparent */
+  color: transparent !important; /* Ensure SVG color (for currentColor stroke) becomes transparent */
   fill: transparent !important; /* Ensure SVG fill becomes transparent for complex icons */
-  -webkit-text-fill-color: transparent; /* For Safari */
+  -webkit-text-fill-color: transparent; /* For Safari/Webkit text rendering */
 }
+    
 
     
