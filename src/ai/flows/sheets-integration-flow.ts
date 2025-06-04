@@ -1,34 +1,34 @@
+
 'use server';
 /**
- * @fileOverview Genkit flows for Google Sheets integration.
+ * @fileOverview Genkit flow for Google Sheets import integration.
  *
  * - importAirdropsFromSheet: Imports airdrop data from a specified Google Sheet.
- * - exportAirdropsToSheet: Exports airdrop data to a specified Google Sheet.
  *
  * Authentication:
- * These flows require Google Cloud authentication with access to the Google Sheets API.
+ * This flow requires Google Cloud authentication with access to the Google Sheets API.
  * 1. Enable the Google Sheets API in your Google Cloud project.
  * 2. Set up credentials:
  *    - For local development or non-Google Cloud hosting:
  *      Create a Service Account, download its JSON key, and set the
  *      GOOGLE_APPLICATION_CREDENTIALS environment variable to the path of this key file.
- *      Grant this Service Account editor access to the Google Sheets you intend to use.
+ *      Grant this Service Account editor access (or at least viewer access) to the Google Sheets you intend to use.
  *    - When deployed on Google Cloud (e.g., Cloud Run, App Engine, Firebase Functions):
  *      Use Application Default Credentials (ADC). Ensure the service account running
- *      your application has appropriate IAM permissions for Google Sheets and editor
- *      access to the target Google Sheets.
+ *      your application has appropriate IAM permissions for Google Sheets and access
+ *      to the target Google Sheets.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import {google} from 'googleapis';
-import type {Airdrop, AirdropTask, AirdropStatus} from '@/types/airdrop';
+import type {AirdropTask, AirdropStatus} from '@/types/airdrop';
 import { format, parse, isValid } from 'date-fns';
 
 // Helper to get an authenticated Google Sheets API client
 async function getSheetsClient() {
   const auth = new google.auth.GoogleAuth({
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'], // Scope changed to readonly
   });
   const authClient = await auth.getClient();
   return google.sheets({version: 'v4', auth: authClient});
@@ -143,90 +143,5 @@ export async function importAirdropsFromSheet(input: ImportAirdropsInput): Promi
   return importAirdropsFlow(input);
 }
 
+// --- Export Flow and related schemas removed ---
 
-// --- Export Flow ---
-const AirdropForExportSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  name: z.string(),
-  startDate: z.number().optional(),
-  deadline: z.number().optional(),
-  description: z.string().optional(),
-  tasks: z.array(z.object({ id: z.string(), text: z.string(), completed: z.boolean() })),
-  status: z.enum(['Upcoming', 'Active', 'Completed']),
-  createdAt: z.number(),
-});
-
-export const exportAirdropsInputSchema = z.object({
-  sheetCoordinates: SheetCoordinatesSchema,
-  airdrops: z.array(AirdropForExportSchema),
-});
-export type ExportAirdropsInput = z.infer<typeof exportAirdropsInputSchema>;
-
-export const exportAirdropsOutputSchema = z.object({
-  message: z.string(),
-  rowsWritten: z.number(),
-});
-export type ExportAirdropsOutput = z.infer<typeof exportAirdropsOutputSchema>;
-
-function formatTimestampForSheet(timestamp?: number): string {
-  if (!timestamp) return '';
-  return format(new Date(timestamp), 'yyyy-MM-dd');
-}
-
-function formatTasksForSheet(tasks: AirdropTask[]): string {
-  return tasks.map(task => task.text).join(';');
-}
-
-const exportAirdropsFlow = ai.defineFlow(
-  {
-    name: 'exportAirdropsFlow',
-    inputSchema: exportAirdropsInputSchema,
-    outputSchema: exportAirdropsOutputSchema,
-  },
-  async ({sheetCoordinates, airdrops}) => {
-    const {sheetId, tabName} = sheetCoordinates;
-    const sheets = await getSheetsClient();
-
-    const values = [
-      SHEET_HEADERS, // Header row
-      ...airdrops.map(airdrop => [
-        airdrop.name || '',
-        airdrop.description || '',
-        formatTimestampForSheet(airdrop.startDate),
-        formatTimestampForSheet(airdrop.deadline),
-        formatTasksForSheet(airdrop.tasks),
-        airdrop.status || '',
-      ]),
-    ];
-
-    try {
-      // Clear existing data in the tab (optional, but often desired for export)
-      // Be cautious with this in a real app; provide options or warnings.
-      await sheets.spreadsheets.values.clear({
-        spreadsheetId: sheetId,
-        range: tabName, // Clears the entire tab
-      });
-
-      // Write new data
-      const result = await sheets.spreadsheets.values.update({
-        spreadsheetId: sheetId,
-        range: `${tabName}!A1`, // Start writing from cell A1
-        valueInputOption: 'USER_ENTERED', // Or 'RAW' if you don't want Sheets to parse values
-        requestBody: {
-          values,
-        },
-      });
-      
-      const rowsWritten = result.data.updatedRows || 0;
-      return { message: `Successfully exported ${rowsWritten -1} airdrops to sheet.`, rowsWritten: rowsWritten - 1 }; // -1 for header
-    } catch (err: any) {
-      console.error('Error exporting to Google Sheet:', err);
-      throw new Error(err.message || 'Failed to export data to Google Sheet.');
-    }
-  }
-);
-
-export async function exportAirdropsToSheet(input: ExportAirdropsInput): Promise<ExportAirdropsOutput> {
-  return exportAirdropsFlow(input);
-}
