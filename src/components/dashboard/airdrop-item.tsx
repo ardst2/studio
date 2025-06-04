@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { formatDistanceToNowStrict, format } from 'date-fns';
 import { id as localeID } from 'date-fns/locale';
 import { CalendarDays, Edit3, Trash2, ExternalLink, ClipboardList, AlertTriangle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AirdropItemProps {
   airdrop: Airdrop;
