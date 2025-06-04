@@ -1,13 +1,14 @@
 // src/hooks/use-auth.tsx
 "use client";
 
-import type { User } from '@/types/user';
-import { auth } from '@/lib/firebase'; // Using mocked auth
+import type { User as AuthUser } from 'firebase/auth'; // Firebase Auth User type
+import type { User as AppUser } from '@/types/user'; // Your app's User type
+import { auth, GoogleAuthProvider, firebaseSignInWithPopup, firebaseSignOut } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -16,19 +17,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser: any) => {
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser: AuthUser | null) => {
       if (firebaseUser) {
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           displayName: firebaseUser.displayName || "Airdrop Hunter",
           photoURL: firebaseUser.photoURL || `https://placehold.co/100x100.png?text=${(firebaseUser.displayName || 'A').charAt(0)}`,
-          role: "Pemburu Airdrop",
+          role: "Pemburu Airdrop", // Default role
         });
       } else {
         setUser(null);
@@ -42,39 +43,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithGoogle = async () => {
     setLoading(true);
     try {
-      // In a real app, this would be:
-      // const provider = new GoogleAuthProvider();
-      // await signInWithPopup(auth, provider);
-      const result = await auth.signInWithPopup(); // Using mocked signInWithPopup
+      const provider = new GoogleAuthProvider();
+      const result = await firebaseSignInWithPopup(auth, provider);
       if (result && result.user) {
-         setUser({
-          uid: result.user.uid,
-          email: result.user.email,
-          displayName: result.user.displayName || "Airdrop Hunter",
-          photoURL: result.user.photoURL || `https://placehold.co/100x100.png?text=${(result.user.displayName || 'A').charAt(0)}`,
-          role: "Pemburu Airdrop",
-        });
+         // setUser is handled by onAuthStateChanged
         router.push('/dashboard');
       }
     } catch (error) {
       console.error("Error signing in with Google:", error);
       // Handle error (e.g., show toast)
     } finally {
-      setLoading(false);
+      // setLoading(false); // onAuthStateChanged will set loading to false
     }
   };
 
   const signOut = async () => {
     setLoading(true);
     try {
-      // await firebaseSignOut(auth); // Real sign out
-      await auth.signOut(); // Mocked sign out
-      setUser(null);
+      await firebaseSignOut(auth);
+      // setUser to null is handled by onAuthStateChanged
       router.push('/login');
     } catch (error) {
       console.error("Error signing out:", error);
     } finally {
-      setLoading(false);
+      // setLoading(false); // onAuthStateChanged will set loading to false
     }
   };
 

@@ -1,5 +1,5 @@
 export interface AirdropTask {
-  id: string;
+  id: string; // UUID for tasks
   text: string;
   completed: boolean;
 }
@@ -9,14 +9,13 @@ export type AirdropFilterStatus = AirdropStatus | 'All';
 
 
 export interface Airdrop {
-  id: string; // Firestore document ID or local UUID
+  id: string; // Firestore document ID
   userId: string; // Firebase user ID
   name: string;
-  startDate?: number; // Timestamp (Date.now() or serverTimestamp())
-  deadline?: number; // Timestamp
+  startDate?: number; // JS Timestamp (milliseconds)
+  deadline?: number; // JS Timestamp (milliseconds)
   description?: string;
   tasks: AirdropTask[];
   status: AirdropStatus;
-  createdAt: number; // Timestamp
-  // Progress can be calculated: (completed tasks / total tasks) * 100
+  createdAt: number; // JS Timestamp (milliseconds) for client-side sorting, actual stored as Firestore Timestamp
 }

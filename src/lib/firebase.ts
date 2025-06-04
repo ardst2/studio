@@ -1,58 +1,27 @@
-// Mock Firebase setup for scaffolding
-// In a real application, you would initialize Firebase here:
-// import { initializeApp, getApp, getApps } from "firebase/app";
-// import { getAuth } from "firebase/auth";
-// import { getFirestore } from "firebase/firestore";
+// src/lib/firebase.ts
+import { initializeApp, getApp, getApps } from "firebase/app";
+import { getAuth, GoogleAuthProvider, signInWithPopup as firebaseSignInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
+// TODO: Replace with your actual Firebase project configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  // For Firebase Realtime Database or Firestore
-  // databaseURL: "YOUR_DATABASE_URL", 
+  apiKey: "YOUR_API_KEY_HERE",
+  authDomain: "YOUR_AUTH_DOMAIN_HERE",
+  projectId: "YOUR_PROJECT_ID_HERE",
+  storageBucket: "YOUR_STORAGE_BUCKET_HERE",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID_HERE",
+  appId: "YOUR_APP_ID_HERE",
 };
 
-// let app;
-// if (!getApps().length) {
-//   app = initializeApp(firebaseConfig);
-// } else {
-//   app = getApp();
-// }
+let app;
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApp();
+}
 
-// export const auth = getAuth(app);
-// export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export { GoogleAuthProvider, firebaseSignInWithPopup, firebaseSignOut }; // Export necessary auth methods
 
-// Mocked auth and db for now
-export const auth = {
-  onAuthStateChanged: (callback: (user: any) => void) => {
-    // Simulate a logged-out state initially, or a logged-in state for testing
-    // To test logged-in state:
-    // setTimeout(() => callback({ uid: 'mock-user-id', displayName: 'Airdrop Hunter', email: 'hunter@example.com', photoURL: 'https://placehold.co/100x100.png' }), 100);
-    // To test logged-out state:
-    setTimeout(() => callback(null), 100);
-    return () => {}; // Unsubscribe function
-  },
-  signInWithPopup: async () => {
-    // Simulate Google Sign-In
-    return { 
-      user: { 
-        uid: 'mock-user-id', 
-        displayName: 'Airdrop Hunter', 
-        email: 'hunter@example.com', 
-        photoURL: 'https://placehold.co/100x100.png' 
-      } 
-    };
-  },
-  signOut: async () => {
-    // Simulate sign out
-    return;
-  }
-};
-
-// Mock Firestore
-export const db = {};
-
-export default firebaseConfig;
+export default app; // Export app instance if needed elsewhere, or firebaseConfig
