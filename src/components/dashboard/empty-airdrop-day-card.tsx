@@ -1,3 +1,4 @@
+
 // src/components/dashboard/empty-airdrop-day-card.tsx
 "use client";
 
@@ -9,8 +10,8 @@ import type { Airdrop } from '@/types/airdrop';
 import { useMemo } from 'react';
 
 interface EmptyAirdropDayCardProps {
-  onShowTodaysDeadlines: () => void; 
-  onAddNewAirdrop: () => void; 
+  onShowTodaysDeadlines: () => void;
+  onAddNewAirdrop: () => void;
   airdrops: Airdrop[];
 }
 
@@ -32,21 +33,21 @@ const EmptyAirdropDayCard = ({ onShowTodaysDeadlines, onAddNewAirdrop, airdrops 
     });
   }, [airdrops]);
 
-  const cardTitle = deadlinesToday.length > 0 
-    ? `${deadlinesToday.length} Deadline Hari Ini` 
+  const cardTitle = deadlinesToday.length > 0
+    ? `${deadlinesToday.length} Deadline Hari Ini`
     : "Belum Ada Deadline";
-  
-  const cardSubtitle = deadlinesToday.length > 0 
-    ? "Klik untuk lihat detailnya." 
+
+  const cardSubtitle = deadlinesToday.length > 0
+    ? "Klik untuk lihat detailnya."
     : "Tidak ada airdrop jatuh tempo hari ini.";
 
   return (
-    <Card 
+    <Card
       className={cn(
         "shadow-xl h-full bg-card text-card-foreground p-6",
-        "cursor-pointer hover:bg-card/90 transition-colors duration-200 ease-in-out"
+        "cursor-pointer hover:shadow-2xl hover:border-primary/30 transition-all duration-200 ease-in-out border border-transparent"
       )}
-      onClick={onShowTodaysDeadlines} 
+      onClick={onShowTodaysDeadlines}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -58,32 +59,32 @@ const EmptyAirdropDayCard = ({ onShowTodaysDeadlines, onAddNewAirdrop, airdrops 
     >
       <CardContent className="flex flex-col items-center justify-center text-center h-full space-y-4">
         <div className="relative">
-          <div 
+          <div
             className="w-20 h-20 rounded-lg flex flex-col items-center justify-center bg-muted shadow-lg"
           >
             <span className="text-3xl block text-gradient-theme font-bold">{day}</span>
             <span className="text-xs block uppercase text-gradient-theme font-semibold">{month}</span>
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="absolute -top-2 -right-2 bg-muted/80 hover:bg-muted rounded-full h-8 w-8 flex items-center justify-center"
             onClick={(e) => {
-              e.stopPropagation(); 
-              onAddNewAirdrop(); 
+              e.stopPropagation();
+              onAddNewAirdrop();
             }}
             aria-label="Tambah airdrop baru"
           >
              <CalendarDays className="h-4 w-4 text-foreground/70" />
           </Button>
         </div>
-        
+
         <div className="text-center">
           <h3 className="text-lg font-semibold text-foreground flex items-center justify-center">
             {deadlinesToday.length > 0 ? (
               <Sparkles className="w-5 h-5 mr-2 text-gradient-theme" />
             ) : (
-              <Info className="w-5 h-5 mr-2 text-muted-foreground" /> 
+              <Info className="w-5 h-5 mr-2 text-muted-foreground" />
             )}
             {cardTitle}
           </h3>

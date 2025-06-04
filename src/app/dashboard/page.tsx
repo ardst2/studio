@@ -12,9 +12,9 @@ import AddAirdropModal from '@/components/dashboard/add-airdrop-modal';
 import AirdropDetailModal from '@/components/dashboard/AirdropDetailModal';
 import TodaysDeadlinesModal from '@/components/dashboard/TodaysDeadlinesModal';
 import EditProfileModal from '@/components/dashboard/edit-profile-modal';
-import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal'; 
+import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal';
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
-import SheetsIntegrationCard from '@/components/dashboard/sheets-integration-card'; // New Import
+import SheetsIntegrationCard from '@/components/dashboard/sheets-integration-card';
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
 import type { Airdrop } from '@/types/airdrop';
@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import UserInfoCard from '@/components/dashboard/user-info-card';
 import EmptyAirdropDayCard from '@/components/dashboard/empty-airdrop-day-card';
 import { useAuth } from '@/hooks/use-auth';
-import { auth } from '@/lib/firebase'; 
+import { auth } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
 
 function DashboardPageContent() {
@@ -60,7 +60,7 @@ function DashboardPageContent() {
   const [isTodaysDeadlinesModalOpen, setIsTodaysDeadlinesModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false); 
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
 
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
@@ -72,7 +72,7 @@ function DashboardPageContent() {
         startDate: airdropToEdit.startDate,
         deadline: airdropToEdit.deadline,
         description: airdropToEdit.description,
-        tasks: airdropToEdit.tasks.map(task => ({ ...task })), 
+        tasks: airdropToEdit.tasks.map(task => ({ ...task })),
       };
       updateNewAirdropDraft(draftData);
     } else {
@@ -91,7 +91,7 @@ function DashboardPageContent() {
     try {
       if (editingAirdrop) {
         const updatedData: Airdrop = {
-            ...editingAirdrop, 
+            ...editingAirdrop,
             ...data,
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
@@ -105,7 +105,7 @@ function DashboardPageContent() {
             status = 'Active';
         }
         updatedData.status = status;
-        
+
         await storeUpdateAirdrop(updatedData);
         toast({ title: "Airdrop Diperbarui", description: `"${updatedData.name}" berhasil diperbarui.` });
       } else {
@@ -133,7 +133,7 @@ function DashboardPageContent() {
       toast({ variant: "destructive", title: "Gagal Menghapus", description: "Terjadi kesalahan saat menghapus airdrop." });
     }
   };
-  
+
   const handleTaskToggle = async (airdropId: string, taskId: string) => {
     const airdropToUpdate = allAirdrops.find(a => a.id === airdropId);
     if (airdropToUpdate) {
@@ -141,7 +141,7 @@ function DashboardPageContent() {
         task.id === taskId ? { ...task, completed: !task.completed } : task
       );
       let updatedAirdrop = { ...airdropToUpdate, tasks: updatedTasks };
-      
+
       const now = Date.now();
       let newStatus: Airdrop['status'] = 'Upcoming';
       if (updatedAirdrop.startDate && updatedAirdrop.startDate <= now) newStatus = 'Active';
@@ -152,7 +152,7 @@ function DashboardPageContent() {
         newStatus = 'Active';
       }
       updatedAirdrop.status = newStatus;
-      
+
       try {
         await storeUpdateAirdrop(updatedAirdrop);
       } catch (error) {
@@ -179,7 +179,7 @@ function DashboardPageContent() {
   const handleCloseTodaysDeadlinesModal = () => {
     setIsTodaysDeadlinesModalOpen(false);
   };
-  
+
   const airdropsDueToday = useMemo(() => {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -209,9 +209,9 @@ function DashboardPageContent() {
     try {
       await updateProfile(auth.currentUser, {
         displayName: data.displayName,
-        photoURL: data.photoURL || auth.currentUser.photoURL, 
+        photoURL: data.photoURL || auth.currentUser.photoURL,
       });
-      
+
       toast({ title: "Profil Diperbarui", description: "Informasi profil Anda berhasil disimpan." });
       handleCloseEditProfileModal();
     } catch (error) {
@@ -233,18 +233,18 @@ function DashboardPageContent() {
       </div>
     );
   }
-  
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <DashboardHeader />
       <main className="flex-1 p-4 md:p-8 space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
-          <UserInfoCard 
-            airdrops={allAirdrops} 
-            user={user} 
-            onOpenProfileModal={handleOpenEditProfileModal} 
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 xl:gap-8">
+          <UserInfoCard
+            airdrops={allAirdrops}
+            user={user}
+            onOpenProfileModal={handleOpenEditProfileModal}
           />
-          <Card className="shadow-xl h-full bg-card text-card-foreground p-6 flex flex-col justify-center">
+          <Card className="shadow-xl h-full bg-card text-card-foreground p-6 flex flex-col justify-center hover:shadow-2xl hover:border-primary/30 transition-all duration-200 ease-in-out border border-transparent">
             <CardHeader className="p-0 pb-4">
               <CardTitle className="font-headline text-xl text-foreground">Kelola Airdrop Anda</CardTitle>
               <CardDescription className="text-muted-foreground">
@@ -256,34 +256,29 @@ function DashboardPageContent() {
             </CardContent>
           </Card>
           <SummaryStats airdrops={allAirdrops} onOpenStatsModal={handleOpenStatsModal} />
-          <EmptyAirdropDayCard 
+          <EmptyAirdropDayCard
             onShowTodaysDeadlines={handleOpenTodaysDeadlinesModal}
-            onAddNewAirdrop={() => handleOpenAddModal()} 
-            airdrops={allAirdrops} 
+            onAddNewAirdrop={() => handleOpenAddModal()}
+            airdrops={allAirdrops}
           />
+          <SheetsIntegrationCard />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8">
-          <div className="lg:col-span-2">
-             <h2 className="text-2xl font-headline text-foreground mb-6">Airdrop Anda</h2>
-            <FilterSearchAirdrops 
-              searchTerm={searchTerm}
-              onSearchTermChange={setSearchTerm}
-              filterStatus={filterStatus}
-              onFilterStatusChange={setFilterStatus}
-            />
-            <AirdropList
-              airdrops={filteredAirdrops}
-              onEditAirdrop={handleOpenAddModal}
-              onDeleteAirdrop={handleDeleteAirdrop}
-              onTaskToggle={handleTaskToggle}
-              onShowDetail={handleOpenDetailModal}
-            />
-          </div>
-          <div className="lg:col-span-1 space-y-8">
-             <h2 className="text-2xl font-headline text-foreground mb-6 lg:mt-0">Tools & Integrasi</h2>
-            <SheetsIntegrationCard />
-          </div>
+        <div>
+           <h2 className="text-2xl font-headline text-foreground mb-6 mt-10">Airdrop Anda</h2>
+          <FilterSearchAirdrops
+            searchTerm={searchTerm}
+            onSearchTermChange={setSearchTerm}
+            filterStatus={filterStatus}
+            onFilterStatusChange={setFilterStatus}
+          />
+          <AirdropList
+            airdrops={filteredAirdrops}
+            onEditAirdrop={handleOpenAddModal}
+            onDeleteAirdrop={handleDeleteAirdrop}
+            onTaskToggle={handleTaskToggle}
+            onShowDetail={handleOpenDetailModal}
+          />
         </div>
       </main>
       <AddAirdropModal
@@ -292,7 +287,7 @@ function DashboardPageContent() {
         onSave={handleSaveAirdrop}
         initialData={editingAirdrop ? newAirdropDraft : undefined}
       />
-      <AirdropDetailModal 
+      <AirdropDetailModal
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetailModal}
         airdrop={selectedAirdropForDetail}
@@ -310,7 +305,7 @@ function DashboardPageContent() {
         onSave={handleSaveProfile}
         isSaving={isSavingProfile}
       />
-      <AirdropStatsModal 
+      <AirdropStatsModal
         isOpen={isStatsModalOpen}
         onClose={handleCloseStatsModal}
         airdrops={allAirdrops}

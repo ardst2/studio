@@ -17,7 +17,7 @@ interface UserInfoCardProps {
 const UserInfoCard = ({ airdrops, user, onOpenProfileModal }: UserInfoCardProps) => {
   const displayName = user?.displayName || "Pengguna";
   const userRole = user?.role || "Pemburu Airdrop";
-  
+
   const trackedCount = airdrops.length;
   const completedCount = airdrops.filter(a => a.status === 'Completed').length;
 
@@ -27,10 +27,10 @@ const UserInfoCard = ({ airdrops, user, onOpenProfileModal }: UserInfoCardProps)
   };
 
   return (
-    <Card 
+    <Card
       className={cn(
         "shadow-xl h-full bg-card text-card-foreground p-6",
-        "cursor-pointer hover:bg-card/90 transition-colors duration-200 ease-in-out"
+        "cursor-pointer hover:shadow-2xl hover:border-primary/30 transition-all duration-200 ease-in-out border border-transparent"
       )}
       onClick={onOpenProfileModal}
       role="button"
