@@ -1,4 +1,6 @@
 // src/app/dashboard/layout.tsx
+"use client";
+
 import { ReactNode, Suspense } from 'react';
 import { AuthProvider } from '@/hooks/use-auth';
 import Loader from '@/components/ui/loader';
