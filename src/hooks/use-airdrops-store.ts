@@ -1,3 +1,4 @@
+
 // src/hooks/use-airdrops-store.ts
 "use client";
 
@@ -5,69 +6,10 @@ import type { Airdrop, AirdropTask, AirdropStatus, AirdropFilterStatus } from '@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-// Mock data - userId is kept for structure but not used for filtering if login is removed
-const initialAirdrops: Airdrop[] = [
-  {
-    id: uuidv4(),
-    userId: 'mock-user-id-1', // Kept for data structure, but store won't filter by it
-    name: 'Cosmos Stargaze Public Airdrop',
-    startDate: new Date('2024-07-15T00:00:00Z').getTime(),
-    deadline: new Date('2024-08-15T00:00:00Z').getTime(),
-    description: 'Airdrop for ATOM stakers and OSMO LPers. Snapshot taken on June 1st.',
-    tasks: [
-      { id: uuidv4(), text: 'Visit stargaze.zone/airdrop', completed: true },
-      { id: uuidv4(), text: 'Connect Keplr wallet', completed: true },
-      { id: uuidv4(), text: 'Claim $STARS tokens', completed: false },
-    ],
-    status: 'Active',
-    createdAt: new Date('2024-07-01T00:00:00Z').getTime(),
-  },
-  {
-    id: uuidv4(),
-    userId: 'mock-user-id-2',
-    name: 'ZkSync Era Potential Airdrop',
-    startDate: new Date('2024-05-01T00:00:00Z').getTime(),
-    deadline: new Date('2024-12-31T00:00:00Z').getTime(),
-    description: 'Interact with protocols on ZkSync Era mainnet to qualify for a potential future airdrop.',
-    tasks: [
-      { id: uuidv4(), text: 'Bridge ETH to ZkSync Era', completed: true },
-      { id: uuidv4(), text: 'Swap on SyncSwap', completed: true },
-      { id: uuidv4(), text: 'Provide liquidity on Mute.io', completed: false },
-      { id: uuidv4(), text: 'Mint an NFT on Kreatorland', completed: false },
-    ],
-    status: 'Active',
-    createdAt: new Date('2024-05-01T00:00:00Z').getTime(),
-  },
-  {
-    id: uuidv4(),
-    userId: 'mock-user-id-1',
-    name: 'Optimism Gov Token Drop #2',
-    deadline: new Date('2023-09-01T00:00:00Z').getTime(),
-    description: 'Second round of OP token distribution to active Optimism users and voters.',
-    tasks: [
-      { id: uuidv4(), text: 'Check eligibility', completed: true },
-      { id: uuidv4(), text: 'Claim OP tokens', completed: true },
-    ],
-    status: 'Completed',
-    createdAt: new Date('2023-08-15T00:00:00Z').getTime(),
-  },
-  {
-    id: uuidv4(),
-    userId: 'mock-user-id-3',
-    name: 'Upcoming Solana Project X Airdrop',
-    startDate: new Date('2024-09-01T00:00:00Z').getTime(),
-    deadline: new Date('2024-09-30T00:00:00Z').getTime(),
-    description: 'New DeFi protocol on Solana announcing an airdrop for early testnet users.',
-    tasks: [
-      { id: uuidv4(), text: 'Join Discord', completed: false },
-      { id: uuidv4(), text: 'Participate in testnet', completed: false },
-    ],
-    status: 'Upcoming',
-    createdAt: new Date('2024-08-01T00:00:00Z').getTime(),
-  },
-];
+// Initial airdrops are now empty
+const initialAirdrops: Airdrop[] = [];
 
-const GUEST_USER_ID = 'guest-user-id'; // Default user ID for a non-logged-in experience
+const GUEST_USER_ID = 'guest-user-id';
 
 const getDefaultNewAirdrop = (): Omit<Airdrop, 'id' | 'createdAt' | 'status'> => ({
   userId: GUEST_USER_ID,
@@ -79,17 +21,15 @@ const getDefaultNewAirdrop = (): Omit<Airdrop, 'id' | 'createdAt' | 'status'> =>
 });
 
 
-export const useAirdropsStore = () => { // Removed userId parameter
-  const [airdrops, setAirdrops] = useState<Airdrop[]>(initialAirdrops); // Load all initial airdrops
+export const useAirdropsStore = () => {
+  const [airdrops, setAirdrops] = useState<Airdrop[]>(initialAirdrops);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<AirdropFilterStatus>('All');
   
   const [newAirdropDraft, setNewAirdropDraft] = useState<Omit<Airdrop, 'id' | 'createdAt' | 'status'>>(getDefaultNewAirdrop());
 
   useEffect(() => {
-    // Initialize with all airdrops and a default draft.
-    // No longer dependent on a dynamic userId.
-    setAirdrops(initialAirdrops);
+    setAirdrops(initialAirdrops); // Ensure it's initialized empty
     setNewAirdropDraft(getDefaultNewAirdrop());
   }, []);
 
@@ -112,12 +52,12 @@ export const useAirdropsStore = () => { // Removed userId parameter
     const newAirdrop: Airdrop = {
       ...airdropData,
       id: uuidv4(),
-      userId: GUEST_USER_ID, // Assign guest user ID
+      userId: GUEST_USER_ID,
       createdAt: Date.now(),
       status,
     };
     setAirdrops(prev => [newAirdrop, ...prev]);
-    setNewAirdropDraft(getDefaultNewAirdrop()); // Reset draft
+    setNewAirdropDraft(getDefaultNewAirdrop());
   }, []);
 
   const updateAirdrop = useCallback((updatedAirdrop: Airdrop) => {

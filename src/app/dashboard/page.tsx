@@ -1,12 +1,11 @@
+
 // src/app/dashboard/page.tsx
 "use client";
 
 import { useEffect, useState } from 'react';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
-// UserProfileCard is removed as it depends on user auth
 import AddAirdropButton from '@/components/dashboard/add-airdrop-button';
 import SummaryStats from '@/components/dashboard/summary-stats';
-import CalendarReminder from '@/components/dashboard/calendar-reminder';
 import AirdropList from '@/components/dashboard/airdrop-list';
 import AddAirdropModal from '@/components/dashboard/add-airdrop-modal';
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
@@ -14,8 +13,9 @@ import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
 import type { Airdrop } from '@/types/airdrop';
 import { useToast } from "@/hooks/use-toast";
-import { Card } from '@/components/ui/card'; // Keep Card for UI
-import { PackageX } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import UserInfoCard from '@/components/dashboard/user-info-card'; // New
+import EmptyAirdropDayCard from '@/components/dashboard/empty-airdrop-day-card'; // New
 
 function DashboardPageContent() {
   const { toast } = useToast();
@@ -33,17 +33,16 @@ function DashboardPageContent() {
     newAirdropDraft,
     updateNewAirdropDraft,
     resetNewAirdropDraft,
-  } = useAirdropsStore(); // No longer passing userId
+  } = useAirdropsStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAirdrop, setEditingAirdrop] = useState<Airdrop | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Basic loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate initial data loading if necessary, or remove if store handles it
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 500); // Adjust timing as needed
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -126,33 +125,35 @@ function DashboardPageContent() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-background">
         <Loader variant="page" size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <DashboardHeader />
       <main className="flex-1 p-4 md:p-8 space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8">
-          {/* UserProfileCard removed from here */}
-          <div className="lg:col-span-1 space-y-6 xl:space-y-8">
-            <SummaryStats airdrops={allAirdrops} />
-            {/* You might want to add another component here or adjust layout */}
-          </div>
-          <div className="lg:col-span-2 space-y-6 xl:space-y-8">
-             <Card className="p-6 shadow-xl">
-                <h2 className="text-2xl font-headline mb-2">Kelola Peluangmu</h2>
-                <p className="text-muted-foreground mb-4">Jangan lewatkan kesempatan emas. Tambahkan airdrop baru untuk dilacak!</p>
-                <AddAirdropButton onClick={() => handleOpenModal()} />
-            </Card>
-            <CalendarReminder airdrops={allAirdrops} />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-8">
+          <UserInfoCard />
+          <Card className="shadow-xl h-full bg-card text-card-foreground p-6 flex flex-col justify-center">
+            <CardHeader className="p-0 pb-4">
+              <CardTitle className="font-headline text-xl text-foreground">Kelola Airdrop Anda</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Pantau peluang baru dan tugas yang sedang berjalan.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <AddAirdropButton onClick={() => handleOpenModal()} />
+            </CardContent>
+          </Card>
+          <SummaryStats airdrops={allAirdrops} />
+          <EmptyAirdropDayCard onAddNewAirdrop={() => handleOpenModal()} />
         </div>
 
-        <div>
+        <div className="mt-8">
+          <h2 className="text-2xl font-headline text-foreground mb-6">Airdrop Anda</h2>
           <FilterSearchAirdrops 
             searchTerm={searchTerm}
             onSearchTermChange={setSearchTerm}
@@ -173,8 +174,8 @@ function DashboardPageContent() {
         onSave={handleSaveAirdrop}
         initialData={editingAirdrop ? newAirdropDraft : undefined}
       />
-       <footer className="py-6 px-4 md:px-8 border-t text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} AirdropAce. Powered by Web3 enthusiasm.
+       <footer className="py-6 px-4 md:px-8 border-t border-border/50 text-center text-sm text-muted-foreground">
+        © {new Date().getFullYear()} AirdropAce. Ditenagai oleh antusiasme Web3.
       </footer>
     </div>
   );
