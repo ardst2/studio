@@ -104,6 +104,8 @@ body {
   border-radius: var(--radius-sm); /* Gunakan sm agar tidak terlalu bulat */
   overflow: hidden; /* Penting untuk clip-path */
   transition: box-shadow 300ms ease-out;
+  /* Pastikan wrapper tidak punya background sendiri yang menutupi ::before jika z-index ::before negatif */
+  background-color: transparent; 
 }
 
 .input-gradient-glow-wrapper::before {
@@ -117,10 +119,10 @@ body {
     hsl(var(--gradient-orange)),
     hsl(var(--gradient-yellow))
   );
-  z-index: 0; /* Di belakang konten input */
+  z-index: -1; /* Di belakang konten input, termasuk background wrapper jika ada */
   clip-path: circle(0% at 100% 100%); /* Awal: kolaps di kanan bawah */
   transition: clip-path 350ms ease-out;
-  pointer-events: none; /* Tambahkan ini agar klik bisa tembus */
+  /* pointer-events: none; not strictly needed if z-index is -1, but harmless */
 }
 
 .input-gradient-glow-wrapper:hover::before,
@@ -133,8 +135,8 @@ body {
 .input-gradient-glow-wrapper textarea,
 .input-gradient-glow-wrapper div[role="combobox"], /* Untuk trigger Select component */
 .input-gradient-glow-wrapper button { /* Untuk tombol yang berfungsi seperti input (mis. date picker trigger) */
-  position: relative;
-  z-index: 1; /* Di atas pseudo-element gradien */
+  position: relative; /* Harus relative agar z-index bekerja dalam stacking context wrapper */
+  z-index: 1; /* Di atas pseudo-element gradien (yang sekarang -1) dan background wrapper */
   border-radius: calc(var(--radius-sm) - 1.5px); /* Disesuaikan dengan padding wrapper */
   width: 100%;
   outline: none !important; /* Hapus outline default */
@@ -281,5 +283,7 @@ body {
 .rdp-day_today:not(.rdp-day_selected) {
    background-color: hsl(var(--accent) / 0.1) !important;
 }
+
+    
 
     
