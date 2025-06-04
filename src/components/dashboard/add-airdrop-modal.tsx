@@ -4,15 +4,15 @@
 import type { Airdrop } from '@/types/airdrop';
 import AirdropForm from './airdrop-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import Loader from '@/components/ui/loader'; 
-import { ScrollArea } from '@/components/ui/scroll-area'; 
+import Loader from '@/components/ui/loader';
+// ScrollArea is not used in this reverted version
 import { useState } from 'react';
 
 interface AddAirdropModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => Promise<void>; 
-  initialData?: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>; 
+  onSave: (data: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => Promise<void>;
+  initialData?: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>;
 }
 
 const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropModalProps) => {
@@ -21,7 +21,7 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
   const handleSave = async (data: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => {
     setIsSaving(true);
     try {
-      await onSave(data); 
+      await onSave(data);
     } catch (error) {
       console.error("Failed to save airdrop:", error);
     } finally {
@@ -31,12 +31,13 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl p-0 max-h-[80vh] flex flex-col overflow-hidden relative">
+      <DialogContent className="sm:max-w-2xl p-6 max-h-[85vh] overflow-y-auto">
         {/* Decorative gradient lines using new theme colors */}
+        {/* These are relative to DialogContent which has p-6. They will be inset by p-6. */}
         <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-[1]"></div>
         <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-[1]"></div>
         
-        <DialogHeader className="p-6 pb-4 border-b border-border/30 shrink-0 bg-card">
+        <DialogHeader className="pb-4"> {/* Simple header padding */}
           <DialogTitle className="font-headline text-2xl text-foreground">
             {initialData ? 'Edit Airdrop' : 'Tambah Airdrop Baru'}
           </DialogTitle>
@@ -45,8 +46,7 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-grow min-h-0"> {/* Added min-h-0 */}
-          <div className="p-6 relative"> {/* Padding applied inside ScrollArea, relative for loader */}
+        <div className="relative mt-6"> {/* Spacing for the form */}
             {isSaving && (
               <div className="absolute inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-50">
                 <Loader variant="modal" />
@@ -58,8 +58,7 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
               onClose={onClose}
               isSaving={isSaving}
             />
-          </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

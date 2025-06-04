@@ -109,7 +109,7 @@ body {
 /* Custom input field styling with gradient wipe animation */
 .input-gradient-glow-wrapper {
   position: relative;
-  padding: 0.5px; /* Controls the thickness of the gradient border - Made even thinner */
+  padding: 1.5px; /* Controls the thickness of the gradient border - Reverted to original */
   border-radius: var(--radius-sm); /* Should match inner element's border-radius + padding */
   overflow: hidden;
   transition: box-shadow 300ms ease-out;
@@ -143,7 +143,7 @@ body {
 .input-gradient-glow-wrapper button { /* Generic button inside wrapper */
   position: relative;
   z-index: 1; /* Above the gradient ::before pseudo-element */
-  border-radius: calc(var(--radius-sm) - 0.5px); /* Slightly smaller to show the gradient border - Adjusted for thinner padding */
+  border-radius: calc(var(--radius-sm) - 1.5px); /* Slightly smaller to show the gradient border - Reverted */
   width: 100%;
   outline: none !important;
   box-shadow: none !important;
@@ -345,6 +345,7 @@ body {
     
 
     
+
 
 
 
