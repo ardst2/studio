@@ -9,25 +9,25 @@ body {
 
 @layer base {
   :root {
-    /* Dark Theme - Hitam Pekat */
-    --background: 224 71% 4%; /* Hitam kebiruan sangat gelap */
-    --foreground: 210 40% 98%; /* Putih keabu-abuan */
+    /* Dark Theme - Hitam Pekat (Sesuai Preferensi Pengguna) */
+    --background: 240 10% 3.9%; /* Lebih netral hitam */
+    --foreground: 0 0% 98%; /* Putih */
 
-    --card: 220 70% 5%; /* Sedikit lebih terang dari background, tetap sangat gelap */
-    --card-foreground: 210 40% 98%;
+    --card: 240 10% 4.5%; /* Sedikit lebih terang dari background, tetap sangat gelap */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 224 71% 3%; /* Paling gelap untuk popover */
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 10% 3.5%; /* Paling gelap untuk popover */
+    --popover-foreground: 0 0% 98%;
 
     /* Warna aksi utama - Oranye-Merah Dominan */
     --primary: 16 100% 50%; 
     --primary-foreground: 20 0% 10%; 
 
-    --secondary: 217 33% 17%; /* Abu-abu kebiruan gelap */
-    --secondary-foreground: 210 40% 90%;
+    --secondary: 240 5% 15%; /* Abu-abu gelap netral */
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 217 33% 10%; /* Abu-abu sangat gelap yang diredam */
-    --muted-foreground: 215 20% 65%; 
+    --muted: 240 5% 10%; /* Abu-abu sangat gelap yang diredam netral */
+    --muted-foreground: 240 5% 65%; 
 
     /* Warna aksen - Oranye-Merah */
     --accent: 16 100% 50%;
@@ -36,8 +36,8 @@ body {
     --destructive: 0 70% 50%; 
     --destructive-foreground: 0 0% 98%;
 
-    --border: 217 33% 12%; /* Border abu-abu sangat gelap */
-    --input: 220 70% 6%;  /* Latar belakang untuk kolom input, sangat gelap, sedikit berbeda dari card */
+    --border: 240 5% 12%; /* Border abu-abu sangat gelap netral */
+    --input: 240 10% 5%;  /* Latar belakang untuk kolom input, sangat gelap, sedikit berbeda dari card */
     --ring: 16 100% 50%; 
 
     --radius: 0.75rem; 
@@ -64,24 +64,24 @@ body {
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    --card: 220 70% 5%;
-    --card-foreground: 210 40% 98%;
-    --popover: 224 71% 3%;
-    --popover-foreground: 210 40% 98%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 4.5%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.5%;
+    --popover-foreground: 0 0% 98%;
     --primary: 16 100% 50%;
     --primary-foreground: 20 0% 10%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 90%;
-    --muted: 217 33% 10%;
-    --muted-foreground: 215 20% 65%;
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 240 5% 10%;
+    --muted-foreground: 240 5% 65%;
     --accent: 16 100% 50%;
     --accent-foreground: 20 0% 10%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 217 33% 12%;
-    --input: 220 70% 6%;
+    --border: 240 5% 12%;
+    --input: 240 10% 5%;
     --ring: 16 100% 50%;
   }
 }
@@ -286,3 +286,6 @@ body {
 .fixed.inset-0.z-50.bg-black\/80.backdrop-blur-sm { /* Targeting DialogOverlay by its classes */
   /* backdrop-blur-sm is already applied via Dialog.tsx if present */
 }
+
+
+    
