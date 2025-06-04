@@ -39,7 +39,7 @@ const airdropSchema = z.object({
     return value !== undefined && value !== '';
   });
 }, {
-  message: "At least one field must be filled to save.", 
+  message: "At least one field must be filled to save.",
   // This path is not standard for react-hook-form to display.
   // We will use formState.isDirty or check values manually for button disable state.
 });
@@ -137,9 +137,8 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      variant={"outline"}
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "h-10 w-full justify-start truncate rounded-md border-none bg-input px-3 py-2 text-left text-sm font-normal text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
                         !field.value && "text-muted-foreground"
                       )}
                     >
@@ -147,12 +146,13 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
                       {field.value ? format(field.value, "PPP", { locale: localeID }) : <span>Pilih tanggal</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 bg-popover border-border" align="start">
                     <Calendar
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
                       initialFocus
+                      className="bg-popover"
                     />
                   </PopoverContent>
                 </Popover>
@@ -170,9 +170,8 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
                 <Popover>
                   <PopoverTrigger asChild>
                      <Button
-                        variant={"outline"}
                         className={cn(
-                          "w-full justify-start text-left font-normal",
+                          "h-10 w-full justify-start truncate rounded-md border-none bg-input px-3 py-2 text-left text-sm font-normal text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -180,7 +179,7 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
                         {field.value ? format(field.value, "PPP", { locale: localeID }) : <span>Pilih tanggal</span>}
                       </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 bg-popover border-border" align="start">
                     <Calendar
                       mode="single"
                       selected={field.value}
@@ -189,6 +188,7 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
                         watch('startDate') ? date < watch('startDate')! : false
                       }
                       initialFocus
+                      className="bg-popover"
                     />
                   </PopoverContent>
                 </Popover>

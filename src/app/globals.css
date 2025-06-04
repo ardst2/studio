@@ -9,70 +9,74 @@ body {
 
 @layer base {
   :root {
-    --background: 220 13% 9%; /* Dark Navy from PRD (adjusted slightly) */
-    --foreground: 210 20% 95%; /* Lighter gray */
+    --background: 0 0% 6%; /* Very Dark Gray/Almost Black */
+    --foreground: 0 0% 95%; /* Light Gray for text */
 
-    --card: 220 13% 14%; /* Darker Card Background */
-    --card-foreground: 210 20% 95%;
+    --card: 0 0% 12%; /* Dark Gray for cards */
+    --card-foreground: 0 0% 95%;
 
-    --popover: 220 13% 12%;
-    --popover-foreground: 210 20% 95%;
+    --popover: 0 0% 10%; /* Dark for popovers */
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 271 100% 72%; /* Indigo from PRD (adjusted for visibility on dark bg) */
-    --primary-foreground: 210 20% 98%;
+    /* Primary action color, derived from image's button gradient */
+    --primary: 16 100% 50%; /* Vibrant Orange-Red */
+    --primary-foreground: 0 0% 10%; /* Dark text for contrast on orange-red */
 
-    --secondary: 220 10% 20%;
+    --secondary: 0 0% 20%; /* Slightly lighter dark gray for secondary elements */
     --secondary-foreground: 0 0% 95%;
 
-    --muted: 220 10% 15%;
+    --muted: 0 0% 15%; /* Muted dark gray */
     --muted-foreground: 0 0% 60%;
 
-    --accent: 38 100% 50%; /* Yellow-orange from PRD */
-    --accent-foreground: 220 13% 9%; /* Dark for contrast on yellow-orange */
+    /* Accent color, same as primary for consistency from image */
+    --accent: 16 100% 50%; /* Vibrant Orange-Red */
+    --accent-foreground: 0 0% 10%; /* Dark text for contrast */
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 10% 20%; /* Darker border */
-    --input: 220 10% 12%;
-    --ring: 271 100% 72%; /* Primary color for focus rings */
+    --border: 0 0% 20%; /* Border for cards, inputs if not gradient */
+    --input: 0 0% 10%;  /* Background for input fields */
+    --ring: 16 100% 50%; /* Ring color matching new primary/accent */
 
     --radius: 0.75rem; /* Base radius */
-    --radius-md: calc(var(--radius) - 2px); /* Slightly less rounded */
-    --radius-sm: calc(var(--radius) - 4px); /* Even less rounded */
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
 
 
-    /* Gradient colors for input outline and other elements, as per PRD */
-    --gradient-indigo: 271 100% 51%; /* Indigo #4B0082 */
-    --gradient-red: 0 100% 55%; /* Red */
+    /* Gradient colors based on the image's button */
+    --gradient-pink: 340 100% 60%; /* Pinkish-Red */
+    --gradient-red: 0 100% 55%;   /* Red */
     --gradient-orange: 25 100% 55%; /* Orange */
     --gradient-yellow: 45 100% 55%; /* Yellow */
     
-    /* Existing gradients from previous theme, might need adjustment or removal if not used */
-    --gradient-pink: 330 100% 60%; 
-    --gradient-blue: 210 100% 50%; /* For avatar */
+    /* Indigo for input glow as per previous PRD, not directly from main image button */
+    --gradient-indigo: 271 100% 51%;
+    
+    /* Avatar gradient from image */
+    --gradient-blue: 210 100% 50%;
   }
 
   .dark {
-    --background: 220 13% 9%;
-    --foreground: 210 20% 95%;
-    --card: 220 13% 14%;
-    --card-foreground: 210 20% 95%;
-    --popover: 220 13% 12%;
-    --popover-foreground: 210 20% 95%;
-    --primary: 271 100% 72%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 10% 20%;
+    --background: 0 0% 6%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 16 100% 50%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 20%;
     --secondary-foreground: 0 0% 95%;
-    --muted: 220 10% 15%;
+    --muted: 0 0% 15%;
     --muted-foreground: 0 0% 60%;
-    --accent: 38 100% 50%;
-    --accent-foreground: 220 13% 9%;
+    --accent: 16 100% 50%;
+    --accent-foreground: 0 0% 10%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 10% 20%;
-    --input: 220 10% 12%;
-    --ring: 271 100% 72%;
+    --border: 0 0% 20%;
+    --input: 0 0% 10%;
+    --ring: 16 100% 50%;
   }
 }
 
@@ -118,16 +122,16 @@ body {
 
 .input-gradient-glow-wrapper > input,
 .input-gradient-glow-wrapper > textarea,
-.input-gradient-glow-wrapper > div[role="combobox"] {
+.input-gradient-glow-wrapper > div[role="combobox"], /* For Select component */
+.input-gradient-glow-wrapper > button[aria-haspopup="dialog"] /* For Calendar PopoverTrigger Button */
+ {
   position: relative;
   z-index: 1;
-  /* Inputs themselves should also be less rounded to match the wrapper */
-  border-radius: calc(var(--radius-sm) - 1.5px); /* UPDATED: Adjust to fit inside the wrapper padding with new radius */
-  border: 1px solid hsl(var(--input)) !important; /* Fallback border */
+  border-radius: calc(var(--radius-sm) - 1.5px); /* Adjust to fit inside wrapper padding */
+  border: 1px solid hsl(var(--border)) !important; /* Use --border for a more distinct outline */
   width: 100%;
   background-color: hsl(var(--input)); /* Ensure input bg matches theme */
   color: hsl(var(--foreground));
-  /* Remove default focus ring when inside this wrapper, as the wrapper provides the glow */
   outline: none;
 }
 
@@ -135,11 +139,13 @@ body {
 .input-gradient-glow-wrapper > input:focus,
 .input-gradient-glow-wrapper > textarea:focus,
 .input-gradient-glow-wrapper > div[role="combobox"]:focus,
+.input-gradient-glow-wrapper > button[aria-haspopup="dialog"]:focus,
 .input-gradient-glow-wrapper > input:focus-visible,
 .input-gradient-glow-wrapper > textarea:focus-visible,
-.input-gradient-glow-wrapper > div[role="combobox"]:focus-visible {
+.input-gradient-glow-wrapper > div[role="combobox"]:focus-visible,
+.input-gradient-glow-wrapper > button[aria-haspopup="dialog"]:focus-visible {
   outline: none !important;
-  box-shadow: none !important; /* This overrides Tailwind's ring utility (which uses box-shadow) */
+  box-shadow: none !important;
 }
 
 
@@ -150,7 +156,7 @@ body {
 }
 
 
-/* Gradient Spinner Loader - using PRD colors */
+/* Gradient Spinner Loader - using image-inspired gradient colors */
 .gradient-spinner {
   width: 48px;
   height: 48px;
@@ -158,7 +164,7 @@ body {
   display: inline-block;
   position: relative;
   background: conic-gradient(from 0deg at 50% 50%, 
-    hsl(var(--gradient-indigo)) 0%, 
+    hsl(var(--gradient-pink)) 0%, 
     hsl(var(--gradient-red)) 33%, 
     hsl(var(--gradient-orange)) 66%, 
     transparent 100%
@@ -183,31 +189,31 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Big gradient button - using PRD colors */
+/* Big gradient button - using image-inspired gradient colors */
 .btn-gradient {
-  @apply text-primary-foreground; /* Ensure text color contrasts with gradient */
+  @apply text-primary-foreground; 
   background-image: linear-gradient(to right, 
-    hsl(var(--gradient-indigo)), 
+    hsl(var(--gradient-pink)), 
     hsl(var(--gradient-red)), 
     hsl(var(--gradient-orange)), 
     hsl(var(--gradient-yellow))
   );
-  background-size: 200% auto; /* For potential hover animation */
+  background-size: 200% auto;
   transition: background-position 0.5s ease;
 }
 .btn-gradient:hover {
-  background-position: right center; /* Change gradient direction on hover */
+  background-position: right center;
 }
 
-/* Ensure primary HSL values are set for ShadCN components */
+/* Ensure primary HSL values are set for ShadCN components (used as solid fallback) */
 :root {
   /* ... other root variables ... */
-  --primary: 271 100% 51%; /* Indigo - for Shadcn components */
-  --primary-foreground: 0 0% 100%; /* White for text on Indigo */
+  --primary: 16 100% 50%; 
+  --primary-foreground: 0 0% 10%;
 }
 
 .dark {
    /* ... other dark variables ... */
-  --primary: 271 100% 51%; 
-  --primary-foreground: 0 0% 100%;
+  --primary: 16 100% 50%; 
+  --primary-foreground: 0 0% 10%;
 }
