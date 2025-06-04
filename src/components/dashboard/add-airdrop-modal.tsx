@@ -6,6 +6,7 @@ import type { Airdrop } from '@/types/airdrop';
 import AirdropForm from './airdrop-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Loader from '@/components/ui/loader';
+import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
 import { useState } from 'react';
 
 interface AddAirdropModalProps {
@@ -47,7 +48,8 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
             </DialogDescription>
             </DialogHeader>
 
-            <div className="flex-grow overflow-y-auto min-h-0 p-6">
+            <ScrollArea className="flex-grow min-h-0"> {/* ScrollArea for form content */}
+              <div className="p-6 relative"> {/* Padding and relative positioning for loader */}
                 {isSaving && (
                 <div className="absolute inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-50 rounded-lg">
                     <Loader variant="modal" />
@@ -59,7 +61,8 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
                 onClose={onClose}
                 isSaving={isSaving}
                 />
-            </div>
+              </div>
+            </ScrollArea>
         </div>
       </DialogContent>
     </Dialog>
