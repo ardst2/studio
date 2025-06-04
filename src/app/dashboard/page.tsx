@@ -14,6 +14,7 @@ import TodaysDeadlinesModal from '@/components/dashboard/TodaysDeadlinesModal';
 import EditProfileModal from '@/components/dashboard/edit-profile-modal';
 import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal'; 
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
+import SheetsIntegrationCard from '@/components/dashboard/sheets-integration-card'; // New Import
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
 import type { Airdrop } from '@/types/airdrop';
@@ -208,10 +209,9 @@ function DashboardPageContent() {
     try {
       await updateProfile(auth.currentUser, {
         displayName: data.displayName,
-        photoURL: data.photoURL || auth.currentUser.photoURL, // Use new URL, or keep existing if empty
+        photoURL: data.photoURL || auth.currentUser.photoURL, 
       });
       
-      // The useAuth hook's onAuthStateChanged will pick up the profile update automatically
       toast({ title: "Profil Diperbarui", description: "Informasi profil Anda berhasil disimpan." });
       handleCloseEditProfileModal();
     } catch (error) {
@@ -263,21 +263,27 @@ function DashboardPageContent() {
           />
         </div>
 
-        <div className="mt-8">
-          <h2 className="text-2xl font-headline text-foreground mb-6">Airdrop Anda</h2>
-          <FilterSearchAirdrops 
-            searchTerm={searchTerm}
-            onSearchTermChange={setSearchTerm}
-            filterStatus={filterStatus}
-            onFilterStatusChange={setFilterStatus}
-          />
-          <AirdropList
-            airdrops={filteredAirdrops}
-            onEditAirdrop={handleOpenAddModal}
-            onDeleteAirdrop={handleDeleteAirdrop}
-            onTaskToggle={handleTaskToggle}
-            onShowDetail={handleOpenDetailModal}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8">
+          <div className="lg:col-span-2">
+             <h2 className="text-2xl font-headline text-foreground mb-6">Airdrop Anda</h2>
+            <FilterSearchAirdrops 
+              searchTerm={searchTerm}
+              onSearchTermChange={setSearchTerm}
+              filterStatus={filterStatus}
+              onFilterStatusChange={setFilterStatus}
+            />
+            <AirdropList
+              airdrops={filteredAirdrops}
+              onEditAirdrop={handleOpenAddModal}
+              onDeleteAirdrop={handleDeleteAirdrop}
+              onTaskToggle={handleTaskToggle}
+              onShowDetail={handleOpenDetailModal}
+            />
+          </div>
+          <div className="lg:col-span-1 space-y-8">
+             <h2 className="text-2xl font-headline text-foreground mb-6 lg:mt-0">Tools & Integrasi</h2>
+            <SheetsIntegrationCard />
+          </div>
         </div>
       </main>
       <AddAirdropModal
