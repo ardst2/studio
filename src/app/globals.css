@@ -43,6 +43,8 @@ body {
     --radius: 0.75rem;
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
+    --radius-lg: var(--radius);
+
 
     /* Warna gradien tema disesuaikan: Kuning-Oranye -> Pink Cerah -> Ungu Moderat */
     --gradient-theme-start: 38 100% 56%; /* Warm Yellow-Orange */
@@ -109,7 +111,7 @@ body {
 /* Custom input field styling with gradient wipe animation */
 .input-gradient-glow-wrapper {
   position: relative;
-  padding: 1.5px; /* Controls the thickness of the gradient border - Reverted to original */
+  padding: 0.5px; /* Controls the thickness of the gradient border */
   border-radius: var(--radius-sm); /* Should match inner element's border-radius + padding */
   overflow: hidden;
   transition: box-shadow 300ms ease-out;
@@ -143,7 +145,7 @@ body {
 .input-gradient-glow-wrapper button { /* Generic button inside wrapper */
   position: relative;
   z-index: 1; /* Above the gradient ::before pseudo-element */
-  border-radius: calc(var(--radius-sm) - 1.5px); /* Slightly smaller to show the gradient border - Reverted */
+  border-radius: calc(var(--radius-sm) - 0.5px); /* Slightly smaller to show the gradient border */
   width: 100%;
   outline: none !important;
   box-shadow: none !important;
@@ -192,6 +194,52 @@ body {
 .input-gradient-glow-wrapper:focus-within {
   box-shadow: 0 0 8px 0px hsla(var(--gradient-theme-mid), 0.5); /* Subtle glow from the mid color */
 }
+
+/* Card gradient glow wrapper */
+.card-gradient-glow-wrapper {
+  position: relative;
+  padding: 0.5px; /* Controls the thickness of the gradient border */
+  border-radius: var(--radius-lg); /* Match card's default rounded-lg */
+  overflow: hidden; /* Important to clip the ::before element for rounded corners */
+  transition: box-shadow 300ms ease-out;
+}
+
+.card-gradient-glow-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0; /* Cover the padding area and the card itself */
+  border-radius: inherit; /* Inherits from wrapper */
+  background: linear-gradient(135deg,
+    hsl(var(--gradient-theme-start)),
+    hsl(var(--gradient-theme-mid)),
+    hsl(var(--gradient-theme-end))
+  );
+  z-index: 0; /* Behind the card content */
+  clip-path: circle(0% at 100% 100%); /* Start animation from bottom-right */
+  transition: clip-path 350ms ease-out;
+  pointer-events: none; /* Allow clicks to pass through to the card */
+}
+
+.card-gradient-glow-wrapper:hover::before {
+  clip-path: circle(150% at 100% 100%); /* Reveals gradient on hover */
+}
+
+/* The actual card component (direct child div of the wrapper) */
+.card-gradient-glow-wrapper > .rounded-lg { /* Targeting Shadcn Card's default rounded-lg */
+  position: relative;
+  z-index: 1; /* Sits on top of the ::before pseudo-element */
+  /* The card's own background should be visible */
+  background-color: hsl(var(--card));
+  /* Make the card's default border transparent so the gradient shows */
+  border-color: transparent !important;
+  width: 100%;
+  height: 100%; /* Make card fill the wrapper */
+}
+
+.card-gradient-glow-wrapper:hover {
+  box-shadow: 0 0 10px 1px hsla(var(--gradient-theme-mid), 0.6); /* Slightly more pronounced glow */
+}
+
 
 .gradient-spinner {
   width: 48px;
@@ -313,16 +361,12 @@ body {
   background: linear-gradient(to right, hsl(var(--gradient-theme-start)), hsl(var(--gradient-theme-mid)), hsl(var(--gradient-theme-end)));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent !important; 
+  color: transparent !important;
 }
 
-.header-icon-button:hover svg path,
-.header-icon-button:hover svg line,
-.header-icon-button:hover svg polyline,
-.header-icon-button:hover svg rect,
-.header-icon-button:hover svg circle {
-  stroke: currentColor !important; /* currentColor will be transparent */
-  fill: none !important;
+.header-icon-button:hover svg * { /* Target all child elements like path, line, etc. */
+  stroke: currentColor !important; /* currentColor will be transparent due to parent SVG's color */
+  fill: none !important; /* Ensure no fill interferes */
 }
 
 
@@ -338,35 +382,23 @@ body {
   color: transparent;
   -webkit-text-fill-color: transparent;
 }
-    
+
 
 /* Popover with gradient border */
 .popover-gradient-border {
   border-width: 1.5px; /* Adjust thickness of the gradient border */
   border-style: solid;
   border-color: transparent; /* Important: make the actual border transparent */
-  
+
   /* Double background trick for gradient border */
-  background-image: linear-gradient(hsl(var(--popover)), hsl(var(--popover))), 
-                    linear-gradient(135deg, 
-                                    hsl(var(--gradient-theme-start)), 
-                                    hsl(var(--gradient-theme-mid)), 
+  background-image: linear-gradient(hsl(var(--popover)), hsl(var(--popover))),
+                    linear-gradient(135deg,
+                                    hsl(var(--gradient-theme-start)),
+                                    hsl(var(--gradient-theme-mid)),
                                     hsl(var(--gradient-theme-end)));
   background-origin: padding-box, border-box;
   background-clip: padding-box, border-box;
-  
+
   /* Ensure ShadCN's default border is overridden if necessary */
   box-shadow: 0 0 0 0px hsl(var(--border)) !important; /* Override ShadCN's border shadow */
 }
-
-
-    
-
-
-
-
-
-
-
-
-    

@@ -44,8 +44,8 @@ const EmptyAirdropDayCard = ({ onShowTodaysDeadlines, onAddNewAirdrop, airdrops 
   return (
     <Card
       className={cn(
-        "shadow-xl h-full bg-card text-card-foreground p-6",
-        "cursor-pointer hover:shadow-2xl hover:border-primary/30 transition-all duration-200 ease-in-out border border-transparent"
+        "shadow-xl w-full h-full bg-card text-card-foreground p-6 flex flex-col items-center justify-center text-center",
+        "cursor-pointer transition-all duration-200 ease-in-out"
       )}
       onClick={onShowTodaysDeadlines}
       role="button"
@@ -57,38 +57,38 @@ const EmptyAirdropDayCard = ({ onShowTodaysDeadlines, onAddNewAirdrop, airdrops 
       }}
       aria-label={deadlinesToday.length > 0 ? `Lihat ${deadlinesToday.length} airdrop yang jatuh tempo hari ini` : "Tidak ada airdrop jatuh tempo hari ini"}
     >
-      <CardContent className="flex flex-col items-center justify-center text-center h-full space-y-4">
+      <CardContent className="flex flex-col items-center justify-center text-center h-full space-y-3 p-0">
         <div className="relative">
           <div
-            className="w-20 h-20 rounded-lg flex flex-col items-center justify-center bg-muted shadow-lg"
+            className="w-16 h-16 rounded-lg flex flex-col items-center justify-center bg-muted shadow-md"
           >
-            <span className="text-3xl block text-gradient-theme font-bold">{day}</span>
-            <span className="text-xs block uppercase text-gradient-theme font-semibold">{month}</span>
+            <span className="text-2xl block text-gradient-theme font-bold">{day}</span>
+            <span className="text-[0.6rem] block uppercase text-gradient-theme font-semibold">{month}</span>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="absolute -top-2 -right-2 bg-muted/80 hover:bg-muted rounded-full h-8 w-8 flex items-center justify-center"
+            className="absolute -top-2 -right-2 bg-muted/80 hover:bg-muted rounded-full h-7 w-7 flex items-center justify-center"
             onClick={(e) => {
               e.stopPropagation();
               onAddNewAirdrop();
             }}
             aria-label="Tambah airdrop baru"
           >
-             <CalendarDays className="h-4 w-4 text-foreground/70" />
+             <CalendarDays className="h-3.5 w-3.5 text-foreground/70" />
           </Button>
         </div>
 
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-foreground flex items-center justify-center">
+        <div className="text-center mt-2">
+          <h3 className="text-base font-semibold text-foreground flex items-center justify-center">
             {deadlinesToday.length > 0 ? (
-              <Sparkles className="w-5 h-5 mr-2 text-gradient-theme" />
+              <Sparkles className="w-4 h-4 mr-1.5 text-gradient-theme" />
             ) : (
-              <Info className="w-5 h-5 mr-2 text-muted-foreground" />
+              <Info className="w-4 h-4 mr-1.5 text-muted-foreground" />
             )}
             {cardTitle}
           </h3>
-          <p className="text-sm text-muted-foreground">{cardSubtitle}</p>
+          <p className="text-xs text-muted-foreground">{cardSubtitle}</p>
         </div>
       </CardContent>
     </Card>

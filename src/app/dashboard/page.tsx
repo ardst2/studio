@@ -239,29 +239,39 @@ function DashboardPageContent() {
       <DashboardHeader />
       <main className="flex-1 p-4 md:p-8 space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 xl:gap-8">
-          <UserInfoCard
-            airdrops={allAirdrops}
-            user={user}
-            onOpenProfileModal={handleOpenEditProfileModal}
-          />
-          <Card className="shadow-xl h-full bg-card text-card-foreground p-6 flex flex-col justify-center hover:shadow-2xl hover:border-primary/30 transition-all duration-200 ease-in-out border border-transparent">
-            <CardHeader className="p-0 pb-4">
-              <CardTitle className="font-headline text-xl text-foreground">Kelola Airdrop Anda</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Pantau peluang baru dan tugas yang sedang berjalan.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <AddAirdropButton onClick={() => handleOpenAddModal()} />
-            </CardContent>
-          </Card>
-          <SummaryStats airdrops={allAirdrops} onOpenStatsModal={handleOpenStatsModal} />
-          <EmptyAirdropDayCard
-            onShowTodaysDeadlines={handleOpenTodaysDeadlinesModal}
-            onAddNewAirdrop={() => handleOpenAddModal()}
-            airdrops={allAirdrops}
-          />
-          <SheetsIntegrationCard />
+          <div className="card-gradient-glow-wrapper h-72">
+            <UserInfoCard
+              airdrops={allAirdrops}
+              user={user}
+              onOpenProfileModal={handleOpenEditProfileModal}
+            />
+          </div>
+          <div className="card-gradient-glow-wrapper h-72">
+            <Card className="w-full h-full bg-card text-card-foreground p-6 flex flex-col justify-center">
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="font-headline text-xl text-foreground">Kelola Airdrop Anda</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Pantau peluang baru dan tugas yang sedang berjalan.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <AddAirdropButton onClick={() => handleOpenAddModal()} />
+              </CardContent>
+            </Card>
+          </div>
+          <div className="card-gradient-glow-wrapper h-72">
+            <SummaryStats airdrops={allAirdrops} onOpenStatsModal={handleOpenStatsModal} />
+          </div>
+          <div className="card-gradient-glow-wrapper h-72">
+            <EmptyAirdropDayCard
+              onShowTodaysDeadlines={handleOpenTodaysDeadlinesModal}
+              onAddNewAirdrop={() => handleOpenAddModal()}
+              airdrops={allAirdrops}
+            />
+          </div>
+          <div className="card-gradient-glow-wrapper h-72">
+            <SheetsIntegrationCard />
+          </div>
         </div>
 
         <div>

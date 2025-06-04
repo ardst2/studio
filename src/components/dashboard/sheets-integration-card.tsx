@@ -63,32 +63,32 @@ const SheetsIntegrationCard = () => {
   };
 
   return (
-    <Card className="shadow-xl h-full bg-card text-card-foreground hover:shadow-2xl hover:border-primary/30 transition-all duration-200 ease-in-out border border-transparent">
-      <CardHeader>
-        <CardTitle className="font-headline text-xl text-foreground flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-gradient-theme"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/></svg>
-          Import from Google Sheets
+    <Card className="shadow-xl w-full h-full bg-card text-card-foreground flex flex-col justify-center p-6">
+      <CardHeader className="p-0 pb-2">
+        <CardTitle className="font-headline text-lg text-foreground flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-gradient-theme"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/></svg>
+          Import from Sheets
         </CardTitle>
-        <CardDescription className="text-muted-foreground text-sm">
+        <CardDescription className="text-muted-foreground text-xs">
           Import airdrops from a Google Sheet.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3 pt-3">
+      <CardContent className="space-y-2 p-0 pt-2 flex-grow flex flex-col justify-center">
         <div>
-          <Label htmlFor="sheetId" className="mb-1 block text-xs font-medium">Google Sheet ID</Label>
+          <Label htmlFor="sheetId" className="mb-0.5 block text-xs font-medium">Google Sheet ID</Label>
           <InputWrapper>
             <Input
               id="sheetId"
               value={sheetId}
               onChange={(e) => setSheetId(e.target.value)}
-              placeholder="e.g., 1aBcDeFgHiJkL..."
+              placeholder="e.g., 1aBcDeF..."
               disabled={isProcessing}
-              className="text-sm h-9"
+              className="text-xs h-8"
             />
           </InputWrapper>
         </div>
         <div>
-          <Label htmlFor="tabName" className="mb-1 block text-xs font-medium">Tab Name</Label>
+          <Label htmlFor="tabName" className="mb-0.5 block text-xs font-medium">Tab Name</Label>
           <InputWrapper>
             <Input
               id="tabName"
@@ -96,20 +96,20 @@ const SheetsIntegrationCard = () => {
               onChange={(e) => setTabName(e.target.value)}
               placeholder="e.g., Airdrops Q1"
               disabled={isProcessing}
-              className="text-sm h-9"
+              className="text-xs h-8"
             />
           </InputWrapper>
         </div>
         <div className="pt-1">
-          <Button onClick={handleImport} disabled={isProcessing || storeLoading} className="w-full btn-gradient text-sm h-9">
-            {isProcessing ? <Loader size="sm" className="mr-2 border-primary-foreground" /> : <Download className="mr-2 h-4 w-4" />}
+          <Button onClick={handleImport} disabled={isProcessing || storeLoading} className="w-full btn-gradient text-xs h-8 py-1">
+            {isProcessing ? <Loader size="sm" className="mr-1.5 border-primary-foreground" /> : <Download className="mr-1.5 h-3.5 w-3.5" />}
             Import
           </Button>
         </div>
-         <p className="text-xs text-muted-foreground pt-1">
-           Format: Name, Description, StartDate (YYYY-MM-DD), Deadline (YYYY-MM-DD), Tasks (text;...), Status. Header di baris pertama.
-        </p>
       </CardContent>
+       <p className="text-[0.65rem] text-muted-foreground pt-1 leading-tight mt-auto">
+           Format: Name, Desc, StartDate (YYYY-MM-DD), Deadline (YYYY-MM-DD), Tasks (text;...), Status. Header di baris pertama.
+      </p>
     </Card>
   );
 };
