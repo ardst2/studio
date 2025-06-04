@@ -20,6 +20,18 @@ const getDefaultNewAirdrop = (userId: string): Omit<Airdrop, 'id' | 'createdAt' 
   deadline: undefined,
   description: '',
   tasks: [],
+  blockchain: '',
+  registrationDate: undefined,
+  participationRequirements: '',
+  airdropLink: '',
+  userDefinedStatus: '',
+  notes: '',
+  walletAddress: '',
+  tokenAmount: undefined,
+  claimDate: undefined,
+  airdropType: '',
+  referralCode: '',
+  informationSource: '',
 });
 
 export const useAirdropsStore = () => {
@@ -48,10 +60,13 @@ export const useAirdropsStore = () => {
             return {
               id: docSnap.id,
               ...data,
-              startDate: data.startDate instanceof Timestamp ? data.startDate.toDate().getTime() : undefined,
-              deadline: data.deadline instanceof Timestamp ? data.deadline.toDate().getTime() : undefined,
+              startDate: data.startDate instanceof Timestamp ? data.startDate.toDate().getTime() : data.startDate,
+              deadline: data.deadline instanceof Timestamp ? data.deadline.toDate().getTime() : data.deadline,
               createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().getTime() : Date.now(),
+              registrationDate: data.registrationDate instanceof Timestamp ? data.registrationDate.toDate().getTime() : data.registrationDate,
+              claimDate: data.claimDate instanceof Timestamp ? data.claimDate.toDate().getTime() : data.claimDate,
               tasks: data.tasks || [],
+              tokenAmount: data.tokenAmount === null || data.tokenAmount === undefined ? undefined : Number(data.tokenAmount),
             } as Airdrop;
           });
           setAirdrops(fetchedAirdrops);
@@ -88,21 +103,25 @@ export const useAirdropsStore = () => {
       status,
       startDate: airdropData.startDate ? Timestamp.fromDate(new Date(airdropData.startDate)) : null,
       deadline: airdropData.deadline ? Timestamp.fromDate(new Date(airdropData.deadline)) : null,
+      registrationDate: airdropData.registrationDate ? Timestamp.fromDate(new Date(airdropData.registrationDate)) : null,
+      claimDate: airdropData.claimDate ? Timestamp.fromDate(new Date(airdropData.claimDate)) : null,
       tasks: (airdropData.tasks || []).map(task => ({ ...task, id: task.id || uuidv4() })),
+      tokenAmount: airdropData.tokenAmount === undefined || isNaN(Number(airdropData.tokenAmount)) ? null : Number(airdropData.tokenAmount),
     };
 
     try {
       const docRef = await addDoc(collection(db, 'users', user.uid, 'airdrops'), airdropForDb);
       const newAirdrop: Airdrop = {
         ...airdropData,
-        tasks: airdropForDb.tasks,
+        tokenAmount: airdropData.tokenAmount === undefined || isNaN(Number(airdropData.tokenAmount)) ? undefined : Number(airdropData.tokenAmount),
+        tasks: airdropForDb.tasks, // Ensure tasks have IDs
         id: docRef.id,
         userId: user.uid,
         createdAt: Date.now(), 
         status,
       };
       setAirdrops(prev => [newAirdrop, ...prev].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
-      resetNewAirdropDraft();
+      resetNewAirdropDraft(); // Reset draft after successful save
     } catch (error) {
       console.error("Error adding airdrop to Firestore: ", error);
       throw error;
@@ -118,8 +137,8 @@ export const useAirdropsStore = () => {
 
     airdropsData.forEach(airdropData => {
       const now = Date.now();
-      let status: AirdropStatus = airdropData.status || 'Upcoming'; // Use provided status or default
-       if (!airdropData.status) { // Recalculate if not provided or based on dates
+      let status: AirdropStatus = (airdropData as Airdrop).status || 'Upcoming'; // Use provided status or default
+       if (!(airdropData as Airdrop).status) { // Recalculate if not provided or based on dates
             if (airdropData.startDate && airdropData.startDate <= now) status = 'Active';
             const allTasksCompleted = (airdropData.tasks || []).length > 0 && (airdropData.tasks || []).every(t => t.completed);
             if (allTasksCompleted || (airdropData.deadline && airdropData.deadline < now)) {
@@ -129,7 +148,6 @@ export const useAirdropsStore = () => {
             }
         }
 
-
       const docRef = doc(collection(db, 'users', user.uid!, 'airdrops')); // Auto-generate ID
       const airdropForDb = {
         ...airdropData,
@@ -138,11 +156,15 @@ export const useAirdropsStore = () => {
         status,
         startDate: airdropData.startDate ? Timestamp.fromDate(new Date(airdropData.startDate)) : null,
         deadline: airdropData.deadline ? Timestamp.fromDate(new Date(airdropData.deadline)) : null,
+        registrationDate: airdropData.registrationDate ? Timestamp.fromDate(new Date(airdropData.registrationDate)) : null,
+        claimDate: airdropData.claimDate ? Timestamp.fromDate(new Date(airdropData.claimDate)) : null,
         tasks: (airdropData.tasks || []).map(task => ({ ...task, id: task.id || uuidv4() })),
+        tokenAmount: airdropData.tokenAmount === undefined || isNaN(Number(airdropData.tokenAmount)) ? null : Number(airdropData.tokenAmount),
       };
       batch.set(docRef, airdropForDb);
       newAirdropsForState.push({
         ...airdropData,
+        tokenAmount: airdropData.tokenAmount === undefined || isNaN(Number(airdropData.tokenAmount)) ? undefined : Number(airdropData.tokenAmount),
         tasks: airdropForDb.tasks,
         id: docRef.id,
         userId: user.uid,
@@ -171,7 +193,10 @@ export const useAirdropsStore = () => {
       ...dataToUpdate,
       startDate: dataToUpdate.startDate ? Timestamp.fromDate(new Date(dataToUpdate.startDate)) : null,
       deadline: dataToUpdate.deadline ? Timestamp.fromDate(new Date(dataToUpdate.deadline)) : null,
+      registrationDate: dataToUpdate.registrationDate ? Timestamp.fromDate(new Date(dataToUpdate.registrationDate)) : null,
+      claimDate: dataToUpdate.claimDate ? Timestamp.fromDate(new Date(dataToUpdate.claimDate)) : null,
       tasks: (dataToUpdate.tasks || []).map(task => ({ ...task, id: task.id || uuidv4() })),
+      tokenAmount: dataToUpdate.tokenAmount === undefined || isNaN(Number(dataToUpdate.tokenAmount)) ? null : Number(dataToUpdate.tokenAmount),
     };
 
     try {
@@ -211,7 +236,10 @@ export const useAirdropsStore = () => {
       })
       .filter(airdrop => 
         (airdrop.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (airdrop.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+        (airdrop.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (airdrop.blockchain || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (airdrop.airdropType || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (airdrop.userDefinedStatus || '').toLowerCase().includes(searchTerm.toLowerCase())
       );
   }, [airdrops, filterStatus, searchTerm]);
 
@@ -224,7 +252,7 @@ export const useAirdropsStore = () => {
     filterStatus,
     setFilterStatus,
     addAirdrop,
-    addManyAirdrops, // New function
+    addManyAirdrops,
     updateAirdrop,
     deleteAirdrop,
     newAirdropDraft,

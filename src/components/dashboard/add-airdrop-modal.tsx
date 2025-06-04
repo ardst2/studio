@@ -1,3 +1,4 @@
+
 // src/components/dashboard/add-airdrop-modal.tsx
 "use client";
 
@@ -5,7 +6,6 @@ import type { Airdrop } from '@/types/airdrop';
 import AirdropForm from './airdrop-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Loader from '@/components/ui/loader';
-// ScrollArea is not used in this reverted version
 import { useState } from 'react';
 
 interface AddAirdropModalProps {
@@ -22,8 +22,10 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
     setIsSaving(true);
     try {
       await onSave(data);
+      // onClose(); // Dipanggil dari DashboardPage setelah toast
     } catch (error) {
       console.error("Failed to save airdrop:", error);
+      // Toast error akan ditangani di DashboardPage
     } finally {
       setIsSaving(false);
     }
@@ -31,33 +33,33 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl p-6 max-h-[85vh] overflow-y-auto">
-        {/* Decorative gradient lines using new theme colors */}
-        {/* These are relative to DialogContent which has p-6. They will be inset by p-6. */}
+      <DialogContent className="sm:max-w-2xl p-0 max-h-[85vh] overflow-hidden">
         <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-[1]"></div>
         <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-[1]"></div>
         
-        <DialogHeader className="pb-4"> {/* Simple header padding */}
-          <DialogTitle className="font-headline text-2xl text-foreground">
-            {initialData ? 'Edit Airdrop' : 'Tambah Airdrop Baru'}
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Isi detail airdrop yang ingin Anda lacak. Semua kolom bersifat opsional.
-          </DialogDescription>
-        </DialogHeader>
+        <div className="flex flex-col h-full">
+            <DialogHeader className="p-6 pb-4 border-b border-border shrink-0">
+            <DialogTitle className="font-headline text-2xl text-foreground">
+                {initialData ? 'Edit Airdrop' : 'Tambah Airdrop Baru'}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+                Lengkapi detail airdrop yang ingin Anda lacak. Semakin detail, semakin baik!
+            </DialogDescription>
+            </DialogHeader>
 
-        <div className="relative mt-6"> {/* Spacing for the form */}
-            {isSaving && (
-              <div className="absolute inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-50">
-                <Loader variant="modal" />
-              </div>
-            )}
-            <AirdropForm 
-              onSubmit={handleSave} 
-              initialData={initialData} 
-              onClose={onClose}
-              isSaving={isSaving}
-            />
+            <div className="flex-grow overflow-y-auto min-h-0 p-6">
+                {isSaving && (
+                <div className="absolute inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-50 rounded-lg">
+                    <Loader variant="modal" />
+                </div>
+                )}
+                <AirdropForm 
+                onSubmit={handleSave} 
+                initialData={initialData} 
+                onClose={onClose}
+                isSaving={isSaving}
+                />
+            </div>
         </div>
       </DialogContent>
     </Dialog>
