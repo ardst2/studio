@@ -9,24 +9,24 @@ body {
 
 @layer base {
   :root {
-    /* Dark Theme - Hitam Pekat (Sesuai Preferensi Pengguna) */
-    --background: 240 10% 3.9%; /* Lebih netral hitam */
-    --foreground: 0 0% 98%; /* Putih */
+    /* Dark Theme - Hitam Pekat */
+    --background: 240 10% 3.9%; 
+    --foreground: 0 0% 98%; 
 
-    --card: 240 10% 4.5%; /* Sedikit lebih terang dari background, tetap sangat gelap */
+    --card: 240 10% 4.5%; 
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 3.5%; /* Paling gelap untuk popover */
+    --popover: 240 10% 3.5%; 
     --popover-foreground: 0 0% 98%;
 
     /* Warna aksi utama - Oranye-Merah Dominan */
     --primary: 16 100% 50%; 
     --primary-foreground: 20 0% 10%; 
 
-    --secondary: 240 5% 15%; /* Abu-abu gelap netral */
+    --secondary: 240 5% 15%; 
     --secondary-foreground: 0 0% 90%;
 
-    --muted: 240 5% 10%; /* Abu-abu sangat gelap yang diredam netral */
+    --muted: 240 5% 10%; 
     --muted-foreground: 240 5% 65%; 
 
     /* Warna aksen - Oranye-Merah */
@@ -36,31 +36,26 @@ body {
     --destructive: 0 70% 50%; 
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5% 12%; /* Border abu-abu sangat gelap netral */
-    --input: 240 10% 5%;  /* Latar belakang untuk kolom input, sangat gelap, sedikit berbeda dari card */
+    --border: 240 5% 12%; 
+    --input: 240 10% 5%;  
     --ring: 16 100% 50%; 
 
     --radius: 0.75rem; 
     --radius-md: calc(var(--radius) - 2px); 
     --radius-sm: calc(var(--radius) - 4px); 
 
-    /* Warna gradien untuk input outline (Indigo, Merah, Oranye, Kuning) - LEBIH ELEGAN */
-    --gradient-indigo: 271 100% 51%;
-    --gradient-red: 0 100% 55%;
-    --gradient-orange: 25 100% 55%;
-    --gradient-yellow: 45 100% 55%;
+    /* Warna gradien tema baru (sesuai gambar referensi) */
+    --gradient-theme-start: 38 100% 56%; /* Warm Yellow-Orange */
+    --gradient-theme-mid: 320 100% 60%;   /* Vibrant Pink-Magenta */
+    --gradient-theme-end: 270 90% 58%;    /* Purple */
     
-    /* Warna gradien tombol Simpan & Ikon Header (Pinkish-Red ke Yellow) */
-    --gradient-pink: 340 100% 60%;
-    /* --gradient-red, --gradient-orange, --gradient-yellow sudah ada */
-
     /* Gradien avatar */
     --gradient-blue: 210 100% 50%;
 
     /* Warna kustom untuk tombol Tambah Airdrop */
-    --custom-black: 0 0% 0%; /* Hitam pekat */
-    --custom-gray-700: 0 0% 10%; /* Abu-abu gelap untuk hover */
-    --custom-gray-text: 0 0% 70%; /* Abu-abu muda untuk teks tombol */
+    --custom-black: 0 0% 0%; 
+    --custom-gray-700: 0 0% 10%; 
+    --custom-gray-text: 0 0% 70%; 
   }
 
   .dark {
@@ -110,11 +105,10 @@ body {
   position: absolute;
   inset: -1.5px; 
   border-radius: inherit; 
-  background: linear-gradient(to top left,
-    hsl(var(--gradient-indigo)), 
-    hsl(var(--gradient-red)),
-    hsl(var(--gradient-orange)),
-    hsl(var(--gradient-yellow))
+  background: linear-gradient(135deg,
+    hsl(var(--gradient-theme-start)), 
+    hsl(var(--gradient-theme-mid)),
+    hsl(var(--gradient-theme-end))
   );
   z-index: -1; 
   clip-path: circle(0% at 100% 100%); 
@@ -129,8 +123,8 @@ body {
 
 .input-gradient-glow-wrapper input,
 .input-gradient-glow-wrapper textarea,
-.input-gradient-glow-wrapper div[role="combobox"], /* Untuk SelectTrigger */
-.input-gradient-glow-wrapper button { /* Generic button styling inside wrapper */
+.input-gradient-glow-wrapper div[role="combobox"], 
+.input-gradient-glow-wrapper button { 
   position: relative; 
   z-index: 1; 
   border-radius: calc(var(--radius-sm) - 1.5px); 
@@ -142,7 +136,6 @@ body {
   color: hsl(var(--foreground)) !important; 
 }
 
-/* Specific styling for buttons that might need different text/bg inside the wrapper */
 .input-gradient-glow-wrapper button.text-muted-foreground {
   color: hsl(var(--muted-foreground)) !important; 
 }
@@ -150,16 +143,15 @@ body {
   color: hsl(var(--foreground)) !important; 
 }
 
-/* Special style for AddAirdropButton when inside the wrapper */
 .input-gradient-glow-wrapper button.add-airdrop-style {
   background-color: hsl(var(--custom-black)) !important; 
   color: hsl(var(--custom-gray-text)) !important; 
-  border: none !important; /* Override the generic border for this specific button */
+  border: none !important; 
   transition: background-color 0.2s ease-out, color 0.2s ease-out;
 }
 
 .input-gradient-glow-wrapper:hover button.add-airdrop-style,
-.input-gradient-glow-wrapper:focus-within button.add-airdrop-style { /* Also apply on focus-within for consistency */
+.input-gradient-glow-wrapper:focus-within button.add-airdrop-style { 
   background-color: hsl(var(--custom-gray-700)) !important; 
   color: hsl(var(--foreground)) !important; 
 }
@@ -167,7 +159,7 @@ body {
 
 .input-gradient-glow-wrapper:hover,
 .input-gradient-glow-wrapper:focus-within {
-  box-shadow: 0 0 8px 0px hsla(var(--gradient-orange), 0.5);
+  box-shadow: 0 0 8px 0px hsla(var(--gradient-theme-mid), 0.5); /* Shadow using mid color of new theme */
 }
 
 .gradient-spinner {
@@ -177,9 +169,9 @@ body {
   display: inline-block;
   position: relative;
   background: conic-gradient(from 0deg at 50% 50%,
-    hsl(var(--gradient-pink)), 
-    hsl(var(--gradient-red)),
-    hsl(var(--gradient-orange)),
+    hsl(var(--gradient-theme-start)), 
+    hsl(var(--gradient-theme-mid)),
+    hsl(var(--gradient-theme-end)),
     transparent 100%
   );
   animation: spin 1s linear infinite;
@@ -205,10 +197,9 @@ body {
 .btn-gradient {
   @apply text-primary-foreground;
   background-image: linear-gradient(to right,
-    hsl(var(--gradient-pink)),
-    hsl(var(--gradient-red)),
-    hsl(var(--gradient-orange)),
-    hsl(var(--gradient-yellow))
+    hsl(var(--gradient-theme-start)),
+    hsl(var(--gradient-theme-mid)),
+    hsl(var(--gradient-theme-end))
   );
   background-size: 200% auto;
   transition: background-position 0.5s ease;
@@ -284,17 +275,15 @@ body {
 
 /* Styling for header icons hover effect */
 .header-icon-button svg {
-  color: hsl(var(--foreground) / 0.8); /* Default icon color */
-  transition: color 0.2s ease-out; /* Smooth transition for fallback */
+  color: hsl(var(--foreground) / 0.8); 
+  transition: color 0.2s ease-out; 
 }
 
 .header-icon-button:hover svg {
-  background: linear-gradient(to right, hsl(var(--gradient-pink)), hsl(var(--gradient-red)), hsl(var(--gradient-orange)), hsl(var(--gradient-yellow)));
+  background: linear-gradient(to right, hsl(var(--gradient-theme-start)), hsl(var(--gradient-theme-mid)), hsl(var(--gradient-theme-end)));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent; /* Makes currentColor (used by Lucide's stroke) transparent, revealing the gradient background */
-  /* For Webkit browsers if the above doesn't work perfectly for SVG stroke */
+  color: transparent; 
   -webkit-text-fill-color: transparent;
 }
-
     

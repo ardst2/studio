@@ -4,14 +4,14 @@
 import type { Airdrop } from '@/types/airdrop';
 import AirdropForm from './airdrop-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import Loader from '@/components/ui/loader'; // Assuming Loader is the gradient spinner
+import Loader from '@/components/ui/loader'; 
 import { useState } from 'react';
 
 interface AddAirdropModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => Promise<void>; // Make onSave async
-  initialData?: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>; // For editing
+  onSave: (data: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => Promise<void>; 
+  initialData?: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>; 
 }
 
 const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropModalProps) => {
@@ -20,11 +20,9 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
   const handleSave = async (data: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => {
     setIsSaving(true);
     try {
-      await onSave(data); // Call the async onSave
-      // onClose will be called by parent upon successful save if needed
+      await onSave(data); 
     } catch (error) {
       console.error("Failed to save airdrop:", error);
-      // Potentially show a toast message here
     } finally {
       setIsSaving(false);
     }
@@ -34,9 +32,9 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-2xl p-0">
         <div className="relative">
-          {/* Optional: Decorative gradient lines for futuristic feel */}
-          <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-pink))] via-[hsl(var(--gradient-red))] to-transparent rounded-tl-lg"></div>
-          <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-pink))] via-[hsl(var(--gradient-red))] to-transparent rounded-br-lg"></div>
+          {/* Decorative gradient lines using new theme colors */}
+          <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg"></div>
+          <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg"></div>
           
           <DialogHeader className="p-6 pb-4 border-b border-border/30">
             <DialogTitle className="font-headline text-2xl text-foreground">
