@@ -2,7 +2,7 @@
 "use client";
 
 import type { Airdrop, AirdropTask, AirdropStatus, AirdropFilterStatus } from '@/types/airdrop';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 
 // Mock data
@@ -177,3 +177,4 @@ export const useAirdropsStore = (userId: string | null) => {
     resetNewAirdropDraft,
   };
 };
+
