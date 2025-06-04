@@ -30,13 +30,13 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl p-0 max-h-[85vh] overflow-y-auto">
-        <div className="relative">
+      <DialogContent className="sm:max-w-2xl p-0 max-h-[85vh]">
+        <div className="relative flex flex-col h-full"> {/* Modified: flex flex-col h-full */}
           {/* Decorative gradient lines using new theme colors */}
           <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg"></div>
           <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg"></div>
           
-          <DialogHeader className="p-6 pb-4 border-b border-border/30 sticky top-0 bg-card z-10">
+          <DialogHeader className="p-6 pb-4 border-b border-border/30 shrink-0"> {/* Modified: removed sticky, bg-card, z-10; added shrink-0 */}
             <DialogTitle className="font-headline text-2xl text-foreground">
               {initialData ? 'Edit Airdrop' : 'Tambah Airdrop Baru'}
             </DialogTitle>
@@ -45,7 +45,7 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
             </DialogDescription>
           </DialogHeader>
 
-          <div className="p-6"> {/* Removed max-h and overflow-y-auto from here */}
+          <div className="p-6 flex-grow overflow-y-auto"> {/* Modified: added flex-grow overflow-y-auto */}
             {isSaving && (
               <div className="absolute inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-50">
                 <Loader variant="modal" />
