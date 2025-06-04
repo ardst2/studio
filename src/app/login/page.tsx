@@ -39,14 +39,12 @@ function LoginPageContent() {
         />
         <div>
           <h1 className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Welcome to Airdrop<span className="text-primary">Ace</span>
+            Assalamualaikum
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Your ultimate tool for tracking and managing Web3 airdrop opportunities.
-          </p>
+          {/* Subtitle removed */}
         </div>
-        <div className="rounded-xl bg-card p-8 shadow-2xl">
-          <h2 className="mb-6 text-2xl font-semibold text-foreground">Get Started</h2>
+        <div className="rounded-xl bg-card p-8 shadow-2xl flex flex-col items-center">
+          {/* "Get Started" text removed */}
           <GoogleSignInButton />
         </div>
         <p className="text-sm text-muted-foreground">
