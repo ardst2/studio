@@ -9,48 +9,48 @@ body {
 
 @layer base {
   :root {
-    /* Dark Theme - Hitam Pekat */
-    --background: 0 0% 2%; /* Sangat Hitam */
-    --foreground: 0 0% 98%; /* Putih */
+    /* Dark Theme - Hitam Pekat (sesuai gambar) */
+    --background: 220 13% 2%; /* Sangat Hitam kebiruan sedikit */
+    --foreground: 210 40% 98%; /* Putih kebiruan sedikit */
 
-    --card: 0 0% 5%; /* Abu-abu sangat gelap untuk kartu */
-    --card-foreground: 0 0% 98%;
+    --card: 220 13% 5%; /* Abu-abu sangat gelap untuk kartu, sedikit kebiruan */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 4%; /* Sedikit lebih gelap untuk popover */
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 13% 3%; /* Lebih gelap untuk popover */
+    --popover-foreground: 210 40% 98%;
 
-    /* Warna aksi utama - Oranye-Merah Dominan */
+    /* Warna aksi utama - Oranye-Merah Dominan (sesuai gambar) */
     --primary: 16 100% 50%; /* Oranye-Merah Menyala */
-    --primary-foreground: 0 0% 10%; /* Teks gelap untuk kontras di atas oranye-merah */
+    --primary-foreground: 20 0% 10%; /* Teks gelap untuk kontras di atas oranye-merah */
 
-    --secondary: 0 0% 12%; /* Abu-abu gelap untuk elemen sekunder */
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 215 28% 17%; /* Abu-abu kebiruan gelap untuk elemen sekunder */
+    --secondary-foreground: 210 40% 95%;
 
-    --muted: 0 0% 8%; /* Abu-abu gelap yang diredam */
-    --muted-foreground: 0 0% 65%; /* Abu-abu lebih lembut untuk teks yang diredam */
+    --muted: 215 20% 10%; /* Abu-abu gelap yang diredam, sedikit kebiruan */
+    --muted-foreground: 215 15% 65%; /* Abu-abu lebih lembut untuk teks yang diredam */
 
-    /* Warna aksen - bisa sama dengan primer atau warna khas lainnya */
-    --accent: 16 100% 50%; /* Menggunakan Oranye-Merah yang sama dengan primer */
-    --accent-foreground: 0 0% 10%;
+    /* Warna aksen - Oranye-Merah (sesuai gambar) */
+    --accent: 16 100% 50%;
+    --accent-foreground: 20 0% 10%;
 
     --destructive: 0 70% 50%; /* Merah untuk aksi destruktif */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 15%; /* Border lebih gelap untuk elemen */
-    --input: 0 0% 7%;  /* Latar belakang untuk kolom input, sedikit lebih terang dari kartu */
+    --border: 215 20% 15%; /* Border lebih gelap untuk elemen, sedikit kebiruan */
+    --input: 220 13% 7%;  /* Latar belakang untuk kolom input, sedikit lebih terang dari kartu */
     --ring: 16 100% 50%; /* Warna ring sesuai primer/aksen baru */
 
     --radius: 0.75rem; /* Radius dasar */
     --radius-md: calc(var(--radius) - 2px); /* 0.625rem */
     --radius-sm: calc(var(--radius) - 4px); /* 0.5rem - Kurang bulat */
 
-    /* Warna gradien berdasarkan PRD (indigo, merah, oranye, kuning) untuk glow input */
+    /* Warna gradien untuk input outline (indigo, merah, oranye, kuning) */
     --gradient-indigo: 271 100% 51%;
     --gradient-red: 0 100% 55%;
     --gradient-orange: 25 100% 55%;
     --gradient-yellow: 45 100% 55%;
 
-    /* Warna gradien tombol dari gambar (Pinkish-Red ke Yellow) - untuk tombol Simpan */
+    /* Warna gradien tombol Simpan (Pinkish-Red ke Yellow - sesuai gambar) */
     --gradient-pink: 340 100% 60%;
     /* --gradient-red sudah didefinisikan */
     /* --gradient-orange sudah didefinisikan */
@@ -60,30 +60,30 @@ body {
     --gradient-blue: 210 100% 50%;
 
     /* Warna kustom untuk tombol Tambah Airdrop */
-    --custom-black: 0 0% 0%;
-    --custom-gray-700: 0 0% 20%; /* Abu-abu untuk hover */
+    --custom-black: 0 0% 0%; /* Hitam pekat */
+    --custom-gray-700: 0 0% 15%; /* Abu-abu gelap untuk hover (mirip border) */
     --custom-gray-text: 0 0% 70%; /* Abu-abu muda untuk teks tombol */
   }
 
   .dark {
-    --background: 0 0% 2%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
+    --background: 220 13% 2%;
+    --foreground: 210 40% 98%;
+    --card: 220 13% 5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 13% 3%;
+    --popover-foreground: 210 40% 98%;
     --primary: 16 100% 50%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 8%;
-    --muted-foreground: 0 0% 65%;
+    --primary-foreground: 20 0% 10%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 95%;
+    --muted: 215 20% 10%;
+    --muted-foreground: 215 15% 65%;
     --accent: 16 100% 50%;
-    --accent-foreground: 0 0% 10%;
+    --accent-foreground: 20 0% 10%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 7%;
+    --border: 215 20% 15%;
+    --input: 220 13% 7%;
     --ring: 16 100% 50%;
   }
 }
@@ -101,73 +101,74 @@ body {
 .input-gradient-glow-wrapper {
   position: relative;
   padding: 1.5px; /* Space for the gradient outline */
-  border-radius: var(--radius-sm); /* Use sm for less rounded */
-  overflow: hidden;
+  border-radius: var(--radius-sm); /* Gunakan sm agar tidak terlalu bulat */
+  overflow: hidden; /* Penting untuk clip-path */
   transition: box-shadow 300ms ease-out;
 }
 
 .input-gradient-glow-wrapper::before {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  inset: -1.5px; /* Sedikit overlap untuk menutupi padding jika diperlukan */
+  border-radius: inherit; /* Mengikuti radius wrapper */
   background: linear-gradient(to top left,
     hsl(var(--gradient-indigo)),
     hsl(var(--gradient-red)),
     hsl(var(--gradient-orange)),
     hsl(var(--gradient-yellow))
   );
-  z-index: 0;
-  clip-path: circle(0% at 100% 100%); /* Initial state: collapsed at bottom-right */
+  z-index: 0; /* Di belakang konten input */
+  clip-path: circle(0% at 100% 100%); /* Awal: kolaps di kanan bawah */
   transition: clip-path 350ms ease-out;
+  pointer-events: none; /* Tambahkan ini agar klik bisa tembus */
 }
 
 .input-gradient-glow-wrapper:hover::before,
 .input-gradient-glow-wrapper:focus-within::before {
-  clip-path: circle(150% at 100% 100%); /* Expanded state: reveals from bottom-right */
+  clip-path: circle(150% at 100% 100%); /* Akhir: gradien penuh dari kanan bawah */
 }
 
 /* Common base for children that should appear 'inside' the glow */
 .input-gradient-glow-wrapper > input,
 .input-gradient-glow-wrapper > textarea,
-.input-gradient-glow-wrapper > div[role="combobox"], /* For Select component trigger */
-.input-gradient-glow-wrapper > button { /* Generalizing for buttons that act like inputs (e.g., date picker trigger) */
+.input-gradient-glow-wrapper > div[role="combobox"], /* Untuk trigger Select component */
+.input-gradient-glow-wrapper > button { /* Untuk tombol yang berfungsi seperti input (mis. date picker trigger) */
   position: relative;
-  z-index: 1;
-  border-radius: calc(var(--radius-sm) - 1.5px); /* Adjust for wrapper padding */
+  z-index: 1; /* Di atas pseudo-element gradien */
+  border-radius: calc(var(--radius-sm) - 1.5px); /* Disesuaikan dengan padding wrapper */
   width: 100%;
-  outline: none !important; /* Remove default outlines */
-  box-shadow: none !important; /* Remove default focus rings */
+  outline: none !important; /* Hapus outline default */
+  box-shadow: none !important; /* Hapus focus ring default */
 }
 
-/* Specifics for text inputs, textareas, comboboxes */
+/* Spesifik untuk text input, textarea, combobox */
 .input-gradient-glow-wrapper > input,
 .input-gradient-glow-wrapper > textarea,
 .input-gradient-glow-wrapper > div[role="combobox"] {
-  border: 1px solid hsl(var(--border)) !important; /* Distinct border for inputs */
+  border: 1px solid hsl(var(--border)) !important; /* Border jelas untuk input */
   background-color: hsl(var(--input));
   color: hsl(var(--foreground));
 }
 
-/* Specifics for buttons acting as input triggers (like date picker) */
+/* Spesifik untuk tombol yang berfungsi sebagai trigger input (seperti date picker) */
 .input-gradient-glow-wrapper > button {
-  border: 1px solid hsl(var(--border)) !important; /* Give them a border like inputs */
-  background-color: hsl(var(--input)) !important; /* Their background should be like input */
-  color: hsl(var(--muted-foreground)) !important; /* Default text color for placeholder-like text */
+  border: 1px solid hsl(var(--border)) !important; /* Beri border seperti input */
+  background-color: hsl(var(--input)) !important; /* Latar belakangnya seperti input */
+  color: hsl(var(--muted-foreground)) !important; /* Warna teks default untuk teks placeholder */
 }
 .input-gradient-glow-wrapper > button.text-foreground {
-  color: hsl(var(--foreground)) !important; /* If button has actual value, use foreground color */
+  color: hsl(var(--foreground)) !important; /* Jika tombol memiliki nilai, gunakan warna foreground */
 }
 
 
-/* Optional: keep a subtle box-shadow for additional depth if desired on the wrapper */
+/* Opsional: pertahankan box-shadow untuk kedalaman tambahan jika diinginkan pada wrapper */
 .input-gradient-glow-wrapper:hover,
 .input-gradient-glow-wrapper:focus-within {
   box-shadow: 0 0 8px 0px hsla(var(--gradient-orange), 0.5);
 }
 
 
-/* Gradient Spinner Loader - using image-inspired gradient colors (Pink/Red/Orange) */
+/* Gradient Spinner Loader - menggunakan warna gradien dari gambar (Pink/Red/Orange) */
 .gradient-spinner {
   width: 48px;
   height: 48px;
@@ -190,17 +191,17 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 40px;
+  width: 40px; /* Sedikit lebih kecil dari spinner */
   height: 40px;
   border-radius: 50%;
-  background: hsl(var(--card)); /* Default to card, can be overridden by Loader component */
+  background: hsl(var(--card)); /* Default ke card, bisa dioverride oleh Loader component */
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Big gradient button (filled) - using image-inspired gradient colors - For Save Button */
+/* Tombol gradien besar (terisi) - menggunakan warna gradien dari gambar - Untuk Tombol Simpan */
 .btn-gradient {
   @apply text-primary-foreground;
   background-image: linear-gradient(to right,
@@ -216,15 +217,15 @@ body {
   background-position: right center;
 }
 
-/* Ensure primary HSL values are set for ShadCN components (used as solid fallback) */
+/* Pastikan nilai HSL primer diatur untuk komponen ShadCN (digunakan sebagai fallback solid) */
 :root {
-  /* ... other root variables ... */
+  /* ... variabel root lainnya ... */
   --primary: 16 100% 50%;
-  --primary-foreground: 0 0% 10%;
+  --primary-foreground: 20 0% 10%;
 }
 
 .dark {
-   /* ... other dark variables ... */
+   /* ... variabel dark lainnya ... */
   --primary: 16 100% 50%;
-  --primary-foreground: 0 0% 10%;
+  --primary-foreground: 20 0% 10%;
 }
