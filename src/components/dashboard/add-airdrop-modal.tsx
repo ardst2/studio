@@ -48,7 +48,7 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
             </DialogDescription>
             </DialogHeader>
 
-            <ScrollArea className="flex-grow min-h-0 overflow-y-auto"> {/* Added overflow-y-auto here */}
+            <ScrollArea className="flex-grow min-h-0"> {/* REMOVED overflow-y-auto */}
               <div className="p-6 relative"> 
                 {isSaving && (
                 <div className="absolute inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-50 rounded-md">
@@ -70,4 +70,3 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
 };
 
 export default AddAirdropModal;
-
