@@ -14,8 +14,8 @@ import { useAirdropsStore } from '@/hooks/use-airdrops-store';
 import type { Airdrop } from '@/types/airdrop';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import UserInfoCard from '@/components/dashboard/user-info-card'; // New
-import EmptyAirdropDayCard from '@/components/dashboard/empty-airdrop-day-card'; // New
+import UserInfoCard from '@/components/dashboard/user-info-card';
+import EmptyAirdropDayCard from '@/components/dashboard/empty-airdrop-day-card';
 
 function DashboardPageContent() {
   const { toast } = useToast();
@@ -135,7 +135,7 @@ function DashboardPageContent() {
     <div className="flex min-h-screen flex-col bg-background">
       <DashboardHeader />
       <main className="flex-1 p-4 md:p-8 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
           <UserInfoCard />
           <Card className="shadow-xl h-full bg-card text-card-foreground p-6 flex flex-col justify-center">
             <CardHeader className="p-0 pb-4">
@@ -182,5 +182,6 @@ function DashboardPageContent() {
 }
 
 export default function DashboardPage() {
+  // Removed AuthProvider as login is no longer part of the flow
   return <DashboardPageContent />;
 }
