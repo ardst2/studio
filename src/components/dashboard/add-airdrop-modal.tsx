@@ -31,7 +31,7 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl p-0 max-h-[80vh] flex flex-col overflow-hidden relative"> {/* Changed max-h from 85vh to 80vh */}
+      <DialogContent className="sm:max-w-2xl p-0 max-h-[80vh] flex flex-col overflow-hidden relative">
         {/* Decorative gradient lines using new theme colors */}
         <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-[1]"></div>
         <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-[1]"></div>
@@ -45,7 +45,7 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-grow"> {/* ScrollArea will take the remaining vertical space */}
+        <ScrollArea className="flex-grow min-h-0"> {/* Added min-h-0 */}
           <div className="p-6 relative"> {/* Padding applied inside ScrollArea, relative for loader */}
             {isSaving && (
               <div className="absolute inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-50">
