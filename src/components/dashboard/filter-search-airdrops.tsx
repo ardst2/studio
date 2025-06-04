@@ -6,6 +6,7 @@ import type { AirdropFilterStatus } from '@/types/airdrop';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface FilterSearchAirdropsProps {
   searchTerm: string;
@@ -24,33 +25,38 @@ const FilterSearchAirdrops = ({
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-card rounded-xl shadow-md border border-border/50">
-      <div className="relative flex-grow">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Cari nama atau deskripsi airdrop..."
-          value={searchTerm}
-          onChange={(e) => onSearchTermChange(e.target.value)}
-          className="pl-10 h-11 text-base bg-input border-border focus:bg-background"
-        />
+      <div className="input-gradient-glow-wrapper flex-grow"> {/* Ditambahkan wrapper di sini */}
+        <div className="relative w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" /> {/* Pastikan ikon di atas input */}
+          <Input
+            type="search"
+            placeholder="Cari nama atau deskripsi airdrop..."
+            value={searchTerm}
+            onChange={(e) => onSearchTermChange(e.target.value)}
+            className="pl-10 h-11 text-base w-full" // bg-input, border-border, focus:bg-background dihapus untuk styling dari wrapper
+          />
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Filter className="h-5 w-5 text-muted-foreground hidden sm:block" />
-        <Select value={filterStatus} onValueChange={(value) => onFilterStatusChange(value as AirdropFilterStatus)}>
-          <SelectTrigger className="w-full sm:w-[180px] h-11 text-base bg-input border-border focus:bg-background data-[state=open]:bg-popover">
-            <SelectValue placeholder="Filter berdasarkan status" />
-          </SelectTrigger>
-          <SelectContent className="bg-popover border-border">
-            {statuses.map(status => (
-              <SelectItem key={status} value={status} className="capitalize text-base focus:bg-muted">
-                {status === 'All' ? 'Semua Airdrop' : status}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="input-gradient-glow-wrapper"> {/* Ditambahkan wrapper di sini */}
+        <div className="flex items-center gap-2 h-11"> {/* Samakan tinggi dengan input */}
+          <Filter className="h-5 w-5 text-muted-foreground hidden sm:block ml-2" /> {/* Tambah margin jika perlu */}
+          <Select value={filterStatus} onValueChange={(value) => onFilterStatusChange(value as AirdropFilterStatus)}>
+            <SelectTrigger className="w-full sm:w-[180px] h-full text-base border-0 rounded-md"> {/* bg-input, border-border, focus:bg-background dihapus */}
+              <SelectValue placeholder="Filter berdasarkan status" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border">
+              {statuses.map(status => (
+                <SelectItem key={status} value={status} className="capitalize text-base focus:bg-muted">
+                  {status === 'All' ? 'Semua Airdrop' : status}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   );
 };
 
 export default FilterSearchAirdrops;
+
