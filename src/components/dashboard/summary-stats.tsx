@@ -5,14 +5,16 @@
 import type { Airdrop } from '@/types/airdrop';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 // Icons like ListChecks, History, Rocket, Target are not in the new design for this card.
 // The new design shows simple text labels.
 
 interface SummaryStatsProps {
   airdrops: Airdrop[];
+  onOpenStatsModal: () => void; // New prop
 }
 
-const SummaryStats = ({ airdrops }: SummaryStatsProps) => {
+const SummaryStats = ({ airdrops, onOpenStatsModal }: SummaryStatsProps) => {
   const totalAirdrops = airdrops.length;
   const activeAirdrops = airdrops.filter(a => a.status === 'Active').length;
   const upcomingAirdrops = airdrops.filter(a => a.status === 'Upcoming').length;
@@ -21,7 +23,17 @@ const SummaryStats = ({ airdrops }: SummaryStatsProps) => {
   const overallProgress = totalAirdrops > 0 ? (completedAirdrops / totalAirdrops) * 100 : 0;
 
   return (
-    <Card className="shadow-xl h-full bg-card text-card-foreground">
+    <Card 
+      className={cn(
+        "shadow-xl h-full bg-card text-card-foreground",
+        "cursor-pointer hover:shadow-2xl hover:border-primary/30 transition-all duration-200 ease-in-out border border-transparent"
+      )}
+      onClick={onOpenStatsModal}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onOpenStatsModal(); }}
+      aria-label="Lihat statistik detail airdrop"
+    >
       <CardHeader className="pb-3">
         <CardTitle className="font-headline text-xl text-foreground">Ringkasan</CardTitle>
       </CardHeader>
