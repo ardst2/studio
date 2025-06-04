@@ -310,6 +310,7 @@ body {
 }
 
 .header-icon-button svg {
+  /* Lucide icons are typically stroke-based. Ensure SVG container has no fill by default. */
   fill: none;
 }
 
@@ -317,15 +318,15 @@ body {
   background: linear-gradient(to right, hsl(var(--gradient-theme-start)), hsl(var(--gradient-theme-mid)), hsl(var(--gradient-theme-end)));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent !important; /* Makes currentColor (used by stroke) transparent */
-  fill: none !important; /* Explicitly ensure no fill for the SVG container */
-  -webkit-text-fill-color: transparent; /* Safari/Webkit equivalent for color: transparent with background-clip: text */
+  color: transparent !important; /* Makes 'currentColor' (used by strokes in Lucide) transparent */
+  fill: none !important; /* Ensure SVG container itself has no fill that would obscure the background */
 }
 
-/* Ensure child elements of the SVG use currentColor for stroke and have no fill,
-   so the parent's clipped gradient background shows through the strokes. */
-.header-icon-button:hover svg * { /* Targets all children: path, line, circle, etc. */
-  stroke: currentColor !important; /* Uses parent SVG's color (which is transparent on hover) */
+/* This rule ensures that the actual drawing elements (path, line, etc.) within the SVG
+   use the (now transparent) 'currentColor' for their stroke and have no fill.
+   This allows the SVG's gradient background (clipped to 'text') to show through. */
+.header-icon-button:hover svg * {
+  stroke: currentColor !important;
   fill: none !important;
 }
 
@@ -345,6 +346,7 @@ body {
     
 
     
+
 
 
 
