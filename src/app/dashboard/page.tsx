@@ -136,7 +136,7 @@ function DashboardPageContent() {
       <DashboardHeader />
       <main className="flex-1 p-4 md:p-8 space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
-          <UserInfoCard />
+          <UserInfoCard airdrops={allAirdrops} />
           <Card className="shadow-xl h-full bg-card text-card-foreground p-6 flex flex-col justify-center">
             <CardHeader className="p-0 pb-4">
               <CardTitle className="font-headline text-xl text-foreground">Kelola Airdrop Anda</CardTitle>
@@ -182,6 +182,5 @@ function DashboardPageContent() {
 }
 
 export default function DashboardPage() {
-  // Removed AuthProvider as login is no longer part of the flow
   return <DashboardPageContent />;
 }

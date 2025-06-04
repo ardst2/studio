@@ -4,13 +4,19 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import type { Airdrop } from '@/types/airdrop';
 
-const UserInfoCard = () => {
-  // Static data as login is removed
-  const userName = "Sagita Winardi";
-  const userRole = "Pemburu Airdrop";
-  const trackedCount = 0; // Example data
-  const completedCount = 0; // Example data
+interface UserInfoCardProps {
+  airdrops: Airdrop[];
+}
+
+const UserInfoCard = ({ airdrops }: UserInfoCardProps) => {
+  // Static data for name/role as login is removed
+  const userName = "Nama Pengguna";
+  const userRole = "Peran Pengguna";
+  
+  const trackedCount = airdrops.length;
+  const completedCount = airdrops.filter(a => a.status === 'Completed').length;
 
   return (
     <Card className="shadow-xl h-full bg-card text-card-foreground p-6">
@@ -18,7 +24,7 @@ const UserInfoCard = () => {
         <Avatar className="h-24 w-24 border-4 border-transparent" style={{ background: 'linear-gradient(hsl(var(--gradient-blue)), hsl(var(--gradient-blue) / 0.7))' }}>
           {/* Using a blue gradient for avatar background as per image */}
           <AvatarFallback className="text-4xl font-bold text-white bg-transparent">
-            {userName.charAt(0).toUpperCase()}
+            {(userName.charAt(0) || 'U').toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div>
