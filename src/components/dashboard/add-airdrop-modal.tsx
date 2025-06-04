@@ -1,4 +1,3 @@
-
 // src/components/dashboard/add-airdrop-modal.tsx
 "use client";
 
@@ -6,7 +5,6 @@ import type { Airdrop } from '@/types/airdrop';
 import AirdropForm from './airdrop-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Loader from '@/components/ui/loader';
-// ScrollArea import is removed
 import { useState } from 'react';
 
 interface AddAirdropModalProps {
@@ -35,11 +33,11 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-2xl p-0 max-h-[85vh] overflow-hidden">
-        <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-[1]"></div>
-        <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-[1]"></div>
+        <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-20"></div>
+        <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-20"></div>
         
-        {/* This div will be the main scroll container */}
-        <div className="flex flex-col h-full overflow-y-auto">
+        {/* This div is the main scroll container */}
+        <div className="h-full overflow-y-auto">
             <DialogHeader className="p-6 pb-4 border-b border-border shrink-0 sticky top-0 bg-card z-10">
             <DialogTitle className="font-headline text-2xl text-foreground">
                 {initialData ? 'Edit Airdrop' : 'Tambah Airdrop Baru'}
@@ -50,7 +48,7 @@ const AddAirdropModal = ({ isOpen, onClose, onSave, initialData }: AddAirdropMod
             </DialogHeader>
 
             {/* Content area for the form */}
-            <div className="p-6 relative flex-grow"> 
+            <div className="p-6 relative"> 
               {isSaving && (
               <div className="absolute inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-50 rounded-md">
                   <Loader variant="modal" />
