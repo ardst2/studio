@@ -9,17 +9,17 @@ body {
 
 @layer base {
   :root {
-    --background: 220 10% 5%; /* Very Dark Grey/Black */
-    --foreground: 0 0% 95%; /* Lighter gray */
+    --background: 220 13% 9%; /* Dark Navy from PRD (adjusted slightly) */
+    --foreground: 210 20% 95%; /* Lighter gray */
 
-    --card: 220 10% 10%; /* Dark Card Background */
-    --card-foreground: 0 0% 95%;
+    --card: 220 13% 14%; /* Darker Card Background */
+    --card-foreground: 210 20% 95%;
 
-    --popover: 220 10% 8%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 220 13% 12%;
+    --popover-foreground: 210 20% 95%;
 
-    --primary: 15 100% 55%; /* Vibrant Red-Orange */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 271 100% 72%; /* Indigo from PRD (adjusted for visibility on dark bg) */
+    --primary-foreground: 210 20% 98%;
 
     --secondary: 220 10% 20%;
     --secondary-foreground: 0 0% 95%;
@@ -27,45 +27,52 @@ body {
     --muted: 220 10% 15%;
     --muted-foreground: 0 0% 60%;
 
-    --accent: 330 100% 60%; /* Vibrant Pink/Magenta */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent: 38 100% 50%; /* Yellow-orange from PRD */
+    --accent-foreground: 220 13% 9%; /* Dark for contrast on yellow-orange */
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 220 10% 20%; /* Darker border */
     --input: 220 10% 12%;
-    --ring: 15 100% 55%; /* Primary color for focus rings */
+    --ring: 271 100% 72%; /* Primary color for focus rings */
 
-    --radius: 0.75rem;
+    --radius: 0.75rem; /* Base radius */
+    --radius-md: calc(var(--radius) - 2px); /* Slightly less rounded */
+    --radius-sm: calc(var(--radius) - 4px); /* Even less rounded */
 
-    /* Gradient colors based on new theme */
-    --gradient-pink: 330 100% 60%;
-    --gradient-red: 0 100% 55%;
-    --gradient-orange: 25 100% 55%;
+
+    /* Gradient colors for input outline and other elements, as per PRD */
+    --gradient-indigo: 271 100% 51%; /* Indigo #4B0082 */
+    --gradient-red: 0 100% 55%; /* Red */
+    --gradient-orange: 25 100% 55%; /* Orange */
+    --gradient-yellow: 45 100% 55%; /* Yellow */
+    
+    /* Existing gradients from previous theme, might need adjustment or removal if not used */
+    --gradient-pink: 330 100% 60%; 
     --gradient-blue: 210 100% 50%; /* For avatar */
   }
 
   .dark {
-    --background: 220 10% 5%;
-    --foreground: 0 0% 95%;
-    --card: 220 10% 10%;
-    --card-foreground: 0 0% 95%;
-    --popover: 220 10% 8%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 15 100% 55%;
-    --primary-foreground: 0 0% 100%;
+    --background: 220 13% 9%;
+    --foreground: 210 20% 95%;
+    --card: 220 13% 14%;
+    --card-foreground: 210 20% 95%;
+    --popover: 220 13% 12%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 271 100% 72%;
+    --primary-foreground: 210 20% 98%;
     --secondary: 220 10% 20%;
     --secondary-foreground: 0 0% 95%;
     --muted: 220 10% 15%;
     --muted-foreground: 0 0% 60%;
-    --accent: 330 100% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 38 100% 50%;
+    --accent-foreground: 220 13% 9%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
     --border: 220 10% 20%;
     --input: 220 10% 12%;
-    --ring: 15 100% 55%;
+    --ring: 271 100% 72%;
   }
 }
 
@@ -78,12 +85,12 @@ body {
   }
 }
 
-/* Custom input field styling with gradient glow - adjust to new theme */
+/* Custom input field styling with gradient wipe animation */
 .input-gradient-glow-wrapper {
   position: relative;
-  padding: 1px;
-  border-radius: calc(var(--radius) + 1px);
-  overflow: hidden;
+  padding: 1.5px; /* Space for the gradient outline */
+  border-radius: var(--radius-md); /* Less rounded */
+  overflow: hidden; /* Important for clip-path */
   transition: box-shadow 300ms ease-out;
 }
 
@@ -91,16 +98,22 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(to top left, hsl(var(--gradient-pink)), hsl(var(--gradient-red)), hsl(var(--gradient-orange)));
-  opacity: 0;
-  transition: opacity 300ms ease-out;
+  border-radius: inherit; /* Match wrapper's rounding */
+  /* PRD: starting from the bottom right to the top left using indigo, red, orange, and yellow */
+  background: linear-gradient(to top left, 
+    hsl(var(--gradient-indigo)), 
+    hsl(var(--gradient-red)), 
+    hsl(var(--gradient-orange)), 
+    hsl(var(--gradient-yellow))
+  );
   z-index: 0;
+  clip-path: circle(0% at 100% 100%); /* Initial state: collapsed at bottom-right */
+  transition: clip-path 350ms ease-out;
 }
 
 .input-gradient-glow-wrapper:hover::before,
 .input-gradient-glow-wrapper:focus-within::before {
-  opacity: 1;
+  clip-path: circle(150% at 100% 100%); /* Expanded state: reveals from bottom-right */
 }
 
 .input-gradient-glow-wrapper > input,
@@ -108,24 +121,34 @@ body {
 .input-gradient-glow-wrapper > div[role="combobox"] {
   position: relative;
   z-index: 1;
-  border: 1px solid hsl(var(--input)) !important;
+  /* Inputs themselves should also be less rounded to match the wrapper */
+  border-radius: calc(var(--radius-md) - 1.5px); /* Adjust to fit inside the wrapper padding */
+  border: 1px solid hsl(var(--input)) !important; /* Fallback border */
   width: 100%;
+  background-color: hsl(var(--input)); /* Ensure input bg matches theme */
+  color: hsl(var(--foreground));
 }
 
+/* Optional: keep a subtle box-shadow for additional depth if desired */
 .input-gradient-glow-wrapper:hover,
 .input-gradient-glow-wrapper:focus-within {
-  box-shadow: 0 0 12px 0px hsla(var(--gradient-orange), 0.6);
+  box-shadow: 0 0 8px 0px hsla(var(--gradient-orange), 0.5);
 }
 
 
-/* Gradient Spinner Loader - adjust to new theme */
+/* Gradient Spinner Loader - using PRD colors */
 .gradient-spinner {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   display: inline-block;
   position: relative;
-  background: conic-gradient(from 0deg at 50% 50%, hsl(var(--gradient-pink)) 0%, hsl(var(--gradient-red)) 33%, hsl(var(--gradient-orange)) 66%, transparent 100%);
+  background: conic-gradient(from 0deg at 50% 50%, 
+    hsl(var(--gradient-indigo)) 0%, 
+    hsl(var(--gradient-red)) 33%, 
+    hsl(var(--gradient-orange)) 66%, 
+    transparent 100%
+  );
   animation: spin 1s linear infinite;
   box-sizing: border-box;
 }
@@ -139,18 +162,38 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: hsl(var(--card));
+  background: hsl(var(--card)); /* Default to card, can be overridden by Loader component */
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Big gradient button - updated to new theme */
+/* Big gradient button - using PRD colors */
 .btn-gradient {
-  @apply text-white;
-  background-image: linear-gradient(to right, hsl(var(--gradient-pink)), hsl(var(--gradient-red)), hsl(var(--gradient-orange)));
+  @apply text-primary-foreground; /* Ensure text color contrasts with gradient */
+  background-image: linear-gradient(to right, 
+    hsl(var(--gradient-indigo)), 
+    hsl(var(--gradient-red)), 
+    hsl(var(--gradient-orange)), 
+    hsl(var(--gradient-yellow))
+  );
+  background-size: 200% auto; /* For potential hover animation */
+  transition: background-position 0.5s ease;
 }
 .btn-gradient:hover {
-  background-image: linear-gradient(to right, hsl(var(--gradient-pink) / 0.9), hsl(var(--gradient-red) / 0.9), hsl(var(--gradient-orange) / 0.9));
+  background-position: right center; /* Change gradient direction on hover */
+}
+
+/* Ensure primary HSL values are set for ShadCN components */
+:root {
+  /* ... other root variables ... */
+  --primary: 271 100% 51%; /* Indigo - for Shadcn components */
+  --primary-foreground: 0 0% 100%; /* White for text on Indigo */
+}
+
+.dark {
+   /* ... other dark variables ... */
+  --primary: 271 100% 51%; 
+  --primary-foreground: 0 0% 100%;
 }
