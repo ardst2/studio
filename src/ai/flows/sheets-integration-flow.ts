@@ -34,7 +34,7 @@ async function getSheetsClient() {
   return google.sheets({version: 'v4', auth: authClient});
 }
 
-// --- Schemas ---
+// --- Schemas (Internal, not exported directly) ---
 const SheetCoordinatesSchema = z.object({
   sheetId: z.string().min(1, 'Sheet ID is required.').describe('The ID of the Google Sheet (from its URL).'),
   tabName: z.string().min(1, 'Tab name is required.').describe('The name of the tab within the Google Sheet.'),
@@ -48,17 +48,22 @@ const ImportedAirdropDataSchema = z.object({
   tasks: z.array(z.object({ text: z.string(), completed: z.boolean() })).optional(),
   status: z.enum(['Upcoming', 'Active', 'Completed']).optional(),
 });
+// Exported type for a single imported airdrop item
 export type ImportedAirdropData = z.infer<typeof ImportedAirdropDataSchema>;
 
-// --- Import Flow ---
-export const importAirdropsInputSchema = SheetCoordinatesSchema;
+// Input schema for the flow (internal constant)
+const importAirdropsInputSchema = SheetCoordinatesSchema;
+// Exported type for the flow input
 export type ImportAirdropsInput = z.infer<typeof importAirdropsInputSchema>;
 
-export const importAirdropsOutputSchema = z.object({
+// Output schema for the flow (internal constant)
+const importAirdropsOutputSchema = z.object({
     importedAirdrops: z.array(ImportedAirdropDataSchema),
     message: z.string(),
 });
+// Exported type for the flow output
 export type ImportAirdropsOutput = z.infer<typeof importAirdropsOutputSchema>;
+
 
 const SHEET_HEADERS = ['Name', 'Description', 'StartDate (YYYY-MM-DD)', 'Deadline (YYYY-MM-DD)', 'Tasks (text;text;...)', 'Status'];
 
@@ -81,8 +86,8 @@ function parseTasksString(tasksStr?: string): AirdropTask[] {
 const importAirdropsFlow = ai.defineFlow(
   {
     name: 'importAirdropsFlow',
-    inputSchema: importAirdropsInputSchema,
-    outputSchema: importAirdropsOutputSchema,
+    inputSchema: importAirdropsInputSchema, // Use internal schema constant
+    outputSchema: importAirdropsOutputSchema, // Use internal schema constant
   },
   async ({sheetId, tabName}) => {
     const sheets = await getSheetsClient();
@@ -142,6 +147,3 @@ const importAirdropsFlow = ai.defineFlow(
 export async function importAirdropsFromSheet(input: ImportAirdropsInput): Promise<ImportAirdropsOutput> {
   return importAirdropsFlow(input);
 }
-
-// --- Export Flow and related schemas removed ---
-
