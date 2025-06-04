@@ -10,74 +10,74 @@ body {
 @layer base {
   :root {
     /* Dark Theme - Hitam Pekat */
-    --background: 240 10% 3.9%; 
-    --foreground: 0 0% 98%; 
+    --background: 224 71% 4%; /* Lebih gelap dari sebelumnya, hampir hitam */
+    --foreground: 210 40% 98%;
 
-    --card: 240 10% 4.5%; 
-    --card-foreground: 0 0% 98%;
+    --card: 224 71% 4.5%; /* Sedikit lebih terang dari background */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 240 10% 3.5%; 
-    --popover-foreground: 0 0% 98%;
+    --popover: 224 71% 3.5%; /* Untuk popover, bisa lebih gelap lagi */
+    --popover-foreground: 210 40% 98%;
 
-    /* Warna aksi utama - Oranye-Merah Dominan */
-    --primary: 16 100% 50%; 
-    --primary-foreground: 20 0% 10%; 
+    /* Warna aksi utama - Oranye-Merah Dominan, sesuai PRD sebelumnya */
+    --primary: 30 90% 55%; /* Oranye terang */
+    --primary-foreground: 20 0% 10%;
 
-    --secondary: 240 5% 15%; 
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 215 28% 17%; /* Biru tua desaturasi */
+    --secondary-foreground: 210 40% 90%;
 
-    --muted: 240 5% 10%; 
-    --muted-foreground: 240 5% 65%; 
+    --muted: 224 71% 7%; /* Lebih gelap untuk muted */
+    --muted-foreground: 215 20% 65%;
 
-    /* Warna aksen - Oranye-Merah */
-    --accent: 16 100% 50%;
+    /* Warna aksen - Oranye-Merah, sesuai PRD sebelumnya */
+    --accent: 30 90% 55%;
     --accent-foreground: 20 0% 10%;
 
-    --destructive: 0 70% 50%; 
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5% 12%; 
-    --input: 240 10% 5%;  
-    --ring: 16 100% 50%; 
+    --border: 215 28% 11%; /* Border yang lebih gelap */
+    --input: 224 71% 5%;   /* Input yang lebih gelap */
+    --ring: 30 90% 55%;
 
-    --radius: 0.75rem; 
-    --radius-md: calc(var(--radius) - 2px); 
-    --radius-sm: calc(var(--radius) - 4px); 
+    --radius: 0.75rem;
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
 
     /* Warna gradien tema baru (sesuai gambar referensi) */
     --gradient-theme-start: 38 100% 56%; /* Warm Yellow-Orange */
     --gradient-theme-mid: 320 100% 60%;   /* Vibrant Pink-Magenta */
     --gradient-theme-end: 270 90% 58%;    /* Purple */
-    
+
     /* Gradien avatar */
     --gradient-blue: 210 100% 50%;
 
     /* Warna kustom untuk tombol Tambah Airdrop */
-    --custom-black: 0 0% 0%; 
-    --custom-gray-700: 0 0% 10%; 
-    --custom-gray-text: 0 0% 70%; 
+    --custom-black: 0 0% 0%;
+    --custom-gray-700: 0 0% 10%;
+    --custom-gray-text: 0 0% 70%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 4.5%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.5%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 16 100% 50%;
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
+    --card: 224 71% 4.5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 224 71% 3.5%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 30 90% 55%;
     --primary-foreground: 20 0% 10%;
-    --secondary: 240 5% 15%;
-    --secondary-foreground: 0 0% 90%;
-    --muted: 240 5% 10%;
-    --muted-foreground: 240 5% 65%;
-    --accent: 16 100% 50%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 90%;
+    --muted: 224 71% 7%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 30 90% 55%;
     --accent-foreground: 20 0% 10%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5% 12%;
-    --input: 240 10% 5%;
-    --ring: 16 100% 50%;
+    --border: 215 28% 11%;
+    --input: 224 71% 5%;
+    --ring: 30 90% 55%;
   }
 }
 
@@ -93,73 +93,73 @@ body {
 /* Custom input field styling with gradient wipe animation */
 .input-gradient-glow-wrapper {
   position: relative;
-  padding: 1.5px; 
-  border-radius: var(--radius-sm); 
-  overflow: hidden; 
+  padding: 1.5px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
   transition: box-shadow 300ms ease-out;
-  background-color: transparent; 
+  background-color: transparent;
 }
 
 .input-gradient-glow-wrapper::before {
   content: '';
   position: absolute;
-  inset: -1.5px; 
-  border-radius: inherit; 
+  inset: -1.5px;
+  border-radius: inherit;
   background: linear-gradient(135deg,
-    hsl(var(--gradient-theme-start)), 
+    hsl(var(--gradient-theme-start)),
     hsl(var(--gradient-theme-mid)),
     hsl(var(--gradient-theme-end))
   );
-  z-index: -1; 
-  clip-path: circle(0% at 100% 100%); 
+  z-index: -1;
+  clip-path: circle(0% at 100% 100%);
   transition: clip-path 350ms ease-out;
   pointer-events: none;
 }
 
 .input-gradient-glow-wrapper:hover::before,
 .input-gradient-glow-wrapper:focus-within::before {
-  clip-path: circle(150% at 100% 100%); 
+  clip-path: circle(150% at 100% 100%);
 }
 
 .input-gradient-glow-wrapper input,
 .input-gradient-glow-wrapper textarea,
-.input-gradient-glow-wrapper div[role="combobox"], 
-.input-gradient-glow-wrapper button { 
-  position: relative; 
-  z-index: 1; 
-  border-radius: calc(var(--radius-sm) - 1.5px); 
+.input-gradient-glow-wrapper div[role="combobox"],
+.input-gradient-glow-wrapper button {
+  position: relative;
+  z-index: 1;
+  border-radius: calc(var(--radius-sm) - 1.5px);
   width: 100%;
-  outline: none !important; 
-  box-shadow: none !important; 
-  border: 1px solid hsl(var(--border)) !important; 
-  background-color: hsl(var(--input)) !important; 
-  color: hsl(var(--foreground)) !important; 
+  outline: none !important;
+  box-shadow: none !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--input)) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 .input-gradient-glow-wrapper button.text-muted-foreground {
-  color: hsl(var(--muted-foreground)) !important; 
+  color: hsl(var(--muted-foreground)) !important;
 }
-.input-gradient-glow-wrapper button.text-foreground { 
-  color: hsl(var(--foreground)) !important; 
+.input-gradient-glow-wrapper button.text-foreground {
+  color: hsl(var(--foreground)) !important;
 }
 
 .input-gradient-glow-wrapper button.add-airdrop-style {
-  background-color: hsl(var(--custom-black)) !important; 
-  color: hsl(var(--custom-gray-text)) !important; 
-  border: none !important; 
+  background-color: hsl(var(--custom-black)) !important;
+  color: hsl(var(--custom-gray-text)) !important;
+  border: none !important;
   transition: background-color 0.2s ease-out, color 0.2s ease-out;
 }
 
 .input-gradient-glow-wrapper:hover button.add-airdrop-style,
-.input-gradient-glow-wrapper:focus-within button.add-airdrop-style { 
-  background-color: hsl(var(--custom-gray-700)) !important; 
-  color: hsl(var(--foreground)) !important; 
+.input-gradient-glow-wrapper:focus-within button.add-airdrop-style {
+  background-color: hsl(var(--custom-gray-700)) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 
 .input-gradient-glow-wrapper:hover,
 .input-gradient-glow-wrapper:focus-within {
-  box-shadow: 0 0 8px 0px hsla(var(--gradient-theme-mid), 0.5); /* Shadow using mid color of new theme */
+  box-shadow: 0 0 8px 0px hsla(var(--gradient-theme-mid), 0.5);
 }
 
 .gradient-spinner {
@@ -169,7 +169,7 @@ body {
   display: inline-block;
   position: relative;
   background: conic-gradient(from 0deg at 50% 50%,
-    hsl(var(--gradient-theme-start)), 
+    hsl(var(--gradient-theme-start)),
     hsl(var(--gradient-theme-mid)),
     hsl(var(--gradient-theme-end)),
     transparent 100%
@@ -184,10 +184,10 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 40px; 
+  width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: hsl(var(--card)); 
+  background: hsl(var(--card));
 }
 
 @keyframes spin {
@@ -213,17 +213,17 @@ body {
   --rdp-cell-size: 40px;
   --rdp-accent-color: hsl(var(--primary));
   --rdp-background-color: hsl(var(--primary-foreground));
-  --rdp-outline: 2px solid hsl(var(--primary)); 
+  --rdp-outline: 2px solid hsl(var(--primary));
   --rdp-outline-selected: 3px solid hsl(var(--primary));
-  margin: 1em 0; 
-  background-color: hsl(var(--popover)); 
+  margin: 1em 0;
+  background-color: hsl(var(--popover));
   border-radius: var(--radius-md);
   border: 1px solid hsl(var(--border));
 }
 
 .rdp-caption_label,
 .rdp-head_cell {
-  color: hsl(var(--popover-foreground)); 
+  color: hsl(var(--popover-foreground));
   font-size: 0.875rem;
 }
 .rdp-caption {
@@ -274,16 +274,19 @@ body {
 }
 
 /* Styling for header icons hover effect */
+.header-icon-button:hover {
+  background-color: transparent !important; /* Override button's own hover bg */
+}
+
 .header-icon-button svg {
-  color: hsl(var(--foreground) / 0.8); 
-  transition: color 0.2s ease-out; 
+  color: hsl(var(--foreground) / 0.8);
+  transition: color 0.2s ease-out;
 }
 
 .header-icon-button:hover svg {
   background: linear-gradient(to right, hsl(var(--gradient-theme-start)), hsl(var(--gradient-theme-mid)), hsl(var(--gradient-theme-end)));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent; 
-  -webkit-text-fill-color: transparent;
+  color: transparent !important; /* Ensure SVG color becomes transparent */
+  -webkit-text-fill-color: transparent; /* For Safari */
 }
-    
