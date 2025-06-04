@@ -10,13 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+// import { Calendar } from '@/components/ui/calendar'; // Not needed anymore
+// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'; // Not needed anymore
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, PlusCircle, Trash2, Save } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
-import { id as localeID } from 'date-fns/locale'; // Indonesian locale for date formatting
+import { PlusCircle, Trash2, Save } from 'lucide-react';
+// import { format, parseISO } from 'date-fns'; // format for PPP not needed
+// import { id as localeID } from 'date-fns/locale'; // localeID not needed
 import { useEffect, useState } from 'react';
 
 const currentDate = new Date();
@@ -60,7 +60,7 @@ const InputWrapper: React.FC<{ children: React.ReactNode; className?: string }> 
 );
 
 const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormProps) => {
-  const { register, handleSubmit, control, formState: { errors, isValid, dirtyFields, touchedFields }, watch, reset } = useForm<AirdropFormData>({
+  const { register, handleSubmit, control, formState: { errors, isValid, dirtyFields, touchedFields }, watch, reset, setValue } = useForm<AirdropFormData>({
     resolver: zodResolver(airdropSchema),
     defaultValues: {
       name: initialData?.name || '',
@@ -86,15 +86,34 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
     return value !== undefined;
   });
 
+  const formatDateForInput = (timestamp?: number): string => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
   useEffect(() => {
     if (initialData) {
-        reset({
-            name: initialData.name || '',
-            startDate: initialData.startDate ? new Date(initialData.startDate) : undefined,
-            deadline: initialData.deadline ? new Date(initialData.deadline) : undefined,
-            description: initialData.description || '',
-            tasks: initialData.tasks || [],
-        });
+      reset({
+        name: initialData.name || '',
+        description: initialData.description || '',
+        tasks: initialData.tasks || [],
+        // For date inputs, we need to set them in YYYY-MM-DD format for the input field
+        // but react-hook-form with valueAsDate: true will expect a Date object for the actual form value
+        startDate: initialData.startDate ? new Date(initialData.startDate) : undefined,
+        deadline: initialData.deadline ? new Date(initialData.deadline) : undefined,
+      });
+    } else {
+      reset({
+        name: '',
+        description: '',
+        tasks: [],
+        startDate: undefined,
+        deadline: undefined,
+      });
     }
   }, [initialData, reset]);
 
@@ -102,8 +121,8 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
   const handleFormSubmit = (data: AirdropFormData) => {
     const submissionData = {
         name: data.name || `Unnamed Airdrop ${new Date().toLocaleTimeString()}`, // Default name if empty
-        startDate: data.startDate?.getTime(),
-        deadline: data.deadline?.getTime(),
+        startDate: data.startDate?.getTime(), // valueAsDate: true in register should provide Date object
+        deadline: data.deadline?.getTime(), // valueAsDate: true in register should provide Date object
         description: data.description,
         tasks: data.tasks || [],
     };
@@ -131,83 +150,34 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
         <div>
           <Label htmlFor="startDate" className="mb-1 block text-sm font-medium">Tanggal Mulai</Label>
           <InputWrapper>
-            <Controller
-              name="startDate"
-              control={control}
-              render={({ field }) => (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="ghost" // Use ghost and style manually to look like an input
-                      className={cn(
-                        "h-10 w-full justify-start truncate rounded-md border-none bg-transparent px-3 py-2 text-left text-sm font-normal ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
-                        !field.value && "text-muted-foreground",
-                        field.value && "text-foreground" // Ensure text color is foreground when a date is selected
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? format(field.value, "PPP", { locale: localeID }) : <span>Pilih tanggal</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-popover border-border" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                      className="bg-popover" // Ensure calendar popover matches dark theme
-                       classNames={{
-                        day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90",
-                        day_today: "bg-accent text-accent-foreground",
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              )}
+            <Input 
+              id="startDate" 
+              type="date" 
+              {...register('startDate', { valueAsDate: true })}
+              className="w-full"
             />
           </InputWrapper>
         </div>
         <div>
           <Label htmlFor="deadline" className="mb-1 block text-sm font-medium">Deadline / Tanggal Selesai</Label>
           <InputWrapper>
-            <Controller
-              name="deadline"
-              control={control}
-              render={({ field }) => (
-                <Popover>
-                  <PopoverTrigger asChild>
-                     <Button
-                        variant="ghost" // Use ghost and style manually
-                        className={cn(
-                          "h-10 w-full justify-start truncate rounded-md border-none bg-transparent px-3 py-2 text-left text-sm font-normal ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
-                          !field.value && "text-muted-foreground",
-                          field.value && "text-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(field.value, "PPP", { locale: localeID }) : <span>Pilih tanggal</span>}
-                      </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-popover border-border" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        watch('startDate') ? date < watch('startDate')! : false
-                      }
-                      initialFocus
-                      className="bg-popover"
-                      classNames={{
-                        day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90",
-                        day_today: "bg-accent text-accent-foreground",
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              )}
+            <Input 
+              id="deadline" 
+              type="date" 
+              {...register('deadline', { 
+                valueAsDate: true,
+                validate: (value) => {
+                  const startDate = watch('startDate');
+                  if (startDate && value && value < startDate) {
+                    return "Deadline tidak boleh sebelum tanggal mulai";
+                  }
+                  return true;
+                }
+              })}
+              className="w-full"
             />
           </InputWrapper>
+          {errors.deadline && <p className="mt-1 text-xs text-red-400">{errors.deadline.message}</p>}
         </div>
       </div>
 
@@ -280,3 +250,4 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
 };
 
 export default AirdropForm;
+
