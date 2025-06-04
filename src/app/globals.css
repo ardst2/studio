@@ -44,10 +44,11 @@ body {
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
-    /* Warna gradien tema (warm yellow/orange, pink/magenta, purple) */
+    /* Warna gradien tema disesuaikan - ungu kurang dominan */
     --gradient-theme-start: 38 100% 56%; /* Warm Yellow-Orange */
-    --gradient-theme-mid: 320 100% 60%;   /* Vibrant Pink-Magenta */
-    --gradient-theme-end: 270 90% 58%;    /* Purple */
+    --gradient-theme-mid: 330 90% 60%;   /* Strong Pink */
+    --gradient-theme-end: 300 85% 55%;    /* Magenta/Deep Pink */
+
 
     /* Gradien avatar (contoh, mungkin tidak digunakan lagi) */
     --gradient-blue: 210 100% 50%; /* Biru untuk avatar (jika diperlukan) */
@@ -306,6 +307,19 @@ body {
   color: transparent !important; /* Ensure SVG color (for currentColor stroke) becomes transparent */
   fill: transparent !important; /* Ensure SVG fill becomes transparent for complex icons */
   -webkit-text-fill-color: transparent; /* For Safari/Webkit text rendering */
+}
+
+/* Gradient text class */
+.text-gradient-theme {
+  background: linear-gradient(to right,
+    hsl(var(--gradient-theme-start)),
+    hsl(var(--gradient-theme-mid)),
+    hsl(var(--gradient-theme-end))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
     
 

@@ -193,7 +193,7 @@ function DashboardPageContent() {
             </CardContent>
           </Card>
           <SummaryStats airdrops={allAirdrops} />
-          <EmptyAirdropDayCard onAddNewAirdrop={() => handleOpenAddModal()} />
+          <EmptyAirdropDayCard onAddNewAirdrop={() => handleOpenAddModal()} airdrops={allAirdrops} />
         </div>
 
         <div className="mt-8">
