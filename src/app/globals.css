@@ -9,25 +9,25 @@ body {
 
 @layer base {
   :root {
-    /* Dark Theme - Hitam Pekat (seharusnya tidak ada biru) */
-    --background: 0 0% 2%; /* Hitam pekat */
-    --foreground: 0 0% 98%; /* Putih gading */
+    /* Dark Theme - Hitam Pekat Netral */
+    --background: 0 0% 2%; /* Hitam pekat (abu-abu sangat gelap, netral) */
+    --foreground: 0 0% 98%; /* Putih gading (abu-abu sangat terang, netral) */
 
-    --card: 0 0% 3.5%; /* Sedikit lebih terang dari background, sangat gelap */
+    --card: 0 0% 4%; /* Sedikit lebih terang dari background, sangat gelap, netral */
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 2.5%; /* Untuk popover, bisa lebih gelap lagi */
+    --popover: 0 0% 3%; /* Antara background dan card, sangat gelap, netral */
     --popover-foreground: 0 0% 98%;
 
     /* Warna aksi utama - Oranye-Merah Dominan */
     --primary: 30 90% 55%; /* Oranye terang */
     --primary-foreground: 20 0% 10%; /* Abu-abu sangat gelap untuk teks di atas primer */
 
-    --secondary: 0 0% 12%; /* Abu-abu gelap untuk elemen sekunder */
+    --secondary: 0 0% 12%; /* Abu-abu gelap untuk elemen sekunder, netral */
     --secondary-foreground: 0 0% 80%; /* Abu-abu terang untuk teks di atas sekunder */
 
-    --muted: 0 0% 5%; /* Lebih gelap untuk muted */
-    --muted-foreground: 0 0% 65%; /* Abu-abu medium untuk teks muted */
+    --muted: 0 0% 8%; /* Lebih gelap untuk muted, netral (sebelumnya 5%) */
+    --muted-foreground: 0 0% 65%; /* Abu-abu medium untuk teks muted, netral */
 
     /* Warna aksen - Oranye-Merah */
     --accent: 30 90% 55%;
@@ -36,8 +36,8 @@ body {
     --destructive: 0 70% 50%; /* Merah */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 8%; /* Border yang sangat gelap */
-    --input: 0 0% 4%;   /* Input yang sangat gelap */
+    --border: 0 0% 10%; /* Border yang sangat gelap, netral (sebelumnya 8%) */
+    --input: 0 0% 5%;   /* Input yang sangat gelap, netral (sebelumnya 4%) */
     --ring: 30 90% 55%; /* Oranye untuk focus ring */
 
     --radius: 0.75rem;
@@ -61,22 +61,22 @@ body {
   .dark {
     --background: 0 0% 2%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 3.5%;
+    --card: 0 0% 4%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 2.5%;
+    --popover: 0 0% 3%;
     --popover-foreground: 0 0% 98%;
     --primary: 30 90% 55%;
     --primary-foreground: 20 0% 10%;
     --secondary: 0 0% 12%;
     --secondary-foreground: 0 0% 80%;
-    --muted: 0 0% 5%;
+    --muted: 0 0% 8%;
     --muted-foreground: 0 0% 65%;
     --accent: 30 90% 55%;
     --accent-foreground: 20 0% 10%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 8%;
-    --input: 0 0% 4%;
+    --border: 0 0% 10%;
+    --input: 0 0% 5%;
     --ring: 30 90% 55%;
   }
 }
@@ -93,24 +93,24 @@ body {
 /* Custom input field styling with gradient wipe animation */
 .input-gradient-glow-wrapper {
   position: relative;
-  padding: 1.5px;
-  border-radius: var(--radius-sm);
+  padding: 1.5px; /* Controls the thickness of the gradient border */
+  border-radius: var(--radius-sm); /* Should match inner element's border-radius + padding */
   overflow: hidden;
   transition: box-shadow 300ms ease-out;
-  background-color: transparent;
+  background-color: transparent; /* Wrapper itself is transparent */
 }
 
 .input-gradient-glow-wrapper::before {
   content: '';
   position: absolute;
-  inset: -1.5px; /* Perbaikan dari -2px ke -1.5px agar pas dengan padding wrapper */
-  border-radius: inherit;
+  inset: 0; /* Covers the entire wrapper, border will be 'inside' */
+  border-radius: inherit; /* Inherits from wrapper */
   background: linear-gradient(135deg,
     hsl(var(--gradient-theme-start)),
     hsl(var(--gradient-theme-mid)),
     hsl(var(--gradient-theme-end))
   );
-  z-index: -1;
+  z-index: 0; /* Behind the input element */
   clip-path: circle(0% at 100% 100%);
   transition: clip-path 350ms ease-out;
   pointer-events: none;
@@ -118,27 +118,39 @@ body {
 
 .input-gradient-glow-wrapper:hover::before,
 .input-gradient-glow-wrapper:focus-within::before {
-  clip-path: circle(150% at 100% 100%);
+  clip-path: circle(150% at 100% 100%); /* Reveals gradient on hover/focus */
 }
 
 .input-gradient-glow-wrapper input,
 .input-gradient-glow-wrapper textarea,
-.input-gradient-glow-wrapper div[role="combobox"], /* Target SelectTrigger */
-.input-gradient-glow-wrapper button {
+.input-gradient-glow-wrapper div[role="combobox"], /* Targets SelectTrigger */
+.input-gradient-glow-wrapper button { /* Generic button inside wrapper */
   position: relative;
-  z-index: 1;
-  /* Radius di dalam harus sedikit lebih kecil dari wrapper untuk efek outline yang benar */
-  border-radius: calc(var(--radius-sm) - 1.5px); 
+  z-index: 1; /* Above the gradient ::before pseudo-element */
+  border-radius: calc(var(--radius-sm) - 1.5px); /* Slightly smaller to show the gradient border */
   width: 100%;
   outline: none !important;
   box-shadow: none !important;
-  /* Border asli elemen dibuat transparan atau sangat tipis agar tidak bentrok dengan gradien */
-  border: 1px solid transparent !important; 
-  background-color: hsl(var(--input)) !important; /* Warna background asli input */
-  color: hsl(var(--foreground)) !important; /* Warna teks asli */
+  border: 1px solid transparent !important; /* Make actual border transparent */
+  background-color: hsl(var(--input)) !important; /* Explicitly set background */
+  color: hsl(var(--foreground)) !important; /* Explicitly set text color */
 }
 
-/* Khusus untuk tombol di dalam wrapper agar warnanya tetap sesuai, atau bisa dihapus jika ingin semua tombol seragam */
+/* Specificity for ShadCN SelectTrigger's inner span if needed */
+.input-gradient-glow-wrapper div[role="combobox"] > span {
+  color: hsl(var(--foreground)) !important;
+}
+.input-gradient-glow-wrapper div[role="combobox"]:hover > span {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Ensure placeholder text color is also consistent */
+.input-gradient-glow-wrapper input::placeholder,
+.input-gradient-glow-wrapper textarea::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Special styling for buttons *inside* the wrapper if they need different appearance */
 .input-gradient-glow-wrapper button.text-muted-foreground {
   color: hsl(var(--muted-foreground)) !important;
 }
@@ -146,11 +158,11 @@ body {
   color: hsl(var(--foreground)) !important;
 }
 
-/* Styling untuk tombol Tambah Airdrop agar berbeda di dalam wrapper */
+/* Styling for tombol Tambah Airdrop agar berbeda di dalam wrapper */
 .input-gradient-glow-wrapper button.add-airdrop-style {
   background-color: hsl(var(--custom-black)) !important;
   color: hsl(var(--custom-gray-text)) !important;
-  border: none !important; /* Hapus border asli tombol ini */
+  border: none !important;
   transition: background-color 0.2s ease-out, color 0.2s ease-out;
 }
 
@@ -160,10 +172,9 @@ body {
   color: hsl(var(--foreground)) !important;
 }
 
-
 .input-gradient-glow-wrapper:hover,
 .input-gradient-glow-wrapper:focus-within {
-  box-shadow: 0 0 8px 0px hsla(var(--gradient-theme-mid), 0.5);
+  box-shadow: 0 0 8px 0px hsla(var(--gradient-theme-mid), 0.5); /* Subtle glow from the mid color */
 }
 
 .gradient-spinner {
@@ -284,7 +295,7 @@ body {
 
 .header-icon-button svg {
   color: hsl(var(--foreground) / 0.8);
-  transition: color 0.2s ease-out;
+  transition: color 0.2s ease-out, fill 0.2s ease-out; /* Added fill transition */
 }
 
 .header-icon-button:hover svg {
@@ -292,5 +303,8 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent !important; /* Ensure SVG color becomes transparent */
+  fill: transparent !important; /* Ensure SVG fill becomes transparent for complex icons */
   -webkit-text-fill-color: transparent; /* For Safari */
 }
+
+    
