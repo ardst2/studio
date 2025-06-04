@@ -5,7 +5,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
-// import AddAirdropButton from '@/components/dashboard/add-airdrop-button'; // Removed
 import SummaryStats from '@/components/dashboard/summary-stats';
 import AirdropList from '@/components/dashboard/airdrop-list';
 import AddAirdropModal from '@/components/dashboard/add-airdrop-modal';
@@ -13,6 +12,7 @@ import AirdropDetailModal from '@/components/dashboard/AirdropDetailModal';
 import TodaysDeadlinesModal from '@/components/dashboard/TodaysDeadlinesModal';
 import EditProfileModal from '@/components/dashboard/edit-profile-modal';
 import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal';
+import SheetsImportModal from '@/components/dashboard/SheetsImportModal'; // Import new modal
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
 import SheetsIntegrationCard from '@/components/dashboard/sheets-integration-card';
 import Loader from '@/components/ui/loader';
@@ -62,6 +62,7 @@ function DashboardPageContent() {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+  const [isSheetsImportModalOpen, setIsSheetsImportModalOpen] = useState(false); // New state for SheetsImportModal
 
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
@@ -226,6 +227,10 @@ function DashboardPageContent() {
   const handleOpenStatsModal = () => setIsStatsModalOpen(true);
   const handleCloseStatsModal = () => setIsStatsModalOpen(false);
 
+  // Handlers for SheetsImportModal
+  const handleOpenSheetsImportModal = () => setIsSheetsImportModalOpen(true);
+  const handleCloseSheetsImportModal = () => setIsSheetsImportModalOpen(false);
+
 
   if (authLoading || airdropsLoading || (!authLoading && !user) ) {
     return (
@@ -249,7 +254,7 @@ function DashboardPageContent() {
           </div>
           <div className="card-gradient-glow-wrapper h-72">
             <Card 
-              className="w-full h-full bg-card text-card-foreground p-6 flex flex-col justify-center cursor-pointer"
+              className="w-full h-full bg-card text-card-foreground p-6 flex flex-col justify-center cursor-pointer items-center text-center"
               onClick={() => handleOpenAddModal()}
               role="button"
               tabIndex={0}
@@ -262,7 +267,6 @@ function DashboardPageContent() {
                   Pantau peluang baru dan tugas yang sedang berjalan.
                 </CardDescription>
               </CardHeader>
-              {/* CardContent is removed as AddAirdropButton is removed */}
             </Card>
           </div>
           <div className="card-gradient-glow-wrapper h-72">
@@ -276,7 +280,7 @@ function DashboardPageContent() {
             />
           </div>
           <div className="card-gradient-glow-wrapper h-72">
-            <SheetsIntegrationCard />
+            <SheetsIntegrationCard onClick={handleOpenSheetsImportModal} />
           </div>
         </div>
 
@@ -326,6 +330,10 @@ function DashboardPageContent() {
         onClose={handleCloseStatsModal}
         airdrops={allAirdrops}
       />
+      <SheetsImportModal 
+        isOpen={isSheetsImportModalOpen}
+        onClose={handleCloseSheetsImportModal}
+      />
        <footer className="py-6 px-4 md:px-8 border-t border-border/50 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} AirdropAce. Ditenagai oleh antusiasme Web3.
       </footer>
@@ -336,5 +344,3 @@ function DashboardPageContent() {
 export default function DashboardPage() {
   return <DashboardPageContent />;
 }
-
-    

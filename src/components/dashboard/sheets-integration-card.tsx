@@ -1,118 +1,43 @@
-
 // src/components/dashboard/sheets-integration-card.tsx
 "use client";
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Download, AlertTriangle, CheckCircle } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
-import { useAirdropsStore } from '@/hooks/use-airdrops-store';
-import { importAirdropsFromSheet } from '@/ai/flows/sheets-integration-flow';
-import type { Airdrop } from '@/types/airdrop';
-import Loader from '@/components/ui/loader';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-const InputWrapper: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-  <div className={cn("input-gradient-glow-wrapper", className)}>{children}</div>
-);
+interface SheetsIntegrationCardProps {
+  onClick: () => void;
+}
 
-const SheetsIntegrationCard = () => {
-  const { toast } = useToast();
-  const { addManyAirdrops, isLoading: storeLoading } = useAirdropsStore();
-  const [sheetId, setSheetId] = useState('');
-  const [tabName, setTabName] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handleImport = async () => {
-    if (!sheetId || !tabName) {
-      toast({ variant: "destructive", title: "Input Required", description: "Please provide Google Sheet ID and Tab Name." });
-      return;
-    }
-    setIsProcessing(true);
-    try {
-      const result = await importAirdropsFromSheet({ sheetId, tabName });
-      if (result.importedAirdrops.length > 0) {
-        const airdropsToAdd: Omit<Airdrop, 'id' | 'userId' | 'createdAt'>[] = result.importedAirdrops.map(imported => ({
-            name: imported.name,
-            description: imported.description,
-            startDate: imported.startDate,
-            deadline: imported.deadline,
-            tasks: imported.tasks || [],
-            status: imported.status || 'Upcoming',
-        }));
-        await addManyAirdrops(airdropsToAdd);
-      }
-      toast({
-        title: "Import Successful",
-        description: result.message,
-        action: <CheckCircle className="text-green-500" />,
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Import Failed",
-        description: error.message || "An unknown error occurred during import.",
-        action: <AlertTriangle className="text-red-500" />,
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
+const SheetsIntegrationCard = ({ onClick }: SheetsIntegrationCardProps) => {
   return (
-    <Card className="shadow-xl w-full h-full bg-card text-card-foreground flex flex-col p-6 border border-transparent">
-      <CardHeader className="p-0 pb-2">
-        <CardTitle className="font-headline text-lg text-foreground flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-gradient-theme"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/></svg>
-          Import from Sheets
+    <Card
+      className={cn(
+        "shadow-xl w-full h-full bg-card text-card-foreground p-6 flex flex-col items-center justify-center text-center",
+        "cursor-pointer transition-all duration-200 ease-in-out"
+      )}
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onClick();
+        }
+      }}
+      aria-label="Impor airdrop dari Google Sheets"
+    >
+      <CardHeader className="p-0 pb-2 flex flex-col items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2 text-gradient-theme"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/></svg>
+        <CardTitle className="font-headline text-lg text-foreground">
+          Import dari Sheets
         </CardTitle>
-        <CardDescription className="text-muted-foreground text-xs">
-          Import airdrops from a Google Sheet.
-        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-1 p-0 pt-2 flex-grow flex flex-col">
-        <div>
-          <Label htmlFor="sheetId" className="mb-0.5 block text-xs font-medium">Google Sheet ID</Label>
-          <InputWrapper>
-            <Input
-              id="sheetId"
-              value={sheetId}
-              onChange={(e) => setSheetId(e.target.value)}
-              placeholder="e.g., 1aBcDeF..."
-              disabled={isProcessing}
-              className="text-xs h-8"
-            />
-          </InputWrapper>
-        </div>
-        <div>
-          <Label htmlFor="tabName" className="mb-0.5 block text-xs font-medium">Tab Name</Label>
-          <InputWrapper>
-            <Input
-              id="tabName"
-              value={tabName}
-              onChange={(e) => setTabName(e.target.value)}
-              placeholder="e.g., Airdrops Q1"
-              disabled={isProcessing}
-              className="text-xs h-8"
-            />
-          </InputWrapper>
-        </div>
-        <div className="pt-1">
-          <Button onClick={handleImport} disabled={isProcessing || storeLoading} className="w-full btn-gradient text-xs h-8 py-1">
-            {isProcessing ? <Loader size="sm" className="mr-1.5 border-primary-foreground" /> : <Download className="mr-1.5 h-3.5 w-3.5" />}
-            Import
-          </Button>
-        </div>
+      <CardContent className="p-0 mt-1">
+        <p className="text-xs text-muted-foreground">
+          Tarik data airdrop dari spreadsheet Anda.
+        </p>
       </CardContent>
-       <p className="text-[10px] text-muted-foreground pt-1 leading-tight mt-auto">
-           Format: Name, Desc, StartDate (YYYY-MM-DD), Deadline (YYYY-MM-DD), Tasks (text;...), Status. Header di baris pertama.
-      </p>
     </Card>
   );
 };
 
 export default SheetsIntegrationCard;
-
