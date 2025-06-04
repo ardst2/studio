@@ -3,22 +3,14 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, AuthProvider } from '@/hooks/use-auth'; // Import AuthProvider
 import { Skeleton } from '@/components/ui/skeleton';
 
 function HomePageContent() {
-  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading) {
-      if (user) {
-        router.replace('/dashboard');
-      } else {
-        router.replace('/login');
-      }
-    }
-  }, [user, loading, router]);
+    router.replace('/dashboard');
+  }, [router]);
 
   return (
     <div className="flex h-screen items-center justify-center">
@@ -31,11 +23,6 @@ function HomePageContent() {
   );
 }
 
-// Wrap HomePageContent with AuthProvider at this level or higher (RootLayout if preferred)
 export default function HomePage() {
-  return (
-    <AuthProvider>
-      <HomePageContent />
-    </AuthProvider>
-  );
+  return <HomePageContent />;
 }

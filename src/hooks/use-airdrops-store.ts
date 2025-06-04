@@ -3,13 +3,13 @@
 
 import type { Airdrop, AirdropTask, AirdropStatus, AirdropFilterStatus } from '@/types/airdrop';
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
+import { v4 as uuidv4 } from 'uuid';
 
-// Mock data
+// Mock data - userId is kept for structure but not used for filtering if login is removed
 const initialAirdrops: Airdrop[] = [
   {
     id: uuidv4(),
-    userId: 'mock-user-id',
+    userId: 'mock-user-id-1', // Kept for data structure, but store won't filter by it
     name: 'Cosmos Stargaze Public Airdrop',
     startDate: new Date('2024-07-15T00:00:00Z').getTime(),
     deadline: new Date('2024-08-15T00:00:00Z').getTime(),
@@ -24,10 +24,9 @@ const initialAirdrops: Airdrop[] = [
   },
   {
     id: uuidv4(),
-    userId: 'mock-user-id',
+    userId: 'mock-user-id-2',
     name: 'ZkSync Era Potential Airdrop',
-    startDate: new Date('2024-05-01T00:00:00Z').getTime(), // Assuming this was when interaction started
-    // No deadline specified for potential airdrops, or a very far one
+    startDate: new Date('2024-05-01T00:00:00Z').getTime(),
     deadline: new Date('2024-12-31T00:00:00Z').getTime(),
     description: 'Interact with protocols on ZkSync Era mainnet to qualify for a potential future airdrop.',
     tasks: [
@@ -41,7 +40,7 @@ const initialAirdrops: Airdrop[] = [
   },
   {
     id: uuidv4(),
-    userId: 'mock-user-id',
+    userId: 'mock-user-id-1',
     name: 'Optimism Gov Token Drop #2',
     deadline: new Date('2023-09-01T00:00:00Z').getTime(),
     description: 'Second round of OP token distribution to active Optimism users and voters.',
@@ -54,7 +53,7 @@ const initialAirdrops: Airdrop[] = [
   },
   {
     id: uuidv4(),
-    userId: 'mock-user-id',
+    userId: 'mock-user-id-3',
     name: 'Upcoming Solana Project X Airdrop',
     startDate: new Date('2024-09-01T00:00:00Z').getTime(),
     deadline: new Date('2024-09-30T00:00:00Z').getTime(),
@@ -68,8 +67,10 @@ const initialAirdrops: Airdrop[] = [
   },
 ];
 
-const getDefaultNewAirdrop = (userId: string): Omit<Airdrop, 'id' | 'createdAt' | 'status'> => ({
-  userId,
+const GUEST_USER_ID = 'guest-user-id'; // Default user ID for a non-logged-in experience
+
+const getDefaultNewAirdrop = (): Omit<Airdrop, 'id' | 'createdAt' | 'status'> => ({
+  userId: GUEST_USER_ID,
   name: '',
   startDate: undefined,
   deadline: undefined,
@@ -78,41 +79,27 @@ const getDefaultNewAirdrop = (userId: string): Omit<Airdrop, 'id' | 'createdAt' 
 });
 
 
-export const useAirdropsStore = (userId: string | null) => {
-  const [airdrops, setAirdrops] = useState<Airdrop[]>(initialAirdrops.filter(a => userId ? a.userId === userId : true)); // Load initial based on user
+export const useAirdropsStore = () => { // Removed userId parameter
+  const [airdrops, setAirdrops] = useState<Airdrop[]>(initialAirdrops); // Load all initial airdrops
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<AirdropFilterStatus>('All');
   
-  const [newAirdropDraft, setNewAirdropDraft] = useState<Omit<Airdrop, 'id' | 'createdAt' | 'status'>>(() => getDefaultNewAirdrop(userId || ''));
+  const [newAirdropDraft, setNewAirdropDraft] = useState<Omit<Airdrop, 'id' | 'createdAt' | 'status'>>(getDefaultNewAirdrop());
 
   useEffect(() => {
-    // In a real app, fetch airdrops from Firebase here based on userId
-    // For now, we just filter the initial mock data if userId changes (e.g., on login)
-    if (userId) {
-      setAirdrops(initialAirdrops.filter(a => a.userId === userId));
-      setNewAirdropDraft(getDefaultNewAirdrop(userId));
-    } else {
-      setAirdrops([]);
-      setNewAirdropDraft(getDefaultNewAirdrop(''));
-    }
-  }, [userId]);
+    // Initialize with all airdrops and a default draft.
+    // No longer dependent on a dynamic userId.
+    setAirdrops(initialAirdrops);
+    setNewAirdropDraft(getDefaultNewAirdrop());
+  }, []);
 
 
   const addAirdrop = useCallback((airdropData: Omit<Airdrop, 'id' | 'userId' | 'createdAt'>) => {
-    if (!userId) return; // Should not happen if UI is correct
-
     const now = Date.now();
     let status: AirdropStatus = 'Upcoming';
     if (airdropData.startDate && airdropData.startDate <= now) {
       status = 'Active';
     }
-    if (airdropData.deadline && airdropData.deadline < now) {
-      status = 'Completed'; // This might need adjustment, e.g. if tasks are not all done
-    }
-    // A more robust status check:
-    // If all tasks completed OR deadline passed -> Completed
-    // Else if start date passed -> Active
-    // Else -> Upcoming
     const allTasksCompleted = airdropData.tasks.length > 0 && airdropData.tasks.every(t => t.completed);
     if (allTasksCompleted || (airdropData.deadline && airdropData.deadline < Date.now())) {
         status = 'Completed';
@@ -122,17 +109,16 @@ export const useAirdropsStore = (userId: string | null) => {
         status = 'Upcoming';
     }
 
-
     const newAirdrop: Airdrop = {
       ...airdropData,
       id: uuidv4(),
-      userId,
+      userId: GUEST_USER_ID, // Assign guest user ID
       createdAt: Date.now(),
       status,
     };
     setAirdrops(prev => [newAirdrop, ...prev]);
-    setNewAirdropDraft(getDefaultNewAirdrop(userId)); // Reset draft
-  }, [userId]);
+    setNewAirdropDraft(getDefaultNewAirdrop()); // Reset draft
+  }, []);
 
   const updateAirdrop = useCallback((updatedAirdrop: Airdrop) => {
     setAirdrops(prev => prev.map(a => a.id === updatedAirdrop.id ? updatedAirdrop : a));
@@ -147,8 +133,8 @@ export const useAirdropsStore = (userId: string | null) => {
   }, []);
 
   const resetNewAirdropDraft = useCallback(() => {
-    if(userId) setNewAirdropDraft(getDefaultNewAirdrop(userId));
-  }, [userId]);
+    setNewAirdropDraft(getDefaultNewAirdrop());
+  }, []);
 
   const filteredAirdrops = useMemo(() => {
     return airdrops
@@ -164,7 +150,7 @@ export const useAirdropsStore = (userId: string | null) => {
 
   return {
     airdrops: filteredAirdrops,
-    allAirdrops: airdrops, // For summary stats
+    allAirdrops: airdrops,
     searchTerm,
     setSearchTerm,
     filterStatus,
@@ -177,4 +163,3 @@ export const useAirdropsStore = (userId: string | null) => {
     resetNewAirdropDraft,
   };
 };
-
