@@ -155,6 +155,24 @@ body {
   pointer-events: auto; /* Make interactive children interactive */
 }
 
+/* Specific styling for input type="date" inside the wrapper */
+.input-gradient-glow-wrapper input[type="date"] {
+  line-height: normal; /* Reset line height for date inputs */
+  /* padding-right to prevent text overlapping native calendar icon. Adjust if needed. */
+  /* The Input component already has px-3 (0.75rem). We need more for the icon. */
+  /* pr-8 in Tailwind is 2rem. So total padding-right needed is around 2rem. */
+  /* Default px-3 for Input component adds 0.75rem. So we need approx 1.25rem more. */
+  /* This is already handled by adding className="pr-8" to the Input component itself */
+  color-scheme: dark; /* Hint for native date picker theme. Assumes app is dark. */
+}
+
+.input-gradient-glow-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.7; /* Make it less prominent */
+  cursor: pointer;
+  filter: invert(1) brightness(1); /* Adjust for dark theme if icon is black by default */
+}
+
+
 /* Specificity for ShadCN SelectTrigger's inner span if needed */
 .input-gradient-glow-wrapper div[role="combobox"] > span {
   color: hsl(var(--foreground)) !important;
@@ -201,8 +219,9 @@ body {
   position: relative;
   padding: 1px; /* Controls the thickness of the gradient border */
   border-radius: var(--radius-lg); /* Match card's default rounded-lg */
-  overflow: hidden; /* Important to clip the ::before element for rounded corners */
+  /* overflow: hidden; */ /* Removed as per user feedback for date picker click issue */
   transition: box-shadow 300ms ease-out;
+  pointer-events: none; /* Make wrapper non-interactive */
 }
 
 .card-gradient-glow-wrapper::before {
@@ -234,6 +253,7 @@ body {
   border-radius: calc(var(--radius-lg) - 1px); /* Slightly smaller to sit inside the wrapper's padding */
   width: 100%;
   height: 100%; /* Make card fill the wrapper */
+  pointer-events: auto; /* Make card interactive */
 }
 
 .card-gradient-glow-wrapper:hover {
@@ -287,11 +307,11 @@ body {
   background-position: right center;
 }
 
-/* Calendar specific styling */
+/* Calendar specific styling - Default ShadCN calendar in popover should use these */
 .rdp {
   --rdp-cell-size: 40px;
   --rdp-accent-color: hsl(var(--primary));
-  --rdp-background-color: hsl(var(--primary-foreground));
+  --rdp-background-color: hsl(var(--primary-foreground)); /* Not directly used by ShadCN */
   --rdp-outline: 2px solid hsl(var(--primary));
   --rdp-outline-selected: 3px solid hsl(var(--primary));
   margin: 1em 0;
@@ -351,6 +371,24 @@ body {
   color: hsl(var(--muted-foreground));
   opacity: 0.8;
 }
+
+/* General styles for native date inputs if not wrapped or need overrides */
+input[type="date"] {
+  color-scheme: dark; /* Or 'light' depending on your base theme */
+  /* The Input component from ShadCN applies most visual styles. */
+  /* This is a fallback or for non-ShadCN date inputs. */
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  filter: invert(1) brightness(1); /* Example for dark themes, makes black icon white */
+}
+input[type="date"]::-moz-calendar-picker-indicator {
+  /* Styling for Firefox's date picker icon is very limited */
+  opacity: 0.7;
+}
+
 
 /* Styling for header icons hover effect */
 .header-icon-button:hover {

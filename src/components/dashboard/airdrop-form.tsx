@@ -12,21 +12,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { PlusCircle, Trash2, Save, CalendarIcon as LucideCalendarIcon, LinkIcon, InfoIcon, TagIcon, UsersIcon, FileTextIcon, ListChecksIcon, HashIcon, Share2Icon, GiftIcon, HelpCircleIcon, Edit3Icon, UserCheck, BarChart2, Briefcase, Globe, MessageSquare, Asterisk, Wallet } from 'lucide-react';
+import { PlusCircle, Trash2, Save, LinkIcon, InfoIcon, TagIcon, UsersIcon, FileTextIcon, ListChecksIcon, HashIcon, Share2Icon, GiftIcon, HelpCircleIcon, Edit3Icon, UserCheck, BarChart2, Briefcase, Globe, MessageSquare, Asterisk, Wallet } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import { id as localeID } from 'date-fns/locale';
+import { format, parseISO } from 'date-fns'; // Import parseISO
 
 // Schema definition including new fields
 const airdropSchema = z.object({
   name: z.string().optional(),
-  startDate: z.date().optional(),
-  deadline: z.date().optional(),
+  startDate: z.date().optional().nullable(),
+  deadline: z.date().optional().nullable(),
   blockchain: z.string().optional(),
 
-  registrationDate: z.date().optional(),
+  registrationDate: z.date().optional().nullable(),
   participationRequirements: z.string().optional(),
   airdropLink: z.string().url({ message: "Link airdrop tidak valid" }).or(z.literal('')).optional(),
   informationSource: z.string().optional(),
@@ -37,7 +34,7 @@ const airdropSchema = z.object({
   walletAddress: z.string().optional(),
 
   tokenAmount: z.number().min(0, "Jumlah token tidak boleh negatif").optional(),
-  claimDate: z.date().optional(),
+  claimDate: z.date().optional().nullable(),
   
   airdropType: z.string().optional(),
   referralCode: z.string().optional(),
@@ -56,7 +53,7 @@ const airdropSchema = z.object({
     if (typeof value === 'string') return value.trim() !== '';
     if (typeof value === 'number') return true; 
     if (value instanceof Date) return true;
-    return value !== undefined;
+    return value !== undefined && value !== null; // Check for null as well
   });
 }, {
   message: "Setidaknya satu bidang harus diisi. Pastikan Tanggal Mulai tidak setelah Tanggal Berakhir.",
@@ -86,7 +83,7 @@ const SectionTitle: React.FC<{ icon?: React.ElementType; title: string; classNam
 
 
 const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormProps) => {
-  const { register, handleSubmit, control, formState: { errors, isValid, dirtyFields, touchedFields }, watch, reset, setValue } = useForm<AirdropFormData>({
+  const { register, handleSubmit, control, formState: { errors, isValid }, watch, reset } = useForm<AirdropFormData>({
     resolver: zodResolver(airdropSchema),
     defaultValues: {
       name: initialData?.name || '',
@@ -121,25 +118,25 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
     if (typeof value === 'string') return value.trim() !== '';
     if (typeof value === 'number' && !isNaN(value)) return true; 
     if (value instanceof Date) return true;
-    return value !== undefined;
+    return value !== undefined && value !== null;
   });
   
   useEffect(() => {
     const newDefaultValues = {
       name: initialData?.name || '',
-      startDate: initialData?.startDate ? new Date(initialData.startDate) : undefined,
-      deadline: initialData?.deadline ? new Date(initialData.deadline) : undefined,
+      startDate: initialData?.startDate ? new Date(initialData.startDate) : null,
+      deadline: initialData?.deadline ? new Date(initialData.deadline) : null,
       description: initialData?.description || '',
       tasks: initialData?.tasks || [],
       blockchain: initialData?.blockchain || '',
-      registrationDate: initialData?.registrationDate ? new Date(initialData.registrationDate) : undefined,
+      registrationDate: initialData?.registrationDate ? new Date(initialData.registrationDate) : null,
       participationRequirements: initialData?.participationRequirements || '',
       airdropLink: initialData?.airdropLink || '',
       userDefinedStatus: initialData?.userDefinedStatus || '',
       notes: initialData?.notes || '',
       walletAddress: initialData?.walletAddress || '',
       tokenAmount: initialData?.tokenAmount === null || initialData?.tokenAmount === undefined || isNaN(initialData.tokenAmount) ? undefined : initialData.tokenAmount,
-      claimDate: initialData?.claimDate ? new Date(initialData.claimDate) : undefined,
+      claimDate: initialData?.claimDate ? new Date(initialData.claimDate) : null,
       airdropType: initialData?.airdropType || '',
       referralCode: initialData?.referralCode || '',
       informationSource: initialData?.informationSource || '',
@@ -177,40 +174,26 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
       setTaskInput('');
     }
   };
-
-  const DatePickerField: React.FC<{ name: keyof AirdropFormData; label: string; error?: string }> = ({ name, label, error }) => (
+  
+  const NativeDatePickerField: React.FC<{ name: keyof AirdropFormData; label: string; error?: string }> = ({ name, label, error }) => (
     <div>
       <Label htmlFor={name} className="mb-1 block text-sm font-medium">{label}</Label>
       <Controller
         control={control}
         name={name}
         render={({ field }) => (
-          <Popover>
-            {/* <InputWrapper> */} {/* InputWrapper DIHAPUS SEMENTARA UNTUK DIAGNOSTIK */}
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  id={name}
-                  className={cn(
-                    "w-full justify-start text-left font-normal h-10", // Diberi border standar jika InputWrapper tidak ada
-                    !field.value && "text-muted-foreground",
-                    "border-input" // Tambahkan border standar jika InputWrapper tidak ada
-                  )}
-                >
-                  <LucideCalendarIcon className="mr-2 h-4 w-4" />
-                  {field.value ? format(field.value as Date, "PPP", { locale: localeID }) : <span>Pilih tanggal</span>}
-                </Button>
-              </PopoverTrigger>
-            {/* </InputWrapper> */} {/* InputWrapper DIHAPUS SEMENTARA UNTUK DIAGNOSTIK */}
-            <PopoverContent className="w-auto p-0 popover-gradient-border" align="start">
-              <Calendar
-                mode="single"
-                selected={field.value as Date | undefined}
-                onSelect={(date) => field.onChange(date)}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <InputWrapper>
+            <Input
+              id={name}
+              type="date"
+              value={field.value ? format(new Date(field.value), 'yyyy-MM-dd') : ''}
+              onChange={(e) => {
+                const dateValue = e.target.value;
+                field.onChange(dateValue ? parseISO(dateValue) : undefined);
+              }}
+              className={cn(error ? 'border-destructive' : '', 'pr-8')} 
+            />
+          </InputWrapper>
         )}
       />
       {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
@@ -226,8 +209,8 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
           <InputWrapper><Input id="name" {...register('name')} placeholder="Contoh: Token XYZ Launch" /></InputWrapper>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <DatePickerField name="startDate" label="Tanggal Mulai" error={errors.startDate?.message} />
-          <DatePickerField name="deadline" label="Tanggal Berakhir" error={errors.deadline?.message} />
+          <NativeDatePickerField name="startDate" label="Tanggal Mulai" error={errors.startDate?.message} />
+          <NativeDatePickerField name="deadline" label="Tanggal Berakhir" error={errors.deadline?.message} />
         </div>
         <div>
           <Label htmlFor="blockchain" className="mb-1 block text-sm font-medium">Blockchain</Label>
@@ -237,7 +220,7 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
 
       <SectionTitle icon={UserCheck} title="Partisipasi & Pendaftaran" />
       <div className="space-y-4">
-        <DatePickerField name="registrationDate" label="Tanggal Daftar" error={errors.registrationDate?.message} />
+        <NativeDatePickerField name="registrationDate" label="Tanggal Daftar" error={errors.registrationDate?.message} />
         <div>
           <Label htmlFor="participationRequirements" className="mb-1 block text-sm font-medium">Syarat Partisipasi</Label>
           <InputWrapper><Textarea id="participationRequirements" {...register('participationRequirements')} placeholder="Jelaskan syarat-syarat untuk ikut..." rows={3} /></InputWrapper>
@@ -280,7 +263,7 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
           <InputWrapper><Input id="tokenAmount" type="number" step="any" {...register('tokenAmount', {setValueAs: (v) => (v === "" || v === undefined || v === null || isNaN(Number(v)) ? undefined : Number(v))})} placeholder="Contoh: 100" /></InputWrapper>
           {errors.tokenAmount && <p className="mt-1 text-xs text-red-400">{errors.tokenAmount.message}</p>}
         </div>
-        <DatePickerField name="claimDate" label="Tanggal Klaim" error={errors.claimDate?.message} />
+        <NativeDatePickerField name="claimDate" label="Tanggal Klaim" error={errors.claimDate?.message} />
       </div>
       
       <SectionTitle icon={HelpCircleIcon} title="Informasi Lainnya" />
@@ -322,3 +305,4 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
 };
 
 export default AirdropForm;
+
