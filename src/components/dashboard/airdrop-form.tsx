@@ -12,8 +12,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { PlusCircle, Trash2, Save, CalendarIcon, LinkIcon, InfoIcon, TagIcon, UsersIcon, BarChartIcon, FileTextIcon, ListChecksIcon, HashIcon, Share2Icon, GiftIcon, HelpCircleIcon, Edit3Icon } from 'lucide-react';
+import { PlusCircle, Trash2, Save, CalendarIcon as LucideCalendarIcon, LinkIcon, InfoIcon, TagIcon, UsersIcon, FileTextIcon, ListChecksIcon, HashIcon, Share2Icon, GiftIcon, HelpCircleIcon, Edit3Icon, UserCheck, BarChart2, Briefcase, Globe, MessageSquare, Asterisk, Wallet } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { id as localeID } from 'date-fns/locale';
 
 // Schema definition including new fields
 const airdropSchema = z.object({
@@ -28,8 +32,8 @@ const airdropSchema = z.object({
   informationSource: z.string().optional(),
 
   userDefinedStatus: z.string().optional(),
-  description: z.string().optional(), // Main description/notes moved here for grouping
-  notes: z.string().optional(), // Specific notes field
+  description: z.string().optional(), 
+  notes: z.string().optional(), 
   walletAddress: z.string().optional(),
 
   tokenAmount: z.number().min(0, "Jumlah token tidak boleh negatif").optional(),
@@ -44,15 +48,19 @@ const airdropSchema = z.object({
     completed: z.boolean().default(false),
   })).optional(),
 }).refine(data => {
+  if (data.startDate && data.deadline && data.startDate > data.deadline) {
+    return false;
+  }
   return Object.values(data).some(value => {
     if (Array.isArray(value)) return value.length > 0;
     if (typeof value === 'string') return value.trim() !== '';
-    if (typeof value === 'number') return true; // any number is considered "filled"
+    if (typeof value === 'number') return true; 
     if (value instanceof Date) return true;
     return value !== undefined;
   });
 }, {
-  message: "Setidaknya satu bidang harus diisi untuk menyimpan.",
+  message: "Setidaknya satu bidang harus diisi. Pastikan Tanggal Mulai tidak setelah Tanggal Berakhir.",
+  path: ['deadline'], // Path can be adjusted or made more general
 });
 
 
@@ -145,14 +153,14 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
         name: data.name || `Unnamed Airdrop ${new Date().toLocaleTimeString()}`,
         startDate: data.startDate?.getTime(),
         deadline: data.deadline?.getTime(),
-        description: data.description, // This can serve as general notes or description
+        description: data.description,
         tasks: data.tasks || [],
         blockchain: data.blockchain,
         registrationDate: data.registrationDate?.getTime(),
         participationRequirements: data.participationRequirements,
         airdropLink: data.airdropLink,
         userDefinedStatus: data.userDefinedStatus,
-        notes: data.notes, // Specific notes
+        notes: data.notes, 
         walletAddress: data.walletAddress,
         tokenAmount: data.tokenAmount === undefined || isNaN(data.tokenAmount) ? undefined : Number(data.tokenAmount),
         claimDate: data.claimDate?.getTime(),
@@ -170,9 +178,46 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
     }
   };
 
+  const DatePickerField: React.FC<{ name: keyof AirdropFormData; label: string; error?: string }> = ({ name, label, error }) => (
+    <div>
+      <Label htmlFor={name} className="mb-1 block text-sm font-medium">{label}</Label>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <Popover>
+            <InputWrapper>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  id={name}
+                  className={cn(
+                    "w-full justify-start text-left font-normal h-10",
+                    !field.value && "text-muted-foreground"
+                  )}
+                >
+                  <LucideCalendarIcon className="mr-2 h-4 w-4" />
+                  {field.value ? format(field.value as Date, "PPP", { locale: localeID }) : <span>Pilih tanggal</span>}
+                </Button>
+              </PopoverTrigger>
+            </InputWrapper>
+            <PopoverContent className="w-auto p-0 popover-gradient-border" align="start">
+              <Calendar
+                mode="single"
+                selected={field.value as Date | undefined}
+                onSelect={(date) => field.onChange(date)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        )}
+      />
+      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+    </div>
+  );
+
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-0">
-      {/* Section: Informasi Dasar */}
       <SectionTitle icon={InfoIcon} title="Informasi Dasar" />
       <div className="space-y-4">
         <div>
@@ -180,15 +225,8 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
           <InputWrapper><Input id="name" {...register('name')} placeholder="Contoh: Token XYZ Launch" /></InputWrapper>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <Label htmlFor="startDate" className="mb-1 block text-sm font-medium">Tanggal Mulai</Label>
-            <InputWrapper><Input id="startDate" type="date" {...register('startDate', { valueAsDate: true })} /></InputWrapper>
-          </div>
-          <div>
-            <Label htmlFor="deadline" className="mb-1 block text-sm font-medium">Tanggal Berakhir</Label>
-            <InputWrapper><Input id="deadline" type="date" {...register('deadline', { valueAsDate: true })} /></InputWrapper>
-             {errors.deadline && <p className="mt-1 text-xs text-red-400">{errors.deadline.message}</p>}
-          </div>
+          <DatePickerField name="startDate" label="Tanggal Mulai" error={errors.startDate?.message} />
+          <DatePickerField name="deadline" label="Tanggal Berakhir" error={errors.deadline?.message} />
         </div>
         <div>
           <Label htmlFor="blockchain" className="mb-1 block text-sm font-medium">Blockchain</Label>
@@ -196,13 +234,9 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
         </div>
       </div>
 
-      {/* Section: Partisipasi & Pendaftaran */}
-      <SectionTitle icon={UsersIcon} title="Partisipasi & Pendaftaran" />
+      <SectionTitle icon={UserCheck} title="Partisipasi & Pendaftaran" />
       <div className="space-y-4">
-        <div>
-          <Label htmlFor="registrationDate" className="mb-1 block text-sm font-medium">Tanggal Daftar</Label>
-          <InputWrapper><Input id="registrationDate" type="date" {...register('registrationDate', { valueAsDate: true })} /></InputWrapper>
-        </div>
+        <DatePickerField name="registrationDate" label="Tanggal Daftar" error={errors.registrationDate?.message} />
         <div>
           <Label htmlFor="participationRequirements" className="mb-1 block text-sm font-medium">Syarat Partisipasi</Label>
           <InputWrapper><Textarea id="participationRequirements" {...register('participationRequirements')} placeholder="Jelaskan syarat-syarat untuk ikut..." rows={3} /></InputWrapper>
@@ -218,7 +252,6 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
         </div>
       </div>
 
-      {/* Section: Detail & Pelacakan */}
       <SectionTitle icon={FileTextIcon} title="Detail & Pelacakan" />
       <div className="space-y-4">
         <div>
@@ -239,21 +272,16 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
         </div>
       </div>
 
-      {/* Section: Token & Klaim */}
       <SectionTitle icon={GiftIcon} title="Token & Klaim" />
       <div className="space-y-4">
         <div>
           <Label htmlFor="tokenAmount" className="mb-1 block text-sm font-medium">Jumlah Token (Estimasi)</Label>
-          <InputWrapper><Input id="tokenAmount" type="number" step="any" {...register('tokenAmount', { valueAsNumber: true })} placeholder="Contoh: 100" /></InputWrapper>
+          <InputWrapper><Input id="tokenAmount" type="number" step="any" {...register('tokenAmount', {setValueAs: (v) => (v === "" || v === undefined || v === null || isNaN(Number(v)) ? undefined : Number(v))})} placeholder="Contoh: 100" /></InputWrapper>
           {errors.tokenAmount && <p className="mt-1 text-xs text-red-400">{errors.tokenAmount.message}</p>}
         </div>
-        <div>
-          <Label htmlFor="claimDate" className="mb-1 block text-sm font-medium">Tanggal Klaim</Label>
-          <InputWrapper><Input id="claimDate" type="date" {...register('claimDate', { valueAsDate: true })} /></InputWrapper>
-        </div>
+        <DatePickerField name="claimDate" label="Tanggal Klaim" error={errors.claimDate?.message} />
       </div>
       
-      {/* Section: Lainnya */}
       <SectionTitle icon={HelpCircleIcon} title="Informasi Lainnya" />
       <div className="space-y-4">
         <div>
@@ -266,7 +294,6 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
         </div>
       </div>
 
-      {/* Section: Checklist Tugas */}
       <SectionTitle icon={ListChecksIcon} title="Checklist Tugas" />
       <div className="space-y-3">
         {fields.map((item, index) => (
@@ -284,7 +311,7 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
       
       <div className="flex justify-end gap-3 pt-8">
         <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>Batal</Button>
-        <Button type="submit" className="btn-gradient" disabled={!isAnyFieldFilled || isSaving}>
+        <Button type="submit" className="btn-gradient" disabled={!isAnyFieldFilled || isSaving || !isValid}>
           {isSaving ? <div className="gradient-spinner w-5 h-5 after:w-3 after:h-3 mr-2"></div> : <Save className="mr-2 h-4 w-4" />}
           {isSaving ? 'Menyimpan...' : 'Simpan Airdrop'}
         </Button>
@@ -294,3 +321,6 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
 };
 
 export default AirdropForm;
+
+
+    
