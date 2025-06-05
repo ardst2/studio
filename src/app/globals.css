@@ -234,17 +234,19 @@ body {
   clip-path: circle(150% at 100% 100%); 
 }
 
-.card-gradient-glow-wrapper > .rounded-lg,
-.card-gradient-glow-wrapper > .shadow-lg { /* Target Shadcn Card's default rounded-lg and custom shadow */
+.card-gradient-glow-wrapper > .rounded-lg, /* Target default Shadcn Card */
+.card-gradient-glow-wrapper > .shadow-lg { /* Target AirdropItem Card */
   position: relative;
   z-index: 1; 
   background-color: hsl(var(--card));
   border: 1px solid transparent !important; 
+  /* Use the wrapper's radius and subtract the padding for the inner card */
   border-radius: calc(var(--radius-lg) - 1px); 
   width: 100%;
   height: 100%; 
   pointer-events: auto; 
 }
+
 
 .card-gradient-glow-wrapper:hover {
   box-shadow: 0 0 10px 1px hsla(var(--gradient-theme-mid), 0.6); 
@@ -444,19 +446,34 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
 /* Custom Toast Styling with Gradient Border */
 .toast-gradient-border {
-  @apply p-px rounded-lg relative overflow-hidden; /* Padding IS the border; var(--radius) -> rounded-lg */
+  position: relative;
+  padding: 1.5px; /* Thickness of the gradient "border" */
+  border-radius: var(--radius-lg); /* Outer radius */
   background: linear-gradient(135deg,
     hsl(var(--gradient-theme-start)),
     hsl(var(--gradient-theme-mid)),
     hsl(var(--gradient-theme-end))
   );
+  overflow: hidden; /* Ensures the inner content's corners are clipped if they try to exceed parent's radius */
 }
 
 /* Inner container for the actual toast content */
 .toast-content-area {
-  @apply bg-background w-full h-full flex items-center justify-between space-x-4 p-6 pr-8;
-  border-radius: calc(var(--radius) - 1px); /* Slightly smaller radius to fit inside the 'border' */
+  background-color: hsl(var(--background)); /* Solid background for content */
+  color: hsl(var(--foreground));
+  padding: 1.25rem; /* Equivalent to p-5, adjust as needed */
+  padding-right: 2rem; /* Equivalent to pr-8, for close button space */
+  border-radius: calc(var(--radius-lg) - 1.5px); /* Inner radius, slightly smaller than parent */
+  
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem; /* space-x-4 */
+  position: relative; /* For positioning of close button if needed, though Radix handles it */
 }
+
 
 /* Optional: Animasi "berkedip" sederhana untuk toast (bisa disesuaikan) */
 @keyframes toast-attention {
