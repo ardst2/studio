@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format, isValid } from 'date-fns';
 import { id as localeID } from 'date-fns/locale';
-import { CalendarDays, CheckSquare, Square, Info, X, LinkIcon, UsersIcon, FileTextIcon, GiftIcon, HelpCircleIcon, HashIcon, TagIcon, BarChart2, Wallet, MessageSquare, Briefcase, Globe, Asterisk } from 'lucide-react';
+import { CalendarDays, CheckSquare, Square, Info, X, LinkIcon, UsersIcon, GiftIcon, Wallet, MessageSquare, Briefcase, Globe, Asterisk, Share2Icon, Edit3Icon, TagIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AirdropDetailModalProps {
@@ -162,3 +162,4 @@ const AirdropDetailModal = ({ isOpen, onClose, airdrop }: AirdropDetailModalProp
 };
 
 export default AirdropDetailModal;
+
