@@ -11,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Poppins', 'sans-serif'], // Changed to Poppins
+        body: ['Poppins', 'sans-serif'], // Mengubah font body menjadi Poppins
+        headline: ['Poppins', 'sans-serif'], // Headline sudah Poppins
         code: ['monospace', 'monospace'],
       },
       colors: {
@@ -77,7 +77,7 @@ export default {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
-        xl: 'calc(var(--radius) + 4px)', // For softer large elements
+        xl: 'calc(var(--radius) + 4px)', 
         '2xl': 'calc(var(--radius) + 8px)',
       },
       keyframes: {
@@ -97,13 +97,18 @@ export default {
             height: '0',
           },
         },
+        animatedGradientText: { // Keyframe untuk animasi teks gradien sudah ada
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'gradient-text': 'animatedGradientText 8s linear infinite', // Menambahkan animasi yang bisa digunakan
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
-

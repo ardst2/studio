@@ -1,3 +1,4 @@
+
 // src/components/dashboard/airdrop-item.tsx
 "use client";
 
@@ -17,7 +18,7 @@ interface AirdropItemProps {
   onEdit: (airdrop: Airdrop) => void;
   onDelete: (airdropId: string) => void;
   onTaskToggle: (airdropId: string, taskId: string) => void;
-  onShowDetail: (airdrop: Airdrop) => void; // New prop
+  onShowDetail: (airdrop: Airdrop) => void; 
 }
 
 const AirdropItem = ({ airdrop, onEdit, onDelete, onTaskToggle, onShowDetail }: AirdropItemProps) => {
@@ -48,6 +49,7 @@ const AirdropItem = ({ airdrop, onEdit, onDelete, onTaskToggle, onShowDetail }: 
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
+    // Memastikan klik pada tombol atau checkbox tidak memicu onShowDetail
     if (target.closest('button') || target.closest('[role="checkbox"]') || target.closest('label[for*="task-"]')) {
       return;
     }
@@ -55,83 +57,85 @@ const AirdropItem = ({ airdrop, onEdit, onDelete, onTaskToggle, onShowDetail }: 
   };
 
   return (
-    <Card 
-      className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col h-full cursor-pointer"
-      onClick={handleCardClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          const target = e.target as HTMLElement;
-           if (!target.closest('button') && !target.closest('[role="checkbox"]')) {
-            onShowDetail(airdrop);
+    <div className="card-gradient-glow-wrapper h-full"> {/* Wrapper untuk efek hover gradien */}
+      <Card 
+        className="shadow-lg overflow-hidden flex flex-col h-full cursor-pointer rounded-lg" // Pastikan rounded-lg untuk wrapper
+        onClick={handleCardClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            const target = e.target as HTMLElement;
+             if (!target.closest('button') && !target.closest('[role="checkbox"]')) {
+              onShowDetail(airdrop);
+            }
           }
-        }
-      }}
-      aria-label={`Lihat detail untuk airdrop ${airdrop.name}`}
-    >
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
-          <CardTitle className="font-headline text-lg mb-1">{airdrop.name}</CardTitle>
-          <Badge variant={getStatusBadgeVariant(airdrop.status)} className={cn("capitalize", getStatusColorClass(airdrop.status))}>
-            {airdrop.status}
-          </Badge>
-        </div>
-        {airdrop.description && <CardDescription className="text-xs line-clamp-2">{airdrop.description}</CardDescription>}
-         <div className="flex items-center text-xs text-muted-foreground mt-1">
-            <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
-            {airdrop.startDate ? format(new Date(airdrop.startDate), 'dd MMM yyyy', { locale: localeID }) : 'TBD'}
-            <span className="mx-1">-</span>
-            {airdrop.deadline ? format(new Date(airdrop.deadline), 'dd MMM yyyy', { locale: localeID }) : 'TBD'}
-        </div>
-      </CardHeader>
-      <CardContent className="py-3 space-y-3 flex-grow">
-        {totalTasks > 0 && (
-          <div>
-            <div className="mb-1 flex justify-between items-center">
-                <h4 className="text-xs font-medium text-muted-foreground flex items-center"><ClipboardList className="w-3 h-3 mr-1"/>Tugas ({completedTasks}/{totalTasks})</h4>
-                {airdrop.status !== 'Completed' && airdrop.deadline && (
-                    <div className={`text-xs flex items-center ${isDeadlinePassed && airdrop.status !== 'Completed' ? 'text-red-400' : 'text-muted-foreground'}`}>
-                        {isDeadlinePassed && airdrop.status !== 'Completed' && <AlertTriangle className="w-3 h-3 mr-1"/>}
-                        Deadline: {timeToDeadline}
-                    </div>
-                )}
-            </div>
-            <Progress value={progress} className="h-1.5 mb-2" />
-            <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
-              {airdrop.tasks.map(task => (
-                <div key={task.id} className="flex items-center space-x-2 text-xs">
-                  <Checkbox
-                    id={`${airdrop.id}-task-${task.id}`}
-                    checked={task.completed}
-                    onCheckedChange={() => onTaskToggle(airdrop.id, task.id)}
-                    disabled={airdrop.status === 'Completed'}
-                    aria-label={`Tandai tugas ${task.text} sebagai ${task.completed ? 'belum selesai' : 'selesai'}`}
-                  />
-                  <label
-                    htmlFor={`${airdrop.id}-task-${task.id}`}
-                    className={`flex-grow ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}
-                  >
-                    {task.text}
-                  </label>
-                </div>
-              ))}
-            </div>
+        }}
+        aria-label={`Lihat detail untuk airdrop ${airdrop.name}`}
+      >
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-start">
+            <CardTitle className="font-headline text-lg mb-1">{airdrop.name}</CardTitle>
+            <Badge variant={getStatusBadgeVariant(airdrop.status)} className={cn("capitalize", getStatusColorClass(airdrop.status))}>
+              {airdrop.status}
+            </Badge>
           </div>
-        )}
-        {totalTasks === 0 && (
-             <p className="text-xs text-muted-foreground italic">Tidak ada tugas spesifik untuk airdrop ini.</p>
-        )}
-      </CardContent>
-      <CardFooter className="py-3 border-t flex justify-end gap-2">
-        <Button variant="outline" size="icon" onClick={(e) => { e.stopPropagation(); onEdit(airdrop); }} aria-label="Edit Airdrop">
-          <Edit3 className="h-4 w-4" />
-        </Button>
-        <Button variant="destructiveOutline" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(airdrop.id); }} aria-label="Hapus Airdrop">
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </CardFooter>
-    </Card>
+          {airdrop.description && <CardDescription className="text-xs line-clamp-2">{airdrop.description}</CardDescription>}
+           <div className="flex items-center text-xs text-muted-foreground mt-1">
+              <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
+              {airdrop.startDate ? format(new Date(airdrop.startDate), 'dd MMM yyyy', { locale: localeID }) : 'TBD'}
+              <span className="mx-1">-</span>
+              {airdrop.deadline ? format(new Date(airdrop.deadline), 'dd MMM yyyy', { locale: localeID }) : 'TBD'}
+          </div>
+        </CardHeader>
+        <CardContent className="py-3 space-y-3 flex-grow">
+          {totalTasks > 0 && (
+            <div>
+              <div className="mb-1 flex justify-between items-center">
+                  <h4 className="text-xs font-medium text-muted-foreground flex items-center"><ClipboardList className="w-3 h-3 mr-1"/>Tugas ({completedTasks}/{totalTasks})</h4>
+                  {airdrop.status !== 'Completed' && airdrop.deadline && (
+                      <div className={`text-xs flex items-center ${isDeadlinePassed && airdrop.status !== 'Completed' ? 'text-red-400' : 'text-muted-foreground'}`}>
+                          {isDeadlinePassed && airdrop.status !== 'Completed' && <AlertTriangle className="w-3 h-3 mr-1"/>}
+                          Deadline: {timeToDeadline}
+                      </div>
+                  )}
+              </div>
+              <Progress value={progress} className="h-1.5 mb-2" />
+              <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
+                {airdrop.tasks.map(task => (
+                  <div key={task.id} className="flex items-center space-x-2 text-xs">
+                    <Checkbox
+                      id={`${airdrop.id}-task-${task.id}`}
+                      checked={task.completed}
+                      onCheckedChange={() => onTaskToggle(airdrop.id, task.id)}
+                      disabled={airdrop.status === 'Completed'}
+                      aria-label={`Tandai tugas ${task.text} sebagai ${task.completed ? 'belum selesai' : 'selesai'}`}
+                    />
+                    <label
+                      htmlFor={`${airdrop.id}-task-${task.id}`}
+                      className={`flex-grow ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}
+                    >
+                      {task.text}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {totalTasks === 0 && (
+               <p className="text-xs text-muted-foreground italic">Tidak ada tugas spesifik untuk airdrop ini.</p>
+          )}
+        </CardContent>
+        <CardFooter className="py-3 border-t flex justify-end gap-2">
+          <Button variant="outline" size="icon" onClick={(e) => { e.stopPropagation(); onEdit(airdrop); }} aria-label="Edit Airdrop">
+            <Edit3 className="h-4 w-4" />
+          </Button>
+          <Button variant="destructiveOutline" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(airdrop.id); }} aria-label="Hapus Airdrop">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
   );
 };
 

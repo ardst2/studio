@@ -4,41 +4,41 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif; /* Mengubah font body default ke Poppins */
 }
 
 @layer base {
   :root {
     /* Dark Theme - Hitam Pekat Netral */
-    --background: 0 0% 2%; /* Hitam pekat (abu-abu sangat gelap, netral) */
-    --foreground: 0 0% 98%; /* Putih gading (abu-abu sangat terang, netral) */
+    --background: 0 0% 2%; 
+    --foreground: 0 0% 98%; 
 
-    --card: 0 0% 4%; /* Sedikit lebih terang dari background, sangat gelap, netral */
+    --card: 0 0% 4%; 
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 3%; /* Antara background dan card, sangat gelap, netral */
+    --popover: 0 0% 3%; 
     --popover-foreground: 0 0% 98%;
 
     /* Warna aksi utama - Oranye-Merah Dominan */
-    --primary: 30 90% 55%; /* Oranye terang */
-    --primary-foreground: 20 0% 10%; /* Abu-abu sangat gelap untuk teks di atas primer */
+    --primary: 30 90% 55%; 
+    --primary-foreground: 20 0% 10%; 
 
-    --secondary: 0 0% 12%; /* Abu-abu gelap untuk elemen sekunder, netral */
-    --secondary-foreground: 0 0% 80%; /* Abu-abu terang untuk teks di atas sekunder */
+    --secondary: 0 0% 12%; 
+    --secondary-foreground: 0 0% 80%; 
 
-    --muted: 0 0% 8%; /* Lebih gelap untuk muted, netral */
-    --muted-foreground: 0 0% 65%; /* Abu-abu medium untuk teks muted, netral */
+    --muted: 0 0% 8%; 
+    --muted-foreground: 0 0% 65%; 
 
     /* Warna aksen - Oranye-Merah */
     --accent: 30 90% 55%;
     --accent-foreground: 20 0% 10%;
 
-    --destructive: 0 70% 50%; /* Merah */
+    --destructive: 0 70% 50%; 
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 10%; /* Border yang sangat gelap, netral */
-    --input: 0 0% 5%;   /* Input yang sangat gelap, netral */
-    --ring: 30 90% 55%; /* Oranye untuk focus ring */
+    --border: 0 0% 10%; 
+    --input: 0 0% 5%;   
+    --ring: 30 90% 55%; 
 
     --radius: 0.75rem;
     --radius-md: calc(var(--radius) - 2px);
@@ -61,7 +61,7 @@ body {
 
 
     /* Gradien avatar (contoh, mungkin tidak digunakan lagi) */
-    --gradient-blue: 210 100% 50%; /* Biru untuk avatar (jika diperlukan) */
+    --gradient-blue: 210 100% 50%; 
 
     /* Warna kustom untuk tombol Tambah Airdrop */
     --custom-black: 0 0% 0%;
@@ -105,75 +105,69 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Poppins', sans-serif; /* Memastikan Poppins diterapkan di body */
   }
 }
 
 /* Custom input field styling with gradient wipe animation */
 .input-gradient-glow-wrapper {
   position: relative;
-  padding: 1px; /* Controls the thickness of the gradient border */
-  border-radius: var(--radius-sm); /* Should match inner element's border-radius + padding */
+  padding: 1px; 
+  border-radius: var(--radius-sm); 
   transition: box-shadow 300ms ease-out;
-  background-color: transparent; /* Wrapper itself is transparent */
-  pointer-events: none; /* Make the wrapper itself non-interactive */
+  background-color: transparent; 
+  pointer-events: none; 
 }
 
 .input-gradient-glow-wrapper::before {
   content: '';
   position: absolute;
-  inset: 0; /* Covers the entire wrapper, border will be 'inside' */
-  border-radius: inherit; /* Inherits from wrapper */
+  inset: 0; 
+  border-radius: inherit; 
   background: linear-gradient(135deg,
     hsl(var(--gradient-theme-start)),
     hsl(var(--gradient-theme-mid)),
     hsl(var(--gradient-theme-end))
   );
-  z-index: 0; /* Behind the input element */
+  z-index: 0; 
   clip-path: circle(0% at 100% 100%);
   transition: clip-path 350ms ease-out;
-  pointer-events: none; /* Pseudo-element also non-interactive */
+  pointer-events: none; 
 }
 
 .input-gradient-glow-wrapper:hover::before,
 .input-gradient-glow-wrapper:focus-within::before {
-  clip-path: circle(150% at 100% 100%); /* Reveals gradient on hover/focus */
+  clip-path: circle(150% at 100% 100%); 
 }
 
 .input-gradient-glow-wrapper input,
 .input-gradient-glow-wrapper textarea,
-.input-gradient-glow-wrapper div[role="combobox"], /* Targets SelectTrigger */
-.input-gradient-glow-wrapper button { /* Generic button inside wrapper */
+.input-gradient-glow-wrapper div[role="combobox"], 
+.input-gradient-glow-wrapper button { 
   position: relative;
-  z-index: 1; /* Above the gradient ::before pseudo-element */
-  border-radius: calc(var(--radius-sm) - 1px); /* Slightly smaller to show the gradient border */
+  z-index: 1; 
+  border-radius: calc(var(--radius-sm) - 1px); 
   width: 100%;
   outline: none !important;
   box-shadow: none !important;
-  border: 1px solid transparent !important; /* Make actual border transparent */
-  background-color: hsl(var(--input)) !important; /* Explicitly set background */
-  color: hsl(var(--foreground)) !important; /* Explicitly set text color */
-  pointer-events: auto; /* Make interactive children interactive */
+  border: 1px solid transparent !important; 
+  background-color: hsl(var(--input)) !important; 
+  color: hsl(var(--foreground)) !important; 
+  pointer-events: auto; 
 }
 
-/* Specific styling for input type="date" inside the wrapper */
 .input-gradient-glow-wrapper input[type="date"] {
-  line-height: normal; /* Reset line height for date inputs */
-  /* padding-right to prevent text overlapping native calendar icon. Adjust if needed. */
-  /* The Input component already has px-3 (0.75rem). We need more for the icon. */
-  /* pr-8 in Tailwind is 2rem. So total padding-right needed is around 2rem. */
-  /* Default px-3 for Input component adds 0.75rem. So we need approx 1.25rem more. */
-  /* This is already handled by adding className="pr-8" to the Input component itself */
-  color-scheme: dark; /* Hint for native date picker theme. Assumes app is dark. */
+  line-height: normal; 
+  color-scheme: dark; 
 }
 
 .input-gradient-glow-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0.7; /* Make it less prominent */
+  opacity: 0.7; 
   cursor: pointer;
-  filter: invert(1) brightness(1); /* Adjust for dark theme if icon is black by default */
+  filter: invert(1) brightness(1); 
 }
 
 
-/* Specificity for ShadCN SelectTrigger's inner span if needed */
 .input-gradient-glow-wrapper div[role="combobox"] > span {
   color: hsl(var(--foreground)) !important;
 }
@@ -181,13 +175,11 @@ body {
   color: hsl(var(--foreground)) !important;
 }
 
-/* Ensure placeholder text color is also consistent */
 .input-gradient-glow-wrapper input::placeholder,
 .input-gradient-glow-wrapper textarea::placeholder {
   color: hsl(var(--muted-foreground)) !important;
 }
 
-/* Special styling for buttons *inside* the wrapper if they need different appearance */
 .input-gradient-glow-wrapper button.text-muted-foreground {
   color: hsl(var(--muted-foreground)) !important;
 }
@@ -195,7 +187,6 @@ body {
   color: hsl(var(--foreground)) !important;
 }
 
-/* Styling for tombol Tambah Airdrop agar berbeda di dalam wrapper */
 .input-gradient-glow-wrapper button.add-airdrop-style {
   background-color: hsl(var(--custom-black)) !important;
   color: hsl(var(--custom-gray-text)) !important;
@@ -211,53 +202,52 @@ body {
 
 .input-gradient-glow-wrapper:hover,
 .input-gradient-glow-wrapper:focus-within {
-  box-shadow: 0 0 8px 0px hsla(var(--gradient-theme-mid), 0.5); /* Subtle glow from the mid color */
+  box-shadow: 0 0 8px 0px hsla(var(--gradient-theme-mid), 0.5); 
 }
 
 /* Card gradient glow wrapper */
 .card-gradient-glow-wrapper {
   position: relative;
-  padding: 1px; /* Controls the thickness of the gradient border */
-  border-radius: var(--radius-lg); /* Match card's default rounded-lg */
-  /* overflow: hidden; */ /* Removed as per user feedback for date picker click issue */
+  padding: 1px; 
+  border-radius: var(--radius-lg); 
   transition: box-shadow 300ms ease-out;
-  pointer-events: none; /* Make wrapper non-interactive */
+  pointer-events: none; 
 }
 
 .card-gradient-glow-wrapper::before {
   content: '';
   position: absolute;
-  inset: 0; /* Cover the padding area and the card itself */
-  border-radius: inherit; /* Inherits from wrapper */
+  inset: 0; 
+  border-radius: inherit; 
   background: linear-gradient(135deg,
     hsl(var(--gradient-theme-start)),
     hsl(var(--gradient-theme-mid)),
     hsl(var(--gradient-theme-end))
   );
-  z-index: 0; /* Behind the card content */
-  clip-path: circle(0% at 100% 100%); /* Start animation from bottom-right */
+  z-index: 0; 
+  clip-path: circle(0% at 100% 100%); 
   transition: clip-path 350ms ease-out;
-  pointer-events: none; /* Allow clicks to pass through to the card */
+  pointer-events: none; 
 }
 
 .card-gradient-glow-wrapper:hover::before {
-  clip-path: circle(150% at 100% 100%); /* Reveals gradient on hover */
+  clip-path: circle(150% at 100% 100%); 
 }
 
-/* The actual card component (direct child div of the wrapper) */
-.card-gradient-glow-wrapper > .rounded-lg { /* Targeting Shadcn Card's default rounded-lg */
+.card-gradient-glow-wrapper > .rounded-lg,
+.card-gradient-glow-wrapper > .shadow-lg { /* Target Shadcn Card's default rounded-lg and custom shadow */
   position: relative;
-  z-index: 1; /* Sits on top of the ::before pseudo-element */
+  z-index: 1; 
   background-color: hsl(var(--card));
-  border: 1px solid transparent !important; /* Override ShadCN's default border to be transparent */
-  border-radius: calc(var(--radius-lg) - 1px); /* Slightly smaller to sit inside the wrapper's padding */
+  border: 1px solid transparent !important; 
+  border-radius: calc(var(--radius-lg) - 1px); 
   width: 100%;
-  height: 100%; /* Make card fill the wrapper */
-  pointer-events: auto; /* Make card interactive */
+  height: 100%; 
+  pointer-events: auto; 
 }
 
 .card-gradient-glow-wrapper:hover {
-  box-shadow: 0 0 10px 1px hsla(var(--gradient-theme-mid), 0.6); /* Slightly more pronounced glow */
+  box-shadow: 0 0 10px 1px hsla(var(--gradient-theme-mid), 0.6); 
 }
 
 
@@ -286,7 +276,7 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: hsl(var(--card)); /* Pastikan ini sesuai dengan background modal jika loader di modal */
+  background: hsl(var(--card)); 
 }
 
 @keyframes spin {
@@ -307,11 +297,11 @@ body {
   background-position: right center;
 }
 
-/* Calendar specific styling - Default ShadCN calendar in popover should use these */
+/* Calendar specific styling */
 .rdp {
   --rdp-cell-size: 40px;
   --rdp-accent-color: hsl(var(--primary));
-  --rdp-background-color: hsl(var(--primary-foreground)); /* Not directly used by ShadCN */
+  --rdp-background-color: hsl(var(--primary-foreground)); 
   --rdp-outline: 2px solid hsl(var(--primary));
   --rdp-outline-selected: 3px solid hsl(var(--primary));
   margin: 1em 0;
@@ -372,46 +362,35 @@ body {
   opacity: 0.8;
 }
 
-/* General styles for native date inputs if not wrapped or need overrides */
 input[type="date"] {
-  color-scheme: dark; /* Or 'light' depending on your base theme */
-  /* The Input component from ShadCN applies most visual styles. */
-  /* This is a fallback or for non-ShadCN date inputs. */
+  color-scheme: dark; 
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 0.7;
-  filter: invert(1) brightness(1); /* Example for dark themes, makes black icon white */
+  filter: invert(1) brightness(1); 
 }
 input[type="date"]::-moz-calendar-picker-indicator {
-  /* Styling for Firefox's date picker icon is very limited */
   opacity: 0.7;
 }
 
-
-/* Styling for header icons hover effect */
 .header-icon-button:hover {
-  background-color: transparent !important; /* Ensure button background doesn't interfere */
+  background-color: transparent !important; 
 }
 
 .header-icon-button:hover svg {
-  /* Apply gradient as a background to the SVG */
   background: linear-gradient(to right, hsl(var(--gradient-theme-start)), hsl(var(--gradient-theme-mid)), hsl(var(--gradient-theme-end)));
-  /* Clip the background to the text (icon shape) */
   -webkit-background-clip: text;
   background-clip: text;
-  /* Make the original icon color transparent so the background shows through */
   color: transparent !important;
 }
 
-.header-icon-button:hover svg * { /* Target all child elements like path, line, etc. */
-  stroke: currentColor !important; /* Inherit the transparent color for stroke */
-  fill: none !important; /* Ensure no fill interferes, gradient is via stroke */
+.header-icon-button:hover svg * { 
+  stroke: currentColor !important; 
+  fill: none !important; 
 }
 
-
-/* Gradient text class */
 .text-gradient-theme {
   background: linear-gradient(to right,
     hsl(var(--gradient-theme-start)),
@@ -424,14 +403,11 @@ input[type="date"]::-moz-calendar-picker-indicator {
   -webkit-text-fill-color: transparent;
 }
 
-
 /* Popover with gradient border */
 .popover-gradient-border {
-  border-width: 1.5px; /* Adjust thickness of the gradient border */
+  border-width: 1.5px; 
   border-style: solid;
-  border-color: transparent; /* Important: make the actual border transparent */
-
-  /* Double background trick for gradient border */
+  border-color: transparent; 
   background-image: linear-gradient(hsl(var(--popover)), hsl(var(--popover))),
                     linear-gradient(135deg,
                                     hsl(var(--gradient-theme-start)),
@@ -439,9 +415,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
                                     hsl(var(--gradient-theme-end)));
   background-origin: padding-box, border-box;
   background-clip: padding-box, border-box;
-
-  /* Ensure ShadCN's default border is overridden if necessary */
-  box-shadow: 0 0 0 0px hsl(var(--border)) !important; /* Override ShadCN's border shadow */
+  box-shadow: 0 0 0 0px hsl(var(--border)) !important; 
 }
 
 /* Animated Gradient Text */
@@ -453,21 +427,41 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
 .text-gradient-animated {
   background-image: linear-gradient(
-    120deg, /* Angle of the gradient */
+    120deg, 
     hsl(var(--gradient-theme-start)),
     hsl(var(--gradient-theme-mid)),
     hsl(var(--gradient-theme-end)),
-    hsl(var(--gradient-theme-mid)), /* Repeating for smoother shimmer */
+    hsl(var(--gradient-theme-mid)), 
     hsl(var(--gradient-theme-start))
   );
-  background-size: 300% auto; /* Larger size for smoother animation and shimmer */
+  background-size: 300% auto; 
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: animatedGradientText 8s linear infinite; /* Adjust duration for speed */
-  display: inline-block; /* Important for background-clip to work as expected on block elements like h1 */
+  animation: animatedGradientText 8s linear infinite; 
+  display: inline-block; 
 }
-    
 
+/* Custom Toast Styling */
+.toast-gradient-border {
+  @apply relative;
+  border-width: 1.5px;
+  border-style: solid;
+  border-image-slice: 1;
+  border-image-source: linear-gradient(135deg,
+    hsl(var(--gradient-theme-start)),
+    hsl(var(--gradient-theme-mid)),
+    hsl(var(--gradient-theme-end))
+  );
+  background-color: hsl(var(--background)); /* Atau --toast-background jika ada var khusus */
+}
 
-    
+/* Optional: Animasi "berkedip" sederhana untuk toast (bisa disesuaikan) */
+@keyframes toast-attention {
+  0%, 100% { box-shadow: 0 0 5px 0px hsla(var(--gradient-theme-mid), 0.3); }
+  50% { box-shadow: 0 0 15px 2px hsla(var(--gradient-theme-mid), 0.6); }
+}
+
+.toast-attention-animate {
+  animation: toast-attention 1.5s ease-in-out;
+}
