@@ -442,18 +442,20 @@ input[type="date"]::-moz-calendar-picker-indicator {
   display: inline-block; 
 }
 
-/* Custom Toast Styling */
+/* Custom Toast Styling with Gradient Border */
 .toast-gradient-border {
-  @apply relative;
-  border-width: 1.5px;
-  border-style: solid;
-  border-image-slice: 1;
-  border-image-source: linear-gradient(135deg,
+  @apply p-px rounded-lg relative overflow-hidden; /* Padding IS the border; var(--radius) -> rounded-lg */
+  background: linear-gradient(135deg,
     hsl(var(--gradient-theme-start)),
     hsl(var(--gradient-theme-mid)),
     hsl(var(--gradient-theme-end))
   );
-  background-color: hsl(var(--background)); /* Atau --toast-background jika ada var khusus */
+}
+
+/* Inner container for the actual toast content */
+.toast-content-area {
+  @apply bg-background w-full h-full flex items-center justify-between space-x-4 p-6 pr-8;
+  border-radius: calc(var(--radius) - 1px); /* Slightly smaller radius to fit inside the 'border' */
 }
 
 /* Optional: Animasi "berkedip" sederhana untuk toast (bisa disesuaikan) */
