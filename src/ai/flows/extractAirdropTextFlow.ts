@@ -18,12 +18,12 @@ const ExtractedFieldSchema = z.object({
     .describe('The inferred type of the extracted value. string_short for short text, string_long for long text/description, date in YYYY-MM-DD format, url, number, or boolean (true/false). Use unknown if type is unclear.'),
 });
 
-export const ExtractAirdropTextInputSchema = z.object({
+const ExtractAirdropTextInputSchema = z.object({
   textDescription: z.string().min(10, 'Text description must be at least 10 characters long.').describe('The full text description of the airdrop announcement.'),
 });
 export type ExtractAirdropTextInput = z.infer<typeof ExtractAirdropTextInputSchema>;
 
-export const ExtractAirdropTextOutputSchema = z.record(
+const ExtractAirdropTextOutputSchema = z.record(
   z.string().describe('The identified key or label for the extracted information (e.g., "Project Name", "Deadline", "Requirements").'),
   ExtractedFieldSchema
 ).describe('An object where each key is an identified piece of information from the text, and its value contains the extracted "nilai" (value) and "tipe" (type hint).');
