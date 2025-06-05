@@ -444,4 +444,30 @@ input[type="date"]::-moz-calendar-picker-indicator {
   box-shadow: 0 0 0 0px hsl(var(--border)) !important; /* Override ShadCN's border shadow */
 }
 
+/* Animated Gradient Text */
+@keyframes animatedGradientText {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.text-gradient-animated {
+  background-image: linear-gradient(
+    120deg, /* Angle of the gradient */
+    hsl(var(--gradient-theme-start)),
+    hsl(var(--gradient-theme-mid)),
+    hsl(var(--gradient-theme-end)),
+    hsl(var(--gradient-theme-mid)), /* Repeating for smoother shimmer */
+    hsl(var(--gradient-theme-start))
+  );
+  background-size: 300% auto; /* Larger size for smoother animation and shimmer */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: animatedGradientText 8s linear infinite; /* Adjust duration for speed */
+  display: inline-block; /* Important for background-clip to work as expected on block elements like h1 */
+}
+    
+
+
     

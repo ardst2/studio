@@ -1,3 +1,4 @@
+
 // src/app/login/page.tsx
 "use client";
 
@@ -27,24 +28,22 @@ function LoginPageContent() {
   }
   
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-8 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6">
+      <div className="w-full max-w-lg space-y-12 text-center"> {/* Increased max-w and space-y */}
         <Image 
-          src="https://placehold.co/120x120.png?text=AA" 
+          src="https://placehold.co/150x150.png?text=AA" 
           alt="AirdropAce Logo" 
-          width={120} 
-          height={120} 
-          className="mx-auto rounded-2xl shadow-lg"
+          width={150} 
+          height={150} 
+          className="mx-auto rounded-3xl shadow-xl" // Increased rounding and shadow
           data-ai-hint="rocket abstract" 
         />
         <div>
-          <h1 className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="font-headline text-5xl font-bold tracking-tight text-gradient-animated sm:text-6xl md:text-7xl">
             Assalamualaikum
           </h1>
-          {/* Subtitle removed */}
         </div>
-        <div className="rounded-xl bg-card p-8 shadow-2xl flex flex-col items-center">
-          {/* "Get Started" text removed */}
+        <div className="rounded-xl bg-transparent p-6 flex flex-col items-center"> {/* Removed card background, adjusted padding */}
           <GoogleSignInButton />
         </div>
         <p className="text-sm text-muted-foreground">
@@ -62,3 +61,6 @@ export default function LoginPage() {
     </AuthProvider>
   );
 }
+
+
+    

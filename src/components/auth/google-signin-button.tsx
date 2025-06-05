@@ -1,3 +1,4 @@
+
 // src/components/auth/google-signin-button.tsx
 "use client";
 
@@ -21,11 +22,12 @@ const GoogleSignInButton = () => {
     <Button 
       onClick={signInWithGoogle} 
       disabled={loading} 
+      variant="outline" // Using outline variant for a more subtle look
       className={cn(
-        "btn-gradient p-3 rounded-full shadow-lg hover:shadow-xl transition-shadow",
+        "p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out",
+        "h-16 w-16 border-border hover:bg-muted/50", // Larger size, circular, subtle background
         loading ? "opacity-70 cursor-not-allowed" : ""
       )}
-      size="icon" // Using icon size for a more compact button
       aria-label="Sign In with Google"
     >
       <GoogleLogoIcon />
@@ -34,3 +36,6 @@ const GoogleSignInButton = () => {
 };
 
 export default GoogleSignInButton;
+
+
+    
