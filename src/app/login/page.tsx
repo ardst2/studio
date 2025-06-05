@@ -31,12 +31,12 @@ function LoginPageContent() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6">
       <div className="w-full max-w-lg space-y-12 text-center"> {/* Increased max-w and space-y */}
         <Image 
-          src="https://placehold.co/150x150.png?text=AA" 
-          alt="AirdropAce Logo" 
-          width={150} 
-          height={150} 
-          className="mx-auto rounded-3xl shadow-xl" // Increased rounding and shadow
-          data-ai-hint="rocket abstract" 
+          src="https://placehold.co/120x120.png" 
+          alt="AirdropAce Modern Logo" 
+          width={120} 
+          height={120} 
+          className="mx-auto rounded-3xl shadow-xl" // Adjusted size
+          data-ai-hint="abstract tech logo" 
         />
         <div>
           <h1 className="font-headline text-5xl font-bold tracking-tight text-gradient-animated sm:text-6xl md:text-7xl">
