@@ -10,10 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input'; // For rendering dynamic inputs
 import { Sparkles, AlertTriangle, CheckCircle, X, RotateCcw } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { extractAirdropDetailsFromText, type ExtractAirdropTextOutput } from '@/ai/flows/extractAirdropTextFlow';
+import { extractAirdropDetailsFromText, type ExtractedKVPair as AirdropExtractedDetailItem } from '@/ai/flows/extractAirdropTextFlow'; // Updated import
 import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface AiAssistModalProps {
   isOpen: boolean;
@@ -28,7 +27,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
   const { toast } = useToast();
   const [textDescription, setTextDescription] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [extractedData, setExtractedData] = useState<ExtractAirdropTextOutput | null>(null);
+  const [extractedData, setExtractedData] = useState<AirdropExtractedDetailItem[] | null>(null); // Now an array or null
   const dynamicFieldsOutputRef = useRef<HTMLDivElement>(null);
 
   const handleProcessText = async () => {
@@ -37,18 +36,18 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
       return;
     }
     setIsProcessing(true);
-    setExtractedData(null); // Clear previous results
+    setExtractedData(null); 
     if (dynamicFieldsOutputRef.current) {
-        dynamicFieldsOutputRef.current.innerHTML = ''; // Clear previous dynamic fields
+        dynamicFieldsOutputRef.current.innerHTML = ''; 
     }
 
     try {
-      const result = await extractAirdropDetailsFromText({ textDescription });
+      const result = await extractAirdropDetailsFromText({ textDescription }); // result is AirdropExtractedDetailItem[]
       setExtractedData(result);
       renderDynamicFields(result);
       toast({
         title: "Ekstraksi Selesai",
-        description: "Informasi berhasil diekstrak. Silakan tinjau di bawah.",
+        description: `Informasi berhasil diekstrak. Ditemukan ${result.length} item. Silakan tinjau di bawah.`,
         action: <CheckCircle className="text-green-500" />,
       });
     } catch (error: any) {
@@ -59,74 +58,66 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
         description: error.message || "Terjadi kesalahan saat memproses teks dengan AI.",
         action: <AlertTriangle className="text-red-500" />,
       });
+      setExtractedData([]); // Set to empty array on error to clear results area correctly
+      renderDynamicFields([]);
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const renderDynamicFields = (data: ExtractAirdropTextOutput) => {
+  const renderDynamicFields = (data: AirdropExtractedDetailItem[]) => {
     const container = dynamicFieldsOutputRef.current;
     if (!container) return;
 
-    container.innerHTML = ''; // Clear previous content
+    container.innerHTML = ''; 
 
-    if (Object.keys(data).length === 0) {
+    if (!data || data.length === 0) {
         const noDataMessage = document.createElement('p');
         noDataMessage.className = 'text-sm text-muted-foreground italic text-center py-4';
-        noDataMessage.textContent = 'AI tidak menemukan informasi spesifik untuk diekstrak dari teks ini.';
+        noDataMessage.textContent = 'AI tidak menemukan informasi spesifik untuk diekstrak dari teks ini atau format output tidak sesuai.';
         container.appendChild(noDataMessage);
         return;
     }
 
-    for (const key in data) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) {
-        const item = data[key];
+    data.forEach(item => {
+      const fieldWrapper = document.createElement('div');
+      fieldWrapper.className = 'mb-4'; 
 
-        const fieldWrapper = document.createElement('div');
-        fieldWrapper.className = 'mb-4'; // Corresponds to space-y-4 or similar
+      const label = document.createElement('label');
+      label.htmlFor = `ai-field-${item.key.replace(/\s+/g, '-').toLowerCase()}`;
+      label.className = 'mb-1 block text-sm font-medium text-foreground'; 
+      label.textContent = item.key;
+      fieldWrapper.appendChild(label);
 
-        const label = document.createElement('label');
-        label.htmlFor = `ai-field-${key.replace(/\s+/g, '-').toLowerCase()}`;
-        label.className = 'mb-1 block text-sm font-medium text-foreground'; // From AirdropForm Label
-        label.textContent = key;
-        fieldWrapper.appendChild(label);
+      const inputWrapperDiv = document.createElement('div');
+      inputWrapperDiv.className = 'input-gradient-glow-wrapper'; 
 
-        const inputWrapperDiv = document.createElement('div');
-        inputWrapperDiv.className = 'input-gradient-glow-wrapper'; // Apply wrapper for consistent styling
-
-        let inputElement;
-        if (item.tipe === 'string_long' || item.tipe === 'unknown') {
-          inputElement = document.createElement('textarea');
-          inputElement.rows = 3;
-          // Base classes from ShadCN Textarea component
-          inputElement.className = 'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm';
-        } else {
-          inputElement = document.createElement('input');
-          // Base classes from ShadCN Input component
-          inputElement.className = 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm';
-          
-          if (item.tipe === 'date') inputElement.type = 'text'; // Display as text, actual date type can be tricky
-          else if (item.tipe === 'url') inputElement.type = 'url';
-          else if (item.tipe === 'number') inputElement.type = 'number';
-          else if (item.tipe === 'boolean') inputElement.type = 'text'; // Represent boolean as text for now
-          else inputElement.type = 'text'; // Default for string_short
-        }
+      let inputElement;
+      if (item.tipe === 'string_long' || item.tipe === 'unknown') {
+        inputElement = document.createElement('textarea');
+        inputElement.rows = 3;
+        inputElement.className = 'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm';
+      } else {
+        inputElement = document.createElement('input');
+        inputElement.className = 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm';
         
-        inputElement.id = `ai-field-${key.replace(/\s+/g, '-').toLowerCase()}`;
-        inputElement.value = item.nilai;
-        inputElement.readOnly = true; // Make fields read-only for review
-        
-        // Apply consistent placeholder style if needed, though value is set
-        // inputElement.placeholder = `AI Extracted ${key}`;
-        
-        inputWrapperDiv.appendChild(inputElement);
-        fieldWrapper.appendChild(inputWrapperDiv);
-        container.appendChild(fieldWrapper);
+        if (item.tipe === 'date') inputElement.type = 'text'; // Display as text
+        else if (item.tipe === 'url') inputElement.type = 'url';
+        else if (item.tipe === 'number') inputElement.type = 'number';
+        else if (item.tipe === 'boolean') inputElement.type = 'text'; 
+        else inputElement.type = 'text'; 
       }
-    }
+      
+      inputElement.id = `ai-field-${item.key.replace(/\s+/g, '-').toLowerCase()}`;
+      inputElement.value = item.nilai;
+      inputElement.readOnly = true; 
+      
+      inputWrapperDiv.appendChild(inputElement);
+      fieldWrapper.appendChild(inputWrapperDiv);
+      container.appendChild(fieldWrapper);
+    });
   };
   
-  // Reset state when modal closes
   const handleModalOpenChange = (open: boolean) => {
     if (!open) {
       onClose();
@@ -151,7 +142,6 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={handleModalOpenChange}>
       <DialogContent className="sm:max-w-2xl bg-card/95 backdrop-blur-lg shadow-2xl border-border/60 p-0 max-h-[85vh] overflow-hidden flex flex-col">
-        {/* Decorative gradient lines */}
         <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-[1]"></div>
         <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-[1]"></div>
 
@@ -185,7 +175,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
                 {isProcessing ? 'Memproses...' : 'Proses dengan AI'}
             </Button>
 
-            { (extractedData || isProcessing) && ( // Show section if there's data or if processing
+            { (extractedData || isProcessing) && (
                 <div className="mt-6">
                     <h3 className="text-lg font-semibold text-foreground mb-3 border-b border-border/30 pb-2">Hasil Ekstraksi AI:</h3>
                     {isProcessing && !extractedData && (
@@ -194,8 +184,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
                          </div>
                     )}
                     <div ref={dynamicFieldsOutputRef} className="space-y-3 max-h-64 overflow-y-auto pr-2">
-                        {/* Dynamic fields will be rendered here by renderDynamicFields */}
-                         {!isProcessing && extractedData && Object.keys(extractedData).length === 0 && (
+                         {!isProcessing && extractedData && extractedData.length === 0 && (
                              <p className="text-sm text-muted-foreground italic text-center py-4">AI tidak menemukan informasi spesifik untuk diekstrak dari teks ini atau format output tidak sesuai.</p>
                          )}
                     </div>
