@@ -12,7 +12,9 @@ import AirdropDetailModal from '@/components/dashboard/AirdropDetailModal';
 import TodaysDeadlinesModal from '@/components/dashboard/TodaysDeadlinesModal';
 import EditProfileModal from '@/components/dashboard/edit-profile-modal';
 import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal';
-import SheetsImportModal from '@/components/dashboard/SheetsImportModal'; // Import new modal
+import SheetsImportModal from '@/components/dashboard/SheetsImportModal';
+import AiAssistCard from '@/components/dashboard/AiAssistCard'; // Import AiAssistCard
+import AiAssistModal from '@/components/dashboard/AiAssistModal'; // Import AiAssistModal
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
 import SheetsIntegrationCard from '@/components/dashboard/sheets-integration-card';
 import Loader from '@/components/ui/loader';
@@ -62,7 +64,8 @@ function DashboardPageContent() {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
-  const [isSheetsImportModalOpen, setIsSheetsImportModalOpen] = useState(false); // New state for SheetsImportModal
+  const [isSheetsImportModalOpen, setIsSheetsImportModalOpen] = useState(false);
+  const [isAiAssistModalOpen, setIsAiAssistModalOpen] = useState(false); // State for AiAssistModal
 
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
@@ -75,11 +78,24 @@ function DashboardPageContent() {
         deadline: airdropToEdit.deadline,
         description: airdropToEdit.description,
         tasks: airdropToEdit.tasks.map(task => ({ ...task })),
+        // Ensure all other relevant fields from Airdrop type are copied
+        blockchain: airdropToEdit.blockchain,
+        registrationDate: airdropToEdit.registrationDate,
+        participationRequirements: airdropToEdit.participationRequirements,
+        airdropLink: airdropToEdit.airdropLink,
+        userDefinedStatus: airdropToEdit.userDefinedStatus,
+        notes: airdropToEdit.notes,
+        walletAddress: airdropToEdit.walletAddress,
+        tokenAmount: airdropToEdit.tokenAmount,
+        claimDate: airdropToEdit.claimDate,
+        airdropType: airdropToEdit.airdropType,
+        referralCode: airdropToEdit.referralCode,
+        informationSource: airdropToEdit.informationSource,
       };
       updateNewAirdropDraft(draftData);
     } else {
       setEditingAirdrop(null);
-      resetNewAirdropDraft();
+      resetNewAirdropDraft(); // This will set default values including userId
     }
     setIsAddModalOpen(true);
   };
@@ -93,10 +109,11 @@ function DashboardPageContent() {
     try {
       if (editingAirdrop) {
         const updatedData: Airdrop = {
-            ...editingAirdrop,
-            ...data,
+            ...editingAirdrop, // Keeps original id, userId, createdAt
+            ...data, // Overwrites with new form data
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
+        // Recalculate status based on new data
         const now = Date.now();
         let status: Airdrop['status'] = 'Upcoming';
         if (updatedData.startDate && updatedData.startDate <= now) status = 'Active';
@@ -111,11 +128,12 @@ function DashboardPageContent() {
         await storeUpdateAirdrop(updatedData);
         toast({ title: "Airdrop Diperbarui", description: `"${updatedData.name}" berhasil diperbarui.` });
       } else {
+        // For new airdrop, userId is already in newAirdropDraft or default from useAirdropsStore
         const newAirdropDataWithTaskIds = {
-            ...data,
+            ...data, // Contains all form fields
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
-        await storeAddAirdrop(newAirdropDataWithTaskIds);
+        await storeAddAirdrop(newAirdropDataWithTaskIds); // storeAddAirdrop will handle userId, createdAt, status
         toast({ title: "Airdrop Ditambahkan", description: `"${data.name}" berhasil ditambahkan.` });
       }
       handleCloseAddModal();
@@ -227,9 +245,11 @@ function DashboardPageContent() {
   const handleOpenStatsModal = () => setIsStatsModalOpen(true);
   const handleCloseStatsModal = () => setIsStatsModalOpen(false);
 
-  // Handlers for SheetsImportModal
   const handleOpenSheetsImportModal = () => setIsSheetsImportModalOpen(true);
   const handleCloseSheetsImportModal = () => setIsSheetsImportModalOpen(false);
+
+  const handleOpenAiAssistModal = () => setIsAiAssistModalOpen(true); // Handler for AI Assist Card
+  const handleCloseAiAssistModal = () => setIsAiAssistModalOpen(false);
 
 
   if (authLoading || airdropsLoading || (!authLoading && !user) ) {
@@ -244,7 +264,7 @@ function DashboardPageContent() {
     <div className="flex min-h-screen flex-col bg-background">
       <DashboardHeader />
       <main className="flex-1 p-4 md:p-8 space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 xl:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 xl:gap-8">
           <div className="card-gradient-glow-wrapper h-72">
             <UserInfoCard
               airdrops={allAirdrops}
@@ -281,6 +301,9 @@ function DashboardPageContent() {
           </div>
           <div className="card-gradient-glow-wrapper h-72">
             <SheetsIntegrationCard onClick={handleOpenSheetsImportModal} />
+          </div>
+          <div className="card-gradient-glow-wrapper h-72"> {/* New AI Assist Card */}
+            <AiAssistCard onClick={handleOpenAiAssistModal} />
           </div>
         </div>
 
@@ -333,6 +356,10 @@ function DashboardPageContent() {
       <SheetsImportModal 
         isOpen={isSheetsImportModalOpen}
         onClose={handleCloseSheetsImportModal}
+      />
+      <AiAssistModal  // Add the AiAssistModal instance
+        isOpen={isAiAssistModalOpen}
+        onClose={handleCloseAiAssistModal}
       />
        <footer className="py-6 px-4 md:px-8 border-t border-border/50 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} AirdropAce. Ditenagai oleh antusiasme Web3.
