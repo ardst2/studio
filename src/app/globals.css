@@ -113,7 +113,7 @@ body {
   position: relative;
   padding: 1px; /* Controls the thickness of the gradient border */
   border-radius: var(--radius-sm); /* Should match inner element's border-radius + padding */
-  overflow: hidden;
+  /* overflow: hidden; */ /* Removed to prevent potential click issues with wrapped buttons */
   transition: box-shadow 300ms ease-out;
   background-color: transparent; /* Wrapper itself is transparent */
 }
