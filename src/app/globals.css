@@ -113,9 +113,9 @@ body {
   position: relative;
   padding: 1px; /* Controls the thickness of the gradient border */
   border-radius: var(--radius-sm); /* Should match inner element's border-radius + padding */
-  /* overflow: hidden; */ /* Removed to prevent potential click issues with wrapped buttons */
   transition: box-shadow 300ms ease-out;
   background-color: transparent; /* Wrapper itself is transparent */
+  pointer-events: none; /* Make the wrapper itself non-interactive */
 }
 
 .input-gradient-glow-wrapper::before {
@@ -131,7 +131,7 @@ body {
   z-index: 0; /* Behind the input element */
   clip-path: circle(0% at 100% 100%);
   transition: clip-path 350ms ease-out;
-  pointer-events: none;
+  pointer-events: none; /* Pseudo-element also non-interactive */
 }
 
 .input-gradient-glow-wrapper:hover::before,
@@ -152,6 +152,7 @@ body {
   border: 1px solid transparent !important; /* Make actual border transparent */
   background-color: hsl(var(--input)) !important; /* Explicitly set background */
   color: hsl(var(--foreground)) !important; /* Explicitly set text color */
+  pointer-events: auto; /* Make interactive children interactive */
 }
 
 /* Specificity for ShadCN SelectTrigger's inner span if needed */
