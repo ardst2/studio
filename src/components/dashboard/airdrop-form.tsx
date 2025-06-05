@@ -60,7 +60,7 @@ const airdropSchema = z.object({
   });
 }, {
   message: "Setidaknya satu bidang harus diisi. Pastikan Tanggal Mulai tidak setelah Tanggal Berakhir.",
-  path: ['deadline'], // Path can be adjusted or made more general
+  path: ['deadline'], 
 });
 
 
@@ -186,21 +186,22 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
         name={name}
         render={({ field }) => (
           <Popover>
-            <InputWrapper>
+            {/* <InputWrapper> */} {/* InputWrapper DIHAPUS SEMENTARA UNTUK DIAGNOSTIK */}
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
                   id={name}
                   className={cn(
-                    "w-full justify-start text-left font-normal h-10",
-                    !field.value && "text-muted-foreground"
+                    "w-full justify-start text-left font-normal h-10", // Diberi border standar jika InputWrapper tidak ada
+                    !field.value && "text-muted-foreground",
+                    "border-input" // Tambahkan border standar jika InputWrapper tidak ada
                   )}
                 >
                   <LucideCalendarIcon className="mr-2 h-4 w-4" />
                   {field.value ? format(field.value as Date, "PPP", { locale: localeID }) : <span>Pilih tanggal</span>}
                 </Button>
               </PopoverTrigger>
-            </InputWrapper>
+            {/* </InputWrapper> */} {/* InputWrapper DIHAPUS SEMENTARA UNTUK DIAGNOSTIK */}
             <PopoverContent className="w-auto p-0 popover-gradient-border" align="start">
               <Calendar
                 mode="single"
@@ -321,6 +322,3 @@ const AirdropForm = ({ onSubmit, initialData, onClose, isSaving }: AirdropFormPr
 };
 
 export default AirdropForm;
-
-
-    
