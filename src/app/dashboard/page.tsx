@@ -15,7 +15,8 @@ import EditProfileModal from '@/components/dashboard/edit-profile-modal';
 import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal';
 import SheetsImportModal from '@/components/dashboard/SheetsImportModal';
 import AiAssistModal from '@/components/dashboard/AiAssistModal';
-import ResearchAirdropModal from '@/components/dashboard/ResearchAirdropModal'; // New Modal
+import ResearchAirdropModal from '@/components/dashboard/ResearchAirdropModal';
+import AddAirdropOptionsModal from '@/components/dashboard/AddAirdropOptionsModal'; // New Modal for options
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
@@ -68,6 +69,7 @@ function DashboardPageContent() {
   const [isSheetsImportModalOpen, setIsSheetsImportModalOpen] = useState(false);
   const [isAiAssistModalOpen, setIsAiAssistModalOpen] = useState(false);
   const [isResearchModalOpen, setIsResearchModalOpen] = useState(false);
+  const [isAddOptionsModalOpen, setIsAddOptionsModalOpen] = useState(false); // State for the new options modal
 
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
@@ -114,7 +116,6 @@ function DashboardPageContent() {
             ...data, 
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
-        // Status calculation logic remains in useAirdropsStore's updateAirdrop
         await storeUpdateAirdrop(updatedData);
         toast({ title: "Airdrop Diperbarui", description: `"${updatedData.name}" berhasil diperbarui.` });
       } else {
@@ -122,7 +123,7 @@ function DashboardPageContent() {
             ...data,
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
-        await storeAddAirdrop(newAirdropDataWithTaskIds); // Status calculation is in useAirdropsStore's addAirdrop
+        await storeAddAirdrop(newAirdropDataWithTaskIds); 
         toast({ title: "Airdrop Ditambahkan", description: `"${data.name}" berhasil ditambahkan.` });
       }
       handleCloseAddModal();
@@ -150,7 +151,6 @@ function DashboardPageContent() {
         task.id === taskId ? { ...task, completed: !task.completed } : task
       );
       let updatedAirdrop = { ...airdropToUpdate, tasks: updatedTasks };
-      // Status re-calculation logic moved to storeUpdateAirdrop for consistency
       try {
         await storeUpdateAirdrop(updatedAirdrop);
       } catch (error) {
@@ -215,6 +215,8 @@ function DashboardPageContent() {
   const handleCloseAiAssistModal = () => setIsAiAssistModalOpen(false);
   const handleOpenResearchModal = () => setIsResearchModalOpen(true); 
   const handleCloseResearchModal = () => setIsResearchModalOpen(false);
+  const handleOpenAddOptionsModal = () => setIsAddOptionsModalOpen(true); // Handler for new options modal
+  const handleCloseAddOptionsModal = () => setIsAddOptionsModalOpen(false);
 
 
   if (authLoading || airdropsLoading || (!authLoading && !user) ) {
@@ -244,11 +246,11 @@ function DashboardPageContent() {
           <div className="card-gradient-glow-wrapper h-72">
             <EmptyAirdropDayCard
               onShowTodaysDeadlines={handleOpenTodaysDeadlinesModal}
-              onAddNewAirdrop={() => handleOpenAddModal()}
+              onAddNewAirdrop={() => handleOpenAddOptionsModal()} // Changed to open options modal
               airdrops={allAirdrops}
             />
           </div>
-          <div className="card-gradient-glow-wrapper h-72"> {/* Riset Airdrop Card */}
+          <div className="card-gradient-glow-wrapper h-72"> 
              <Card
               className={cn(
                 "shadow-xl w-full h-full bg-card text-card-foreground p-6 flex flex-col items-center justify-center text-center",
@@ -261,7 +263,7 @@ function DashboardPageContent() {
               aria-label="Buka Riset Airdrop AI"
             >
               <CardHeader className="p-0 pb-2 flex flex-col items-center justify-center">
-                <SearchCheck className="mb-2 h-8 w-8 text-primary" /> {/* Diubah ke text-primary */}
+                <SearchCheck className="mb-2 h-8 w-8 text-primary" />
                 <CardTitle className="font-headline text-lg text-foreground">Riset Airdrop</CardTitle>
               </CardHeader>
               <CardContent className="p-0 mt-1">
@@ -273,68 +275,29 @@ function DashboardPageContent() {
 
         {/* Lacak & Kelola Airdrop Section - Full Width on md and up */}
         <div className="card-gradient-glow-wrapper">
-          <Card className="w-full bg-card text-card-foreground p-6 shadow-xl">
+          <Card 
+            className="w-full bg-card text-card-foreground p-6 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
+            onClick={handleOpenAddOptionsModal} // Main card is now clickable
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAddOptionsModal(); }}
+            aria-label="Buka opsi tambah airdrop"
+          >
             <CardHeader className="p-0 pb-6 text-left sm:text-center">
               <div className="flex items-center justify-center sm:flex-col mb-2 sm:mb-0">
                 <Target className="h-8 w-8 text-gradient-theme mr-3 sm:mr-0 sm:mb-2" />
                 <CardTitle className="font-headline text-2xl text-foreground">Lacak &amp; Kelola Airdrop</CardTitle>
               </div>
               <CardDescription className="text-muted-foreground text-left sm:text-center">
-                Gunakan alat bantu berikut untuk menambahkan dan mengelola peluang airdrop Anda.
+                Klik di sini untuk melihat opsi menambahkan dan mengelola peluang airdrop Anda.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Child Card 1: Tambah Airdrop */}
-                <div className="card-gradient-glow-wrapper h-56 md:h-64">
-                  <Card
-                    className="w-full h-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer"
-                    onClick={() => handleOpenAddModal()}
-                    role="button" tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAddModal(); }}
-                    aria-label="Tambah airdrop baru secara manual"
-                  >
-                    <FilePlus2 className="h-7 w-7 mb-2 text-primary" />
-                    <CardTitle className="font-semibold text-base text-foreground">Tambah Manual</CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground mt-1">
-                      Masukkan detail airdrop secara manual.
-                    </CardDescription>
-                  </Card>
-                </div>
-                {/* Child Card 2: Import dari Sheets */}
-                <div className="card-gradient-glow-wrapper h-56 md:h-64">
-                  <Card
-                    className="w-full h-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer"
-                    onClick={handleOpenSheetsImportModal}
-                    role="button" tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenSheetsImportModal(); }}
-                    aria-label="Impor airdrop dari Google Sheets"
-                  >
-                    {/* SVG for Sheets Icon */}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2 text-primary"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/></svg>
-                    <CardTitle className="font-semibold text-base text-foreground">Import dari Sheets</CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground mt-1">
-                      Tarik data dari Google Sheets.
-                    </CardDescription>
-                  </Card>
-                </div>
-                {/* Child Card 3: Bantuan AI */}
-                <div className="card-gradient-glow-wrapper h-56 md:h-64">
-                  <Card
-                    className="w-full h-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer"
-                    onClick={handleOpenAiAssistModal}
-                    role="button" tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAiAssistModal(); }}
-                    aria-label="Buka Bantuan AI untuk ekstraksi data"
-                  >
-                    <Sparkles className="h-7 w-7 mb-2 text-primary" />
-                    <CardTitle className="font-semibold text-base text-foreground">Bantuan AI Ekstrak</CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground mt-1">
-                      Ekstrak info dari teks atau URL.
-                    </CardDescription>
-                  </Card>
-                </div>
-              </div>
+              {/* Sub-cards are removed from here. Their functionality is in AddAirdropOptionsModal */}
+              {/* You can add a placeholder text or keep it empty if the description above is enough */}
+               <div className="mt-4 text-center text-sm text-muted-foreground">
+                 {/* (Konten sebelumnya dipindahkan ke modal pop-up) */}
+               </div>
             </CardContent>
           </Card>
         </div>
@@ -357,6 +320,13 @@ function DashboardPageContent() {
           />
         </div>
       </main>
+      <AddAirdropOptionsModal
+        isOpen={isAddOptionsModalOpen}
+        onClose={handleCloseAddOptionsModal}
+        onOpenAddManual={() => handleOpenAddModal()}
+        onOpenImportSheets={handleOpenSheetsImportModal}
+        onOpenAiAssist={handleOpenAiAssistModal}
+      />
       <AddAirdropModal
         isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
