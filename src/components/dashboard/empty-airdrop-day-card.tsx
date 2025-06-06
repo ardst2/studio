@@ -80,13 +80,13 @@ const EmptyAirdropDayCard = ({ onShowTodaysDeadlines, onAddNewAirdrop, airdrops 
         </div>
 
         <div className="text-center mt-2">
-          <h3 className="text-base font-semibold text-foreground flex items-center justify-center">
+          <h3 className="text-base font-semibold text-foreground">
             {deadlinesToday.length > 0 ? (
-              <Sparkles className="w-4 h-4 mr-1.5 text-gradient-theme" />
+              <Sparkles className="w-4 h-4 mr-1.5 text-gradient-theme inline-block align-middle" />
             ) : (
-              <Info className="w-4 h-4 mr-1.5 text-muted-foreground" />
+              <Info className="w-4 h-4 mr-1.5 text-muted-foreground inline-block align-middle" />
             )}
-            {cardTitle}
+            <span className="align-middle">{cardTitle}</span>
           </h3>
           <p className="text-xs text-muted-foreground">{cardSubtitle}</p>
         </div>
