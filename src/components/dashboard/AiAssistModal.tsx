@@ -10,11 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Sparkles, AlertTriangle, CheckCircle, X, RotateCcw, Save } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { extractAirdropDetailsFromText, type AirdropExtractedDetailItem } from '@/ai/flows/extractAirdropTextFlow';
-import { useAirdropsStore } from '@/hooks/use-airdrops-store'; // Import useAirdropsStore
+import { extractAirdropDetailsFromText, type AirdropExtractedDetailItem, type ExtractAirdropTextInput } from '@/ai/flows/extractAirdropTextFlow';
+import { useAirdropsStore } from '@/hooks/use-airdrops-store';
 import type { Airdrop } from '@/types/airdrop';
 import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface AiAssistModalProps {
   isOpen: boolean;
@@ -27,26 +28,46 @@ const InputWrapper: React.FC<{ children: React.ReactNode; className?: string }> 
 
 const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
   const { toast } = useToast();
-  const { addAirdrop: storeAddAirdrop, isLoading: isStoreLoading } = useAirdropsStore(); // Get addAirdrop from store
+  const { addAirdrop: storeAddAirdrop, isLoading: isStoreLoading } = useAirdropsStore();
   const [textDescription, setTextDescription] = useState('');
+  const [sourceUrl, setSourceUrl] = useState(''); 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [extractedData, setExtractedData] = useState<AirdropExtractedDetailItem[] | null>(null);
   const dynamicFieldsOutputRef = useRef<HTMLDivElement>(null);
 
+  const isValidUrl = (url: string) => {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
   const handleProcessText = async () => {
-    if (textDescription.trim().length < 20) {
-      toast({ variant: "destructive", title: "Teks Terlalu Pendek", description: "Harap masukkan deskripsi airdrop yang lebih detail (minimal 20 karakter)." });
+    if (textDescription.trim().length < 3 && !isValidUrl(sourceUrl)) {
+      toast({ variant: "destructive", title: "Input Kurang", description: "Harap masukkan deskripsi airdrop (minimal 3 karakter) atau URL yang valid." });
       return;
     }
+     if (sourceUrl && !isValidUrl(sourceUrl)) {
+      toast({ variant: "destructive", title: "URL Tidak Valid", description: "Harap masukkan URL yang benar." });
+      return;
+    }
+
     setIsProcessing(true);
     setExtractedData(null);
     if (dynamicFieldsOutputRef.current) {
       dynamicFieldsOutputRef.current.innerHTML = '';
     }
 
+    const input: ExtractAirdropTextInput = {};
+    if (textDescription.trim()) input.textDescription = textDescription.trim();
+    if (sourceUrl.trim() && isValidUrl(sourceUrl)) input.sourceUrl = sourceUrl.trim();
+
     try {
-      const result = await extractAirdropDetailsFromText({ textDescription });
+      const result = await extractAirdropDetailsFromText(input);
       setExtractedData(result);
       renderDynamicFields(result);
       toast({
@@ -59,7 +80,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
       toast({
         variant: "destructive",
         title: "Ekstraksi Gagal",
-        description: error.message || "Terjadi kesalahan saat memproses teks dengan AI.",
+        description: error.message || "Terjadi kesalahan saat memproses dengan AI.",
         action: <AlertTriangle className="text-red-500" />,
       });
       setExtractedData([]);
@@ -77,7 +98,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
     if (!data || data.length === 0) {
       const noDataMessage = document.createElement('p');
       noDataMessage.className = 'text-sm text-muted-foreground italic text-center py-4';
-      noDataMessage.textContent = 'AI tidak menemukan informasi spesifik untuk diekstrak dari teks ini atau format output tidak sesuai.';
+      noDataMessage.textContent = 'AI tidak menemukan informasi spesifik untuk diekstrak atau format output tidak sesuai.';
       container.appendChild(noDataMessage);
       return;
     }
@@ -104,7 +125,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
         inputElement = document.createElement('input');
         inputElement.className = 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm';
 
-        if (item.tipe === 'date') inputElement.type = 'text';
+        if (item.tipe === 'date') inputElement.type = 'text'; 
         else if (item.tipe === 'url') inputElement.type = 'url';
         else if (item.tipe === 'number') inputElement.type = 'number';
         else if (item.tipe === 'boolean') inputElement.type = 'text';
@@ -113,7 +134,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
 
       inputElement.id = `ai-field-${item.key.replace(/\s+/g, '-').toLowerCase()}`;
       inputElement.value = item.nilai;
-      inputElement.readOnly = true;
+      inputElement.readOnly = true; 
 
       inputWrapperDiv.appendChild(inputElement);
       fieldWrapper.appendChild(inputWrapperDiv);
@@ -129,10 +150,11 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
     setIsSaving(true);
 
     const newAirdropData: Partial<Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>> = {
-      name: `Airdrop (AI) ${new Date().toLocaleTimeString()}`, // Default name
+      name: `Airdrop (AI) ${new Date().toLocaleTimeString()}`,
       description: '',
       notes: "Informasi diekstrak oleh AI:\n",
       tasks: [],
+      informationSource: sourceUrl || undefined, // Set source URL if available
     };
     
     let unmappedInfo = "";
@@ -145,20 +167,20 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
       if (keyLower.includes('nama') || keyLower.includes('project')) {
         newAirdropData.name = value;
       } else if (keyLower.includes('deadline') || (keyLower.includes('tanggal') && (keyLower.includes('akhir') || keyLower.includes('berakhir') || keyLower.includes('selesai')))) {
-        if (type === 'date') {
-          const date = new Date(value);
+        if (type === 'date') { 
+          const date = new Date(value + "T00:00:00"); 
           if (!isNaN(date.getTime())) newAirdropData.deadline = date.getTime();
-          else unmappedInfo += `${item.key} (Format tanggal tidak valid: ${value})\n`;
+          else unmappedInfo += `${item.key}: ${value} (Format tanggal tidak valid, diharapkan YYYY-MM-DD)\n`;
         } else {
-           unmappedInfo += `${item.key}: ${value} (Disarankan tipe: date)\n`;
+           unmappedInfo += `${item.key}: ${value} (Disarankan tipe: date dengan format YYYY-MM-DD)\n`;
         }
       } else if (keyLower.includes('mulai') || (keyLower.includes('tanggal') && keyLower.includes('start'))) {
          if (type === 'date') {
-          const date = new Date(value);
+          const date = new Date(value + "T00:00:00"); 
           if (!isNaN(date.getTime())) newAirdropData.startDate = date.getTime();
-          else unmappedInfo += `${item.key} (Format tanggal tidak valid: ${value})\n`;
+          else unmappedInfo += `${item.key}: ${value} (Format tanggal tidak valid, diharapkan YYYY-MM-DD)\n`;
         } else {
-           unmappedInfo += `${item.key}: ${value} (Disarankan tipe: date)\n`;
+           unmappedInfo += `${item.key}: ${value} (Disarankan tipe: date dengan format YYYY-MM-DD)\n`;
         }
       } else if (keyLower.includes('deskripsi') || keyLower.includes('description') || keyLower.includes('overview')) {
         newAirdropData.description = (newAirdropData.description ? newAirdropData.description + "\n" : "") + value;
@@ -173,7 +195,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
         if (type === 'number') {
             const amount = parseFloat(value);
             if(!isNaN(amount)) newAirdropData.tokenAmount = amount;
-            else unmappedInfo += `${item.key} (Format angka tidak valid: ${value})\n`;
+            else unmappedInfo += `${item.key}: ${value} (Format angka tidak valid)\n`;
         } else {
             unmappedInfo += `${item.key}: ${value} (Disarankan tipe: number)\n`;
         }
@@ -183,13 +205,11 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
         newAirdropData.walletAddress = value;
       } else if (keyLower.includes('jenis') && keyLower.includes('airdrop')) {
         newAirdropData.airdropType = value;
-      } else if (keyLower.includes('sumber') && keyLower.includes('informasi')) {
+      } else if (keyLower.includes('sumber') && keyLower.includes('informasi') && !newAirdropData.informationSource) { // Only set if not already set by URL
         newAirdropData.informationSource = value;
       }
-      // Untuk tugas, kita bisa coba deteksi jika ada kata "tugas" atau "task"
-      // Ini contoh sederhana, bisa lebih canggih
       else if (keyLower.includes('tugas') || keyLower.includes('task')) {
-         if (newAirdropData.tasks && value.length > 5) { // Hanya jika ada value yang cukup panjang
+         if (newAirdropData.tasks && value.length > 3) { 
             newAirdropData.tasks.push({ id: crypto.randomUUID(), text: value, completed: false });
          } else {
             unmappedInfo += `${item.key}: ${value}\n`;
@@ -204,12 +224,10 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
         newAirdropData.notes = (newAirdropData.notes || "") + "\n\nInfo Tambahan dari AI (tidak terpetakan otomatis):\n" + unmappedInfo;
     }
     if (!newAirdropData.description && newAirdropData.notes && newAirdropData.notes.startsWith("Informasi diekstrak oleh AI:\n") && newAirdropData.notes.length < 150) {
-        newAirdropData.description = newAirdropData.notes; // Pindahkan catatan ke deskripsi jika deskripsi kosong dan catatan pendek
+        newAirdropData.description = newAirdropData.notes;
     }
 
-
     try {
-      // Pastikan semua field yang wajib di Airdrop (non-optional) ada atau default
       const finalData: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'> = {
         name: newAirdropData.name || `Airdrop AI ${Date.now()}`,
         description: newAirdropData.description,
@@ -221,7 +239,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
         participationRequirements: newAirdropData.participationRequirements,
         airdropLink: newAirdropData.airdropLink,
         userDefinedStatus: newAirdropData.userDefinedStatus,
-        notes: newAirdropData.notes?.replace("Informasi diekstrak oleh AI:\n\n\n", "Informasi diekstrak oleh AI:\n"), // Bersihkan baris ganda jika notes awalnya kosong
+        notes: newAirdropData.notes?.replace("Informasi diekstrak oleh AI:\n\n\n", "Informasi diekstrak oleh AI:\n"),
         walletAddress: newAirdropData.walletAddress,
         tokenAmount: newAirdropData.tokenAmount,
         claimDate: newAirdropData.claimDate,
@@ -244,6 +262,7 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
   const handleModalClose = () => {
     onClose();
     setTextDescription('');
+    setSourceUrl(''); 
     setExtractedData(null);
     setIsProcessing(false);
     setIsSaving(false);
@@ -269,54 +288,71 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
             <Sparkles className="w-6 h-6 mr-2 text-gradient-theme" /> Bantuan AI Ekstraksi Data
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Paste teks pengumuman airdrop di bawah ini. AI akan mencoba mengekstrak informasi penting untuk Anda.
+            Paste teks pengumuman airdrop atau masukkan URL sumber. AI akan mencoba mengekstrak informasi penting.
+            <br /><span className="text-xs text-muted-foreground/70">Untuk URL, kemampuan AI saat ini terbatas pada informasi publik yang telah diindeksnya. Implementasi pengambilan konten web aktif akan meningkatkan fitur ini.</span>
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-grow overflow-y-auto min-h-0 p-6 space-y-4">
-          <div>
-            <Label htmlFor="textDescriptionAiModal" className="mb-1 block text-sm font-medium">Teks Deskripsi Airdrop</Label>
-            <InputWrapper>
-              <Textarea
-                id="textDescriptionAiModal"
-                value={textDescription}
-                onChange={(e) => setTextDescription(e.target.value)}
-                placeholder="Paste teks lengkap pengumuman airdrop di sini..."
-                rows={8}
-                disabled={isProcessing || isSaving}
-                className="text-sm"
-              />
-            </InputWrapper>
-          </div>
-
-          <Button onClick={handleProcessText} disabled={isProcessing || isSaving || textDescription.trim().length < 20} className="w-full btn-gradient">
-            {isProcessing ? <Loader size="sm" className="mr-1.5 border-primary-foreground" /> : <Sparkles className="mr-1.5 h-4 w-4" />}
-            {isProcessing ? 'Memproses...' : 'Proses dengan AI'}
-          </Button>
-
-          {(extractedData || isProcessing) && (
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-foreground mb-3 border-b border-border/30 pb-2">Hasil Ekstraksi AI:</h3>
-              {isProcessing && !extractedData && (
-                <div className="flex justify-center items-center py-8">
-                  <Loader variant="modal" size="md" />
-                </div>
-              )}
-              <div ref={dynamicFieldsOutputRef} className="space-y-3 max-h-64 overflow-y-auto pr-2">
-                {!isProcessing && extractedData && extractedData.length === 0 && (
-                  <p className="text-sm text-muted-foreground italic text-center py-4">AI tidak menemukan informasi spesifik untuk diekstrak dari teks ini atau format output tidak sesuai.</p>
-                )}
-              </div>
+        <ScrollArea className="flex-grow overflow-y-auto min-h-0">
+          <div className="p-6 space-y-4">
+            <div>
+              <Label htmlFor="sourceUrlAiModal" className="mb-1 block text-sm font-medium">URL Sumber (Opsional)</Label>
+              <InputWrapper>
+                <Input
+                  id="sourceUrlAiModal"
+                  value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
+                  placeholder="Contoh: https://medium.com/proyekxyz/airdrop-is-live"
+                  type="url"
+                  disabled={isProcessing || isSaving}
+                  className="text-sm"
+                />
+              </InputWrapper>
             </div>
-          )}
-        </div>
+            <div>
+              <Label htmlFor="textDescriptionAiModal" className="mb-1 block text-sm font-medium">Teks Deskripsi Airdrop (Opsional)</Label>
+              <InputWrapper>
+                <Textarea
+                  id="textDescriptionAiModal"
+                  value={textDescription}
+                  onChange={(e) => setTextDescription(e.target.value)}
+                  placeholder="Paste teks lengkap pengumuman airdrop di sini..."
+                  rows={6}
+                  disabled={isProcessing || isSaving}
+                  className="text-sm"
+                />
+              </InputWrapper>
+            </div>
+
+            <Button onClick={handleProcessText} disabled={isProcessing || isSaving || (textDescription.trim().length < 3 && !isValidUrl(sourceUrl))} className="w-full btn-gradient">
+              {isProcessing ? <Loader size="sm" className="mr-1.5 border-primary-foreground" /> : <Sparkles className="mr-1.5 h-4 w-4" />}
+              {isProcessing ? 'Memproses...' : 'Proses dengan AI'}
+            </Button>
+
+            {(extractedData || isProcessing) && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-foreground mb-3 border-b border-border/30 pb-2">Hasil Ekstraksi AI:</h3>
+                {isProcessing && !extractedData && (
+                  <div className="flex justify-center items-center py-8">
+                    <Loader variant="modal" size="md" />
+                  </div>
+                )}
+                <div ref={dynamicFieldsOutputRef} className="space-y-3 max-h-60 overflow-y-auto pr-2">
+                  {!isProcessing && extractedData && extractedData.length === 0 && (
+                    <p className="text-sm text-muted-foreground italic text-center py-4">AI tidak menemukan informasi spesifik untuk diekstrak atau format output tidak sesuai.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
 
         <DialogFooter className="p-6 pt-4 border-t border-border shrink-0 flex flex-col sm:flex-row justify-between gap-2">
             <Button type="button" variant="outline" onClick={handleModalClose} disabled={isProcessing || isSaving}>
                 <X className="mr-2 h-4 w-4" /> Tutup
             </Button>
             <div className="flex flex-col sm:flex-row gap-2">
-                <Button type="button" variant="outline" onClick={() => {setTextDescription(''); setExtractedData(null); if(dynamicFieldsOutputRef.current) dynamicFieldsOutputRef.current.innerHTML = '';}} disabled={isProcessing || isSaving}>
+                <Button type="button" variant="outline" onClick={() => {setTextDescription(''); setSourceUrl(''); setExtractedData(null); if(dynamicFieldsOutputRef.current) dynamicFieldsOutputRef.current.innerHTML = '';}} disabled={isProcessing || isSaving}>
                     <RotateCcw className="mr-2 h-4 w-4" /> Reset
                 </Button>
                 <Button 
@@ -336,6 +372,5 @@ const AiAssistModal = ({ isOpen, onClose }: AiAssistModalProps) => {
 };
 
 export default AiAssistModal;
-
 
     
