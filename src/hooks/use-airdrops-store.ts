@@ -10,6 +10,7 @@ import {
   collection, query, where, getDocs, addDoc, doc, setDoc, deleteDoc, Timestamp, orderBy, serverTimestamp, writeBatch, getDoc
 } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid'; 
+import { toast } from "@/hooks/use-toast";
 
 const GUEST_USER_ID = 'guest-user-id';
 
@@ -81,15 +82,18 @@ const prepareAirdropForFirestore = (
 };
 
 const mapFirestoreDocToAirdrop = (docData: any, docId: string): Airdrop => {
+    const createdAtMillis = docData.createdAt instanceof Timestamp 
+        ? docData.createdAt.toMillis() 
+        : (typeof docData.createdAt === 'number' 
+            ? docData.createdAt 
+            : (console.warn(`Invalid createdAt type in Firestore doc: ${docId}, type: ${typeof docData.createdAt}, value: ${docData.createdAt}. Defaulting to 0.`), 0));
+
     return {
         id: docId,
         userId: docData.userId,
         name: docData.name,
         status: docData.status,
-        createdAt: docData.createdAt instanceof Timestamp 
-            ? docData.createdAt.toMillis() 
-            : (typeof docData.createdAt === 'number' ? docData.createdAt 
-            : (console.warn(`Invalid createdAt type in Firestore doc: ${docData.id}, type: ${typeof docData.createdAt}, value: ${docData.createdAt}`), 0)),
+        createdAt: createdAtMillis,
         
         startDate: docData.startDate instanceof Timestamp ? docData.startDate.toMillis() : (typeof docData.startDate === 'number' ? docData.startDate : undefined),
         deadline: docData.deadline instanceof Timestamp ? docData.deadline.toMillis() : (typeof docData.deadline === 'number' ? docData.deadline : undefined),
@@ -124,35 +128,35 @@ export const useAirdropsStore = () => {
   
   const [newAirdropDraft, setNewAirdropDraft] = useState<Omit<Airdrop, 'id' | 'createdAt' | 'status'>>(getDefaultNewAirdrop(user?.uid || GUEST_USER_ID));
 
-  useEffect(() => {
-    setNewAirdropDraft(getDefaultNewAirdrop(user?.uid || GUEST_USER_ID));
-  }, [user]);
+  const fetchUserAirdrops = useCallback(async (currentUserId: string) => {
+    console.log("fetchUserAirdrops called for user:", currentUserId);
+    setIsLoading(true);
+    try {
+        const airdropsCol = collection(db, 'users', currentUserId, 'airdrops');
+        const q = query(airdropsCol, orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const fetchedAirdrops = querySnapshot.docs.map(docSnap =>
+            mapFirestoreDocToAirdrop(docSnap.data(), docSnap.id)
+        );
+        set_Airdrops(fetchedAirdrops);
+        console.log(`Fetched ${fetchedAirdrops.length} airdrops for user ${currentUserId}.`);
+    } catch (error) {
+        console.error(`Error fetching airdrops for user ${currentUserId}: `, error);
+        toast({ variant: "destructive", title: "Gagal Memuat Data", description: "Tidak dapat mengambil daftar airdrop dari database."});
+        set_Airdrops([]);
+    } finally {
+        setIsLoading(false);
+    }
+  }, []); // No dependencies needed as setIsLoading and set_Airdrops are stable from useState
 
   useEffect(() => {
     if (user?.uid) {
-      setIsLoading(true);
-      const fetchAirdrops = async () => {
-        try {
-          const airdropsCol = collection(db, 'users', user.uid, 'airdrops');
-          const q = query(airdropsCol, orderBy('createdAt', 'desc'));
-          const querySnapshot = await getDocs(q);
-          const fetchedAirdrops = querySnapshot.docs.map(docSnap => 
-            mapFirestoreDocToAirdrop(docSnap.data(), docSnap.id)
-          );
-          set_Airdrops(fetchedAirdrops);
-        } catch (error) {
-          console.error("Error fetching airdrops: ", error);
-          set_Airdrops([]);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchAirdrops();
+      fetchUserAirdrops(user.uid);
     } else {
       set_Airdrops([]);
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, fetchUserAirdrops]);
 
   const updateNewAirdropDraft = useCallback((data: Partial<Omit<Airdrop, 'id' | 'createdAt' | 'status'>>) => {
     setNewAirdropDraft(prev => ({ ...prev, ...data, userId: user?.uid || GUEST_USER_ID }));
@@ -162,9 +166,12 @@ export const useAirdropsStore = () => {
     setNewAirdropDraft(getDefaultNewAirdrop(user?.uid || GUEST_USER_ID));
   }, [user]);
 
-
   const addAirdrop = useCallback(async (airdropData: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => {
-    if (!user?.uid) throw new Error("User not authenticated");
+    if (!user?.uid) {
+        console.error("addAirdrop: User not authenticated, cannot save.");
+        toast({ variant: "destructive", title: "Autentikasi Gagal", description: "Anda harus masuk untuk menyimpan airdrop." });
+        throw new Error("User not authenticated");
+    }
 
     const now = Date.now();
     let status: AirdropStatus = 'Upcoming';
@@ -182,60 +189,31 @@ export const useAirdropsStore = () => {
     };
 
     try {
-      const docRef = await addDoc(collection(db, 'users', user.uid, 'airdrops'), airdropForDb);
+      console.log("Attempting to add airdrop to Firestore:", airdropForDb.name);
+      await addDoc(collection(db, 'users', user.uid, 'airdrops'), airdropForDb);
+      console.log("Airdrop successfully added to Firestore:", airdropForDb.name);
       
-      // Optimistic update: construct the new airdrop for client state
-      const clientCreatedAt = Date.now();
-      const newAirdropForState: Airdrop = {
-        id: docRef.id, // Use the ID from Firestore
-        userId: user.uid,
-        createdAt: clientCreatedAt, // Use client-generated timestamp for immediate optimistic update and sorting
-        status: status,
-        name: airdropData.name || `Unnamed Airdrop ${clientCreatedAt}`,
-        
-        startDate: airdropData.startDate,
-        deadline: airdropData.deadline,
-        description: airdropData.description,
-        tasks: (airdropData.tasks || []).map(task => ({ ...task, id: task.id || uuidv4() })),
-        blockchain: airdropData.blockchain,
-        registrationDate: airdropData.registrationDate,
-        participationRequirements: airdropData.participationRequirements,
-        airdropLink: airdropData.airdropLink,
-        userDefinedStatus: airdropData.userDefinedStatus,
-        notes: airdropData.notes,
-        walletAddress: airdropData.walletAddress,
-        tokenAmount: (airdropData.tokenAmount === undefined || airdropData.tokenAmount === null || isNaN(Number(airdropData.tokenAmount))) 
-                       ? undefined 
-                       : Number(airdropData.tokenAmount),
-        claimDate: airdropData.claimDate,
-        airdropType: airdropData.airdropType,
-        referralCode: airdropData.referralCode,
-        informationSource: airdropData.informationSource,
-      };
-
-      set_Airdrops(prevAirdrops => {
-        const updatedAirdrops = [newAirdropForState, ...prevAirdrops];
-        updatedAirdrops.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        console.log("addAirdrop: _airdrops state after update:", updatedAirdrops); // DEBUG
-        return updatedAirdrops; 
-      });
+      // Re-fetch all airdrops to ensure UI consistency
+      await fetchUserAirdrops(user.uid);
       resetNewAirdropDraft(); 
     } catch (error) {
       console.error("Error adding airdrop to Firestore: ", error);
-      throw error;
+      // The toast will be handled by the calling component (e.g., AiAssistModal)
+      throw error; 
     }
-  }, [user, resetNewAirdropDraft]);
+  }, [user, fetchUserAirdrops, resetNewAirdropDraft]);
 
 
   const addManyAirdrops = useCallback(async (airdropsInputData: Omit<Airdrop, 'id' | 'userId' | 'createdAt'>[]) => {
-    if (!user?.uid) throw new Error("User not authenticated");
+    if (!user?.uid) {
+        toast({ variant: "destructive", title: "Autentikasi Gagal", description: "Anda harus masuk untuk menyimpan airdrop." });
+        throw new Error("User not authenticated");
+    }
     if (!airdropsInputData || airdropsInputData.length === 0) return;
 
     const batch = writeBatch(db);
-    const newAirdropsForStateArray: Airdrop[] = [];
-    const batchClientCreatedAt = Date.now(); 
-
-    airdropsInputData.forEach((singleAirdropInput, index) => {
+    
+    airdropsInputData.forEach((singleAirdropInput) => {
       const now = Date.now(); 
       let status: AirdropStatus = (singleAirdropInput as Airdrop).status || 'Upcoming';
        if (!(singleAirdropInput as Airdrop).status) { 
@@ -254,82 +232,60 @@ export const useAirdropsStore = () => {
         status,
       };
       batch.set(docRef, airdropForDb);
-      
-      newAirdropsForStateArray.push({
-        id: docRef.id,
-        userId: user.uid,
-        createdAt: batchClientCreatedAt - index, 
-        status: status,
-        name: singleAirdropInput.name,
-        startDate: singleAirdropInput.startDate,
-        deadline: singleAirdropInput.deadline,
-        description: singleAirdropInput.description,
-        tasks: (singleAirdropInput.tasks || []).map(task => ({ ...task, id: task.id || uuidv4() })),
-        blockchain: singleAirdropInput.blockchain,
-        registrationDate: singleAirdropInput.registrationDate,
-        participationRequirements: singleAirdropInput.participationRequirements,
-        airdropLink: singleAirdropInput.airdropLink,
-        userDefinedStatus: singleAirdropInput.userDefinedStatus,
-        notes: singleAirdropInput.notes,
-        walletAddress: singleAirdropInput.walletAddress,
-        tokenAmount: (singleAirdropInput.tokenAmount === undefined || singleAirdropInput.tokenAmount === null || isNaN(Number(singleAirdropInput.tokenAmount))) 
-                       ? undefined 
-                       : Number(singleAirdropInput.tokenAmount),
-        claimDate: singleAirdropInput.claimDate,
-        airdropType: singleAirdropInput.airdropType,
-        referralCode: singleAirdropInput.referralCode,
-        informationSource: singleAirdropInput.informationSource,
-      });
     });
 
     try {
+      console.log(`Attempting to batch add ${airdropsInputData.length} airdrops to Firestore.`);
       await batch.commit();
-      set_Airdrops(prevAirdrops => {
-        const updatedAirdrops = [...newAirdropsForStateArray, ...prevAirdrops];
-        updatedAirdrops.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        console.log("addManyAirdrops: _airdrops state after update:", updatedAirdrops); // DEBUG
-        return updatedAirdrops;
-      });
+      console.log(`Successfully batch added ${airdropsInputData.length} airdrops.`);
+      
+      // Re-fetch all airdrops to ensure UI consistency
+      await fetchUserAirdrops(user.uid);
     } catch (error) {
       console.error("Error batch adding airdrops to Firestore: ", error);
       throw error;
     }
-  }, [user]);
+  }, [user, fetchUserAirdrops]);
 
 
   const updateAirdrop = useCallback(async (updatedAirdropData: Airdrop) => {
-    if (!user?.uid || !updatedAirdropData.id) throw new Error("User not authenticated or Airdrop ID missing");
+    if (!user?.uid || !updatedAirdropData.id) {
+        toast({ variant: "destructive", title: "Operasi Gagal", description: "Informasi pengguna atau ID airdrop tidak ditemukan." });
+        throw new Error("User not authenticated or Airdrop ID missing");
+    }
     
     const airdropRef = doc(db, 'users', user.uid, 'airdrops', updatedAirdropData.id);
+    // Ensure `createdAt` is not overwritten with serverTimestamp if it already exists
+    const existingAirdrop = _airdrops.find(a => a.id === updatedAirdropData.id);
     const dataForDb = prepareAirdropForFirestore(updatedAirdropData); 
+    if (existingAirdrop?.createdAt && dataForDb.createdAt && dataForDb.createdAt instanceof Timestamp && dataForDb.createdAt.isEqual(serverTimestamp() as Timestamp) ) {
+       dataForDb.createdAt = Timestamp.fromMillis(existingAirdrop.createdAt);
+    }
     
     try {
+      console.log("Attempting to update airdrop in Firestore:", updatedAirdropData.id);
       await setDoc(airdropRef, dataForDb, { merge: true }); 
+      console.log("Airdrop successfully updated in Firestore:", updatedAirdropData.id);
 
-      const clientSideUpdatedAirdrop = mapFirestoreDocToAirdrop(
-          { 
-              ...dataForDb, 
-              createdAt: updatedAirdropData.createdAt, 
-              userId: updatedAirdropData.userId, 
-          }, 
-          updatedAirdropData.id
-      );
-
-      set_Airdrops(prevAirdrops => {
-        const updatedList = prevAirdrops.map(a => a.id === clientSideUpdatedAirdrop.id ? clientSideUpdatedAirdrop : a);
-        updatedList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        return updatedList;
-      });
+      // Re-fetch all airdrops to ensure UI consistency
+      // Alternatively, could update local state optimistically if preferred for performance on updates
+      await fetchUserAirdrops(user.uid);
     } catch (error) {
       console.error("Error updating airdrop in Firestore: ", error);
       throw error;
     }
-  }, [user]);
+  }, [user, _airdrops, fetchUserAirdrops]);
 
   const deleteAirdrop = useCallback(async (airdropId: string) => {
-    if (!user?.uid) throw new Error("User not authenticated");
+    if (!user?.uid) {
+      toast({ variant: "destructive", title: "Autentikasi Gagal", description: "Anda harus masuk untuk menghapus airdrop." });
+      throw new Error("User not authenticated");
+    }
     try {
+      console.log("Attempting to delete airdrop from Firestore:", airdropId);
       await deleteDoc(doc(db, 'users', user.uid, 'airdrops', airdropId));
+      console.log("Airdrop successfully deleted from Firestore:", airdropId);
+      // Optimistic update for delete is usually fine and responsive
       set_Airdrops(prev => prev.filter(a => a.id !== airdropId)); 
     } catch (error) {
       console.error("Error deleting airdrop from Firestore: ", error);
@@ -338,7 +294,7 @@ export const useAirdropsStore = () => {
   }, [user]);
 
   const filteredAirdrops = useMemo(() => {
-    console.log("Recomputing filteredAirdrops. _airdrops count:", _airdrops.length, "Filter:", filterStatus, "Search:", searchTerm); // DEBUG
+    console.log(`useMemo for filteredAirdrops: _airdrops count: ${_airdrops.length}, Filter: ${filterStatus}, Search: "${searchTerm}"`);
     return _airdrops 
       .filter(airdrop => {
         if (filterStatus === 'All') return true;
@@ -370,6 +326,3 @@ export const useAirdropsStore = () => {
     resetNewAirdropDraft,
   };
 };
-
-
-    
