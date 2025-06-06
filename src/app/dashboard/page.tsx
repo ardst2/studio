@@ -1,5 +1,4 @@
 
-
 // src/app/dashboard/page.tsx
 "use client";
 
@@ -16,7 +15,7 @@ import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal';
 import SheetsImportModal from '@/components/dashboard/SheetsImportModal';
 import AiAssistModal from '@/components/dashboard/AiAssistModal';
 import ResearchAirdropModal from '@/components/dashboard/ResearchAirdropModal';
-import AddAirdropOptionsModal from '@/components/dashboard/AddAirdropOptionsModal'; // New Modal for options
+// import AddAirdropOptionsModal from '@/components/dashboard/AddAirdropOptionsModal'; // Dihapus
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
@@ -29,7 +28,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import { cn } from '@/lib/utils';
-import { Target, FilePlus2, Sparkles, SearchCheck } from 'lucide-react';
+import { Target, FilePlus2, Sparkles, SearchCheck, FileSpreadsheet } from 'lucide-react';
 
 function DashboardPageContent() {
   const { user, loading: authLoading } = useAuth();
@@ -69,7 +68,7 @@ function DashboardPageContent() {
   const [isSheetsImportModalOpen, setIsSheetsImportModalOpen] = useState(false);
   const [isAiAssistModalOpen, setIsAiAssistModalOpen] = useState(false);
   const [isResearchModalOpen, setIsResearchModalOpen] = useState(false);
-  const [isAddOptionsModalOpen, setIsAddOptionsModalOpen] = useState(false); // State for the new options modal
+  // const [isAddOptionsModalOpen, setIsAddOptionsModalOpen] = useState(false); // Dihapus
 
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
@@ -215,8 +214,8 @@ function DashboardPageContent() {
   const handleCloseAiAssistModal = () => setIsAiAssistModalOpen(false);
   const handleOpenResearchModal = () => setIsResearchModalOpen(true); 
   const handleCloseResearchModal = () => setIsResearchModalOpen(false);
-  const handleOpenAddOptionsModal = () => setIsAddOptionsModalOpen(true); // Handler for new options modal
-  const handleCloseAddOptionsModal = () => setIsAddOptionsModalOpen(false);
+  // const handleOpenAddOptionsModal = () => setIsAddOptionsModalOpen(true); // Dihapus
+  // const handleCloseAddOptionsModal = () => setIsAddOptionsModalOpen(false); // Dihapus
 
 
   if (authLoading || airdropsLoading || (!authLoading && !user) ) {
@@ -246,7 +245,7 @@ function DashboardPageContent() {
           <div className="card-gradient-glow-wrapper h-72">
             <EmptyAirdropDayCard
               onShowTodaysDeadlines={handleOpenTodaysDeadlinesModal}
-              onAddNewAirdrop={() => handleOpenAddOptionsModal()} // Changed to open options modal
+              onAddNewAirdrop={() => handleOpenAddModal()} // Kembali ke handleOpenAddModal
               airdrops={allAirdrops}
             />
           </div>
@@ -275,29 +274,67 @@ function DashboardPageContent() {
 
         {/* Lacak & Kelola Airdrop Section - Full Width on md and up */}
         <div className="card-gradient-glow-wrapper">
-          <Card 
-            className="w-full bg-card text-card-foreground p-6 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
-            onClick={handleOpenAddOptionsModal} // Main card is now clickable
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAddOptionsModal(); }}
-            aria-label="Buka opsi tambah airdrop"
-          >
+          <Card className="w-full bg-card text-card-foreground p-6 shadow-xl">
             <CardHeader className="p-0 pb-6 text-left sm:text-center">
               <div className="flex items-center justify-center sm:flex-col mb-2 sm:mb-0">
                 <Target className="h-8 w-8 text-gradient-theme mr-3 sm:mr-0 sm:mb-2" />
                 <CardTitle className="font-headline text-2xl text-foreground">Lacak &amp; Kelola Airdrop</CardTitle>
               </div>
               <CardDescription className="text-muted-foreground text-left sm:text-center">
-                Klik di sini untuk melihat opsi menambahkan dan mengelola peluang airdrop Anda.
+                Pilih salah satu opsi di bawah ini untuk menambahkan dan mengelola peluang airdrop Anda.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              {/* Sub-cards are removed from here. Their functionality is in AddAirdropOptionsModal */}
-              {/* You can add a placeholder text or keep it empty if the description above is enough */}
-               <div className="mt-4 text-center text-sm text-muted-foreground">
-                 {/* (Konten sebelumnya dipindahkan ke modal pop-up) */}
-               </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                {/* Sub-card 1: Tambah Manual */}
+                <div className="card-gradient-glow-wrapper">
+                  <Card
+                    className="w-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer h-36"
+                    onClick={() => handleOpenAddModal()}
+                    role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAddModal(); }}
+                    aria-label="Tambah airdrop baru secara manual"
+                  >
+                    <FilePlus2 className="h-7 w-7 mb-2 text-primary" />
+                    <CardTitle className="font-semibold text-base text-foreground">Tambah Manual</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Masukkan detail airdrop secara manual.
+                    </p>
+                  </Card>
+                </div>
+                {/* Sub-card 2: Import dari Sheets */}
+                <div className="card-gradient-glow-wrapper">
+                  <Card
+                    className="w-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer h-36"
+                    onClick={handleOpenSheetsImportModal}
+                    role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenSheetsImportModal(); }}
+                    aria-label="Impor airdrop dari Google Sheets"
+                  >
+                    <FileSpreadsheet className="h-7 w-7 mb-2 text-primary" />
+                    <CardTitle className="font-semibold text-base text-foreground">Import dari Sheets</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Tarik data dari Google Sheets.
+                    </p>
+                  </Card>
+                </div>
+                {/* Sub-card 3: Bantuan AI Ekstrak */}
+                <div className="card-gradient-glow-wrapper">
+                  <Card
+                    className="w-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer h-36"
+                    onClick={handleOpenAiAssistModal}
+                    role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAiAssistModal(); }}
+                    aria-label="Buka Bantuan AI untuk ekstraksi data"
+                  >
+                    <Sparkles className="h-7 w-7 mb-2 text-primary" />
+                    <CardTitle className="font-semibold text-base text-foreground">Bantuan AI Ekstrak</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Ekstrak info dari teks atau URL.
+                    </p>
+                  </Card>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -320,13 +357,13 @@ function DashboardPageContent() {
           />
         </div>
       </main>
-      <AddAirdropOptionsModal
+      {/* <AddAirdropOptionsModal // Dihapus
         isOpen={isAddOptionsModalOpen}
         onClose={handleCloseAddOptionsModal}
         onOpenAddManual={() => handleOpenAddModal()}
         onOpenImportSheets={handleOpenSheetsImportModal}
         onOpenAiAssist={handleOpenAiAssistModal}
-      />
+      /> */}
       <AddAirdropModal
         isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
