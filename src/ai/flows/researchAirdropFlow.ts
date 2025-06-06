@@ -24,7 +24,7 @@ export type ResearchAirdropInput = z.infer<typeof ResearchAirdropInputSchema>;
 const ResearchAirdropOutputSchema = z.object({
   researchSummary: z.string().optional().describe('A detailed research summary including potential, official links (if found), and key points about the airdrop or project based on the provided input. If no information can be found or generated, this may be an empty string or a message indicating so.'),
   keyPoints: z.array(z.string()).optional().describe('A list of key bullet points from the research.'),
-  officialLinks: z.array(z.string().url()).optional().describe('A list of relevant official URLs found during research (e.g., project website, social media).'),
+  officialLinks: z.array(z.string()).optional().describe('A list of relevant official URLs found during research (e.g., project website, social media). Only list valid URLs.'),
   sentiment: z.string().optional().describe('A brief analysis of the perceived sentiment or potential (e.g., "High Potential", "Speculative", "Seems Legit").'),
 }).describe("The overall result of the airdrop research.");
 export type ResearchAirdropOutput = z.infer<typeof ResearchAirdropOutputSchema>;
