@@ -34,6 +34,59 @@ const getDefaultNewAirdrop = (userId: string): Omit<Airdrop, 'id' | 'createdAt' 
   informationSource: '',
 });
 
+// Helper to prepare data for Firestore, converting undefined to null for optional fields
+const prepareAirdropForFirestore = (airdropData: Partial<Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>> | Partial<Airdrop>, currentUserId?: string) => {
+  const data: any = {
+    name: airdropData.name || `Unnamed Airdrop ${Date.now()}`, // Ensure name is always present
+    tasks: (airdropData.tasks || []).map(task => ({ ...task, id: task.id || uuidv4() })),
+    
+    // Explicitly handle all optional fields, converting undefined to null
+    description: airdropData.description === undefined ? null : airdropData.description,
+    startDate: airdropData.startDate ? Timestamp.fromDate(new Date(airdropData.startDate)) : null,
+    deadline: airdropData.deadline ? Timestamp.fromDate(new Date(airdropData.deadline)) : null,
+    blockchain: airdropData.blockchain === undefined ? null : airdropData.blockchain,
+    registrationDate: airdropData.registrationDate ? Timestamp.fromDate(new Date(airdropData.registrationDate)) : null,
+    participationRequirements: airdropData.participationRequirements === undefined ? null : airdropData.participationRequirements,
+    airdropLink: airdropData.airdropLink === undefined ? null : airdropData.airdropLink,
+    userDefinedStatus: airdropData.userDefinedStatus === undefined ? null : airdropData.userDefinedStatus,
+    notes: airdropData.notes === undefined ? null : airdropData.notes,
+    walletAddress: airdropData.walletAddress === undefined ? null : airdropData.walletAddress,
+    tokenAmount: (airdropData.tokenAmount === undefined || isNaN(Number(airdropData.tokenAmount))) ? null : Number(airdropData.tokenAmount),
+    claimDate: airdropData.claimDate ? Timestamp.fromDate(new Date(airdropData.claimDate)) : null,
+    airdropType: airdropData.airdropType === undefined ? null : airdropData.airdropType,
+    referralCode: airdropData.referralCode === undefined ? null : airdropData.referralCode,
+    informationSource: airdropData.informationSource === undefined ? null : airdropData.informationSource,
+  };
+
+  // Add fields specific to new documents
+  if (currentUserId) {
+    data.userId = currentUserId;
+    data.createdAt = serverTimestamp();
+    // Status will be added after this preparation, before saving
+  }
+  
+  // For updates, status might be part of airdropData if it's a full Airdrop object
+  if ('status' in airdropData && airdropData.status !== undefined) {
+    data.status = airdropData.status;
+  }
+  if ('userId' in airdropData && airdropData.userId !== undefined && !currentUserId) { // For updates, keep existing userId
+    data.userId = airdropData.userId;
+  }
+   if ('createdAt' in airdropData && airdropData.createdAt !== undefined && !currentUserId) { // For updates, keep existing createdAt if passed (though usually not modified)
+     if (airdropData.createdAt instanceof Timestamp) {
+        data.createdAt = airdropData.createdAt;
+     } else if (typeof airdropData.createdAt === 'number') {
+        data.createdAt = Timestamp.fromMillis(airdropData.createdAt);
+     }
+    // If it's not a Timestamp or number, it might be problematic, but setDoc with merge handles existing fields.
+    // For updates, createdAt is usually not part of the data sent to setDoc unless it's meant to be overwritten.
+  }
+
+
+  return data;
+};
+
+
 export const useAirdropsStore = () => {
   const { user } = useAuth();
   const [airdrops, setAirdrops] = useState<Airdrop[]>([]);
@@ -97,36 +150,29 @@ export const useAirdropsStore = () => {
     }
 
     const airdropForDb = {
-      ...airdropData,
-      userId: user.uid,
-      createdAt: serverTimestamp(),
-      status,
-      startDate: airdropData.startDate ? Timestamp.fromDate(new Date(airdropData.startDate)) : null,
-      deadline: airdropData.deadline ? Timestamp.fromDate(new Date(airdropData.deadline)) : null,
-      registrationDate: airdropData.registrationDate ? Timestamp.fromDate(new Date(airdropData.registrationDate)) : null,
-      claimDate: airdropData.claimDate ? Timestamp.fromDate(new Date(airdropData.claimDate)) : null,
-      tasks: (airdropData.tasks || []).map(task => ({ ...task, id: task.id || uuidv4() })),
-      tokenAmount: airdropData.tokenAmount === undefined || isNaN(Number(airdropData.tokenAmount)) ? null : Number(airdropData.tokenAmount),
+      ...prepareAirdropForFirestore(airdropData, user.uid),
+      status, // Add the calculated status
     };
 
     try {
       const docRef = await addDoc(collection(db, 'users', user.uid, 'airdrops'), airdropForDb);
       const newAirdrop: Airdrop = {
-        ...airdropData,
-        tokenAmount: airdropData.tokenAmount === undefined || isNaN(Number(airdropData.tokenAmount)) ? undefined : Number(airdropData.tokenAmount),
-        tasks: airdropForDb.tasks, // Ensure tasks have IDs
+        ...airdropData, // original data from input
+        // Ensure numeric fields are correctly typed from possibly null Firestore values if we were fetching it back
+        tokenAmount: (airdropForDb.tokenAmount === null || airdropForDb.tokenAmount === undefined) ? undefined : Number(airdropForDb.tokenAmount),
+        tasks: airdropForDb.tasks, 
         id: docRef.id,
         userId: user.uid,
-        createdAt: Date.now(), 
+        createdAt: Date.now(), // Optimistic client time for immediate UI update
         status,
       };
       setAirdrops(prev => [newAirdrop, ...prev].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
-      resetNewAirdropDraft(); // Reset draft after successful save
+      resetNewAirdropDraft(); 
     } catch (error) {
       console.error("Error adding airdrop to Firestore: ", error);
       throw error;
     }
-  }, [user]);
+  }, [user, resetNewAirdropDraft]);
 
   const addManyAirdrops = useCallback(async (airdropsData: Omit<Airdrop, 'id' | 'userId' | 'createdAt'>[]) => {
     if (!user?.uid) throw new Error("User not authenticated");
@@ -135,40 +181,33 @@ export const useAirdropsStore = () => {
     const batch = writeBatch(db);
     const newAirdropsForState: Airdrop[] = [];
 
-    airdropsData.forEach(airdropData => {
+    airdropsData.forEach(airdropInputData => {
       const now = Date.now();
-      let status: AirdropStatus = (airdropData as Airdrop).status || 'Upcoming'; // Use provided status or default
-       if (!(airdropData as Airdrop).status) { // Recalculate if not provided or based on dates
-            if (airdropData.startDate && airdropData.startDate <= now) status = 'Active';
-            const allTasksCompleted = (airdropData.tasks || []).length > 0 && (airdropData.tasks || []).every(t => t.completed);
-            if (allTasksCompleted || (airdropData.deadline && airdropData.deadline < now)) {
+      let status: AirdropStatus = (airdropInputData as Airdrop).status || 'Upcoming';
+       if (!(airdropInputData as Airdrop).status) {
+            if (airdropInputData.startDate && airdropInputData.startDate <= now) status = 'Active';
+            const allTasksCompleted = (airdropInputData.tasks || []).length > 0 && (airdropInputData.tasks || []).every(t => t.completed);
+            if (allTasksCompleted || (airdropInputData.deadline && airdropInputData.deadline < now)) {
                 status = 'Completed';
-            } else if (airdropData.startDate && airdropData.startDate <= now) {
+            } else if (airdropInputData.startDate && airdropInputData.startDate <= now) {
                 status = 'Active';
             }
         }
 
-      const docRef = doc(collection(db, 'users', user.uid!, 'airdrops')); // Auto-generate ID
+      const docRef = doc(collection(db, 'users', user.uid!, 'airdrops'));
       const airdropForDb = {
-        ...airdropData,
-        userId: user.uid,
-        createdAt: serverTimestamp(),
+        ...prepareAirdropForFirestore(airdropInputData, user.uid),
         status,
-        startDate: airdropData.startDate ? Timestamp.fromDate(new Date(airdropData.startDate)) : null,
-        deadline: airdropData.deadline ? Timestamp.fromDate(new Date(airdropData.deadline)) : null,
-        registrationDate: airdropData.registrationDate ? Timestamp.fromDate(new Date(airdropData.registrationDate)) : null,
-        claimDate: airdropData.claimDate ? Timestamp.fromDate(new Date(airdropData.claimDate)) : null,
-        tasks: (airdropData.tasks || []).map(task => ({ ...task, id: task.id || uuidv4() })),
-        tokenAmount: airdropData.tokenAmount === undefined || isNaN(Number(airdropData.tokenAmount)) ? null : Number(airdropData.tokenAmount),
       };
       batch.set(docRef, airdropForDb);
+      
       newAirdropsForState.push({
-        ...airdropData,
-        tokenAmount: airdropData.tokenAmount === undefined || isNaN(Number(airdropData.tokenAmount)) ? undefined : Number(airdropData.tokenAmount),
+        ...(airdropInputData as Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>), // Cast for state
+        tokenAmount: (airdropForDb.tokenAmount === null || airdropForDb.tokenAmount === undefined) ? undefined : Number(airdropForDb.tokenAmount),
         tasks: airdropForDb.tasks,
         id: docRef.id,
         userId: user.uid,
-        createdAt: Date.now(), // Optimistic client time
+        createdAt: Date.now(), 
         status,
       });
     });
@@ -188,18 +227,30 @@ export const useAirdropsStore = () => {
     
     const airdropRef = doc(db, 'users', user.uid, 'airdrops', updatedAirdropData.id);
     
-    const { id, ...dataToUpdate } = updatedAirdropData;
-    const dataForDb = {
-      ...dataToUpdate,
-      startDate: dataToUpdate.startDate ? Timestamp.fromDate(new Date(dataToUpdate.startDate)) : null,
-      deadline: dataToUpdate.deadline ? Timestamp.fromDate(new Date(dataToUpdate.deadline)) : null,
-      registrationDate: dataToUpdate.registrationDate ? Timestamp.fromDate(new Date(dataToUpdate.registrationDate)) : null,
-      claimDate: dataToUpdate.claimDate ? Timestamp.fromDate(new Date(dataToUpdate.claimDate)) : null,
-      tasks: (dataToUpdate.tasks || []).map(task => ({ ...task, id: task.id || uuidv4() })),
-      tokenAmount: dataToUpdate.tokenAmount === undefined || isNaN(Number(dataToUpdate.tokenAmount)) ? null : Number(dataToUpdate.tokenAmount),
-    };
+    // We pass the full updatedAirdropData to prepareAirdropForFirestore,
+    // it will handle userId and createdAt correctly for updates (by keeping existing ones if not meant to change)
+    // The status is part of updatedAirdropData and will be preserved or updated by prepareAirdropForFirestore.
+    const dataForDb = prepareAirdropForFirestore(updatedAirdropData);
+    // remove userId and createdAt if they were added by prepareAirdropForFirestore, as setDoc with merge shouldn't usually set them
+    // However, prepareAirdropForFirestore is designed to handle this by checking if currentUserId is passed.
+    // For updates, we don't pass currentUserId, so it should use existing userId/createdAt from updatedAirdropData.
+    // Let's ensure `userId` and `createdAt` from the original `updatedAirdropData` are used if present,
+    // and not overwritten by serverTimestamp() etc.
+    // The `prepareAirdropForFirestore` already correctly keeps `userId` and `createdAt` from `updatedAirdropData`
+    // if `currentUserId` (the second arg) is not passed.
+    // It also handles `status` if it's part of `updatedAirdropData`.
+
+    // Fields like userId and createdAt are typically not part of the object passed to setDoc for an update,
+    // unless you intend to change them, which is rare for these fields.
+    // The prepareAirdropForFirestore function includes userId and createdAt from the input 'updatedAirdropData'.
+    // This is fine for setDoc with merge:true as it will just update existing fields or add new ones.
 
     try {
+      // Only pass fields that are not id, userId, createdAt for the actual update payload unless they are meant to be changed.
+      // However, our prepareAirdropForFirestore creates the full object.
+      // For setDoc with merge: true, this is acceptable.
+      const { id, userId, createdAt, ...payloadForUpdate } = dataForDb; // Exclude these from main payload if not changing
+
       await setDoc(airdropRef, dataForDb, { merge: true }); 
       setAirdrops(prev => prev.map(a => a.id === updatedAirdropData.id ? updatedAirdropData : a)
                                .sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)));
