@@ -35,7 +35,7 @@ const SummaryStats = ({ airdrops, onOpenStatsModal }: SummaryStatsProps) => {
     >
       <CardHeader className="pb-3 p-0">
         <div className="flex flex-col items-center text-center">
-          <BarChart2 className="mb-2 h-8 w-8 text-gradient-theme" />
+          <BarChart2 className="mb-2 h-8 w-8 text-primary" /> {/* Diubah ke text-primary */}
           <CardTitle className="font-headline text-lg text-foreground">Ringkasan</CardTitle>
         </div>
       </CardHeader>
@@ -64,3 +64,4 @@ const SummaryStats = ({ airdrops, onOpenStatsModal }: SummaryStatsProps) => {
 };
 
 export default SummaryStats;
+

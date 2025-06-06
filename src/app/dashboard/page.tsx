@@ -1,4 +1,5 @@
 
+
 // src/app/dashboard/page.tsx
 "use client";
 
@@ -260,7 +261,7 @@ function DashboardPageContent() {
               aria-label="Buka Riset Airdrop AI"
             >
               <CardHeader className="p-0 pb-2 flex flex-col items-center justify-center">
-                <SearchCheck className="mb-2 h-8 w-8 text-gradient-theme" />
+                <SearchCheck className="mb-2 h-8 w-8 text-primary" /> {/* Diubah ke text-primary */}
                 <CardTitle className="font-headline text-lg text-foreground">Riset Airdrop</CardTitle>
               </CardHeader>
               <CardContent className="p-0 mt-1">
@@ -407,3 +408,4 @@ function DashboardPageContent() {
 export default function DashboardPage() {
   return <DashboardPageContent />;
 }
+
