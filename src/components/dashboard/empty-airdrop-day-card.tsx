@@ -1,10 +1,9 @@
-
 // src/components/dashboard/empty-airdrop-day-card.tsx
 "use client";
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, Sparkles, Info } from 'lucide-react';
+import { CalendarDays, CalendarCheck, CheckCircle } from 'lucide-react'; // Updated imports
 import { cn } from '@/lib/utils';
 import type { Airdrop } from '@/types/airdrop';
 import { useMemo } from 'react';
@@ -80,13 +79,13 @@ const EmptyAirdropDayCard = ({ onShowTodaysDeadlines, onAddNewAirdrop, airdrops 
         </div>
 
         <div className="text-center mt-2">
+          {deadlinesToday.length > 0 ? (
+            <CalendarCheck className="mb-1 h-6 w-6 mx-auto text-primary" />
+          ) : (
+            <CheckCircle className="mb-1 h-6 w-6 mx-auto text-green-500" />
+          )}
           <h3 className="text-base font-semibold text-foreground">
-            {deadlinesToday.length > 0 ? (
-              <Sparkles className="w-4 h-4 mr-1.5 text-gradient-theme inline-block align-middle" />
-            ) : (
-              <Info className="w-4 h-4 mr-1.5 text-muted-foreground inline-block align-middle" />
-            )}
-            <span className="align-middle">{cardTitle}</span>
+            {cardTitle}
           </h3>
           <p className="text-xs text-muted-foreground">{cardSubtitle}</p>
         </div>
