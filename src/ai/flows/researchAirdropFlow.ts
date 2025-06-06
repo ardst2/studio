@@ -13,20 +13,20 @@ import { z } from 'zod';
 
 // --- Schemas ---
 const ResearchAirdropInputSchema = z.object({
-  textQuery: z.string().min(3, 'Text query must be at least 3 characters long.').optional().describe('A question or text describing the airdrop/project to research.'),
-  sourceUrl: z.string().url({ message: "Invalid URL format."}).optional().describe('An optional URL related to the airdrop/project for research context.'),
+  textQuery: z.string().min(3, 'Query teks harus minimal 3 karakter.').optional().describe('Pertanyaan atau teks yang mendeskripsikan airdrop/proyek untuk diteliti.'),
+  sourceUrl: z.string().url({ message: "Format URL tidak valid."}).optional().describe('URL opsional yang terkait dengan airdrop/proyek untuk konteks penelitian.'),
 }).refine(data => data.textQuery || data.sourceUrl, {
-  message: 'Either textQuery or sourceUrl must be provided.',
+  message: 'Query teks atau URL sumber harus disediakan.',
   path: ['textQuery'],
 });
 export type ResearchAirdropInput = z.infer<typeof ResearchAirdropInputSchema>;
 
 const ResearchAirdropOutputSchema = z.object({
-  researchSummary: z.string().optional().describe('A detailed research summary including potential, official links (if found), and key points about the airdrop or project based on the provided input. If no information can be found or generated, this may be an empty string or a message indicating so.'),
-  keyPoints: z.array(z.string()).optional().describe('A list of key bullet points from the research.'),
-  officialLinks: z.array(z.string()).optional().describe('A list of relevant official URLs found during research (e.g., project website, social media). Only list valid URLs.'),
-  sentiment: z.string().optional().describe('A brief analysis of the perceived sentiment or potential (e.g., "High Potential", "Speculative", "Seems Legit").'),
-}).describe("The overall result of the airdrop research.");
+  researchSummary: z.string().optional().describe('Ringkasan penelitian mendalam dalam Bahasa Indonesia, termasuk potensi, tautan resmi (jika ditemukan), dan poin-poin penting tentang airdrop atau proyek berdasarkan input yang diberikan. Jika tidak ada informasi yang dapat ditemukan atau dihasilkan, ini mungkin berupa string kosong atau pesan yang menunjukkannya.'),
+  keyPoints: z.array(z.string()).optional().describe('Daftar poin-poin kunci dari penelitian, dalam Bahasa Indonesia.'),
+  officialLinks: z.array(z.string()).optional().describe('Daftar URL resmi yang relevan yang ditemukan selama penelitian (misalnya, situs web proyek, media sosial). Hanya daftarkan URL yang valid.'),
+  sentiment: z.string().optional().describe('Analisis singkat tentang sentimen atau potensi yang dirasakan, dalam Bahasa Indonesia (misalnya, "Potensi Tinggi", "Spekulatif", "Tampak Sah").'),
+}).describe("Hasil keseluruhan dari riset airdrop.");
 export type ResearchAirdropOutput = z.infer<typeof ResearchAirdropOutputSchema>;
 
 
@@ -34,30 +34,31 @@ const researchPrompt = ai.definePrompt({
   name: 'researchAirdropPrompt',
   input: { schema: ResearchAirdropInputSchema },
   output: { schema: ResearchAirdropOutputSchema },
-  prompt: `You are an expert crypto airdrop researcher.
+  prompt: `Anda adalah seorang peneliti airdrop kripto yang ahli. Semua output harus dalam Bahasa Indonesia.
 Analyze the following text query AND/OR the content implicitly available at the provided URL to generate a research report.
 Your goal is to assess the potential of the airdrop/project, identify key information, and find official links.
+Jika sumber informasi dalam Bahasa Inggris, terjemahkan konten yang relevan ke Bahasa Indonesia untuk ringkasan dan poin kunci Anda.
 
 Input:
 {{#if textQuery}}
-Text Query/Description:
+Query Teks/Deskripsi:
 {{{textQuery}}}
 {{/if}}
 
 {{#if sourceUrl}}
-Source URL (use for context or direct info if model has access; NOTE: model cannot actively fetch live web content from this URL string alone without a specific tool, but can use it for knowledge retrieval if the URL or domain is known):
+URL Sumber (gunakan untuk konteks atau info langsung jika model memiliki akses; CATATAN: model tidak dapat secara aktif mengambil konten web langsung dari string URL ini tanpa alat khusus, tetapi dapat menggunakannya untuk pengambilan pengetahuan jika URL atau domainnya diketahui):
 {{{sourceUrl}}}
 {{/if}}
 
 Output Requirements:
-1.  **researchSummary**: Provide a comprehensive summary. Discuss the project, what the airdrop is about, its potential, any red flags, and eligibility if known. If the URL is the primary source, summarize its content relevant to an airdrop.
-2.  **keyPoints**: List 3-5 key bullet points derived from your research. These should be concise and informative.
-3.  **officialLinks**: If possible, identify and list any official project website, Twitter, Discord, or announcement links. Only list valid URLs.
-4.  **sentiment**: Briefly state your perceived sentiment or potential (e.g., "High Potential", "Speculative", "Low Information", "Seems Legit").
+1.  **researchSummary**: Berikan ringkasan yang komprehensif dalam Bahasa Indonesia. Bahas proyek, tentang apa airdrop tersebut, potensinya, tanda bahaya (jika ada), dan kelayakan jika diketahui. Jika URL adalah sumber utama, ringkas kontennya yang relevan dengan airdrop. Sajikan dalam paragraf yang terstruktur dengan baik dan mudah dibaca.
+2.  **keyPoints**: Buat daftar 3-5 poin kunci dalam Bahasa Indonesia yang berasal dari riset Anda. Poin-poin ini harus ringkas dan informatif, disajikan sebagai daftar poin (bullet points).
+3.  **officialLinks**: Jika memungkinkan, identifikasi dan daftarkan semua tautan resmi proyek seperti situs web, Twitter, Discord, atau pengumuman. Hanya daftarkan URL yang valid. Pertahankan URL dalam bahasa aslinya.
+4.  **sentiment**: Nyatakan secara singkat sentimen atau potensi yang Anda rasakan dalam Bahasa Indonesia (contoh: "Potensi Tinggi", "Spekulatif", "Informasi Kurang", "Tampak Sah").
 
-If you cannot find substantial information from the provided input, clearly state that in the researchSummary and leave other fields empty or with a note (e.g. "No specific key points identified.").
-Do not invent information. Base your report solely on the provided inputs or publicly accessible knowledge related to them.
-Return the result as a structured JSON object matching the defined output schema. If an optional field like keyPoints or officialLinks has no data, return an empty array for it or omit the field.
+Jika Anda tidak dapat menemukan informasi substansial dari input yang diberikan, nyatakan dengan jelas dalam \`researchSummary\` (dalam Bahasa Indonesia) dan biarkan field lain kosong atau dengan catatan (misalnya, "Tidak ada poin kunci spesifik yang teridentifikasi.").
+Jangan mengarang informasi. Dasarkan laporan Anda semata-mata pada input yang diberikan atau pengetahuan yang dapat diakses publik terkait dengannya.
+Kembalikan hasilnya sebagai objek JSON terstruktur yang cocok dengan skema output yang ditentukan. Jika field opsional seperti \`keyPoints\` atau \`officialLinks\` tidak memiliki data, kembalikan array kosong untuknya atau hilangkan field tersebut.
 `,
 });
 
@@ -70,7 +71,7 @@ const researchAirdropFlowInternal = ai.defineFlow(
   async (input) => {
     const {output} = await researchPrompt(input);
     if (!output) {
-        return { 
+        return {
             researchSummary: "AI model did not return any output or the output was malformed. Please try a different query or URL.",
             keyPoints: [],
             officialLinks: [],
