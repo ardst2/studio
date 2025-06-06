@@ -27,7 +27,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import { cn } from '@/lib/utils';
-import { Target, FilePlus2, Sparkles, SearchCheck, FlaskConical } from 'lucide-react'; // Added icons
+import { Target, FilePlus2, Sparkles, SearchCheck } from 'lucide-react';
 
 function DashboardPageContent() {
   const { user, loading: authLoading } = useAuth();
@@ -66,7 +66,7 @@ function DashboardPageContent() {
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [isSheetsImportModalOpen, setIsSheetsImportModalOpen] = useState(false);
   const [isAiAssistModalOpen, setIsAiAssistModalOpen] = useState(false);
-  const [isResearchModalOpen, setIsResearchModalOpen] = useState(false); // State for Research Modal
+  const [isResearchModalOpen, setIsResearchModalOpen] = useState(false);
 
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
@@ -113,16 +113,7 @@ function DashboardPageContent() {
             ...data, 
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
-        const now = Date.now();
-        let status: Airdrop['status'] = 'Upcoming';
-        if (updatedData.startDate && updatedData.startDate <= now) status = 'Active';
-        const allTasksCompleted = updatedData.tasks.length > 0 && updatedData.tasks.every(t => t.completed);
-        if (allTasksCompleted || (updatedData.deadline && updatedData.deadline < now)) {
-            status = 'Completed';
-        } else if (updatedData.startDate && updatedData.startDate <= now) {
-            status = 'Active';
-        }
-        updatedData.status = status;
+        // Status calculation logic remains in useAirdropsStore's updateAirdrop
         await storeUpdateAirdrop(updatedData);
         toast({ title: "Airdrop Diperbarui", description: `"${updatedData.name}" berhasil diperbarui.` });
       } else {
@@ -130,7 +121,7 @@ function DashboardPageContent() {
             ...data,
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
         };
-        await storeAddAirdrop(newAirdropDataWithTaskIds);
+        await storeAddAirdrop(newAirdropDataWithTaskIds); // Status calculation is in useAirdropsStore's addAirdrop
         toast({ title: "Airdrop Ditambahkan", description: `"${data.name}" berhasil ditambahkan.` });
       }
       handleCloseAddModal();
@@ -158,16 +149,7 @@ function DashboardPageContent() {
         task.id === taskId ? { ...task, completed: !task.completed } : task
       );
       let updatedAirdrop = { ...airdropToUpdate, tasks: updatedTasks };
-      const now = Date.now();
-      let newStatus: Airdrop['status'] = 'Upcoming';
-      if (updatedAirdrop.startDate && updatedAirdrop.startDate <= now) newStatus = 'Active';
-      const allTasksCompleted = updatedTasks.length > 0 && updatedTasks.every(t => t.completed);
-      if (allTasksCompleted || (updatedAirdrop.deadline && updatedAirdrop.deadline < now)) {
-          newStatus = 'Completed';
-      } else if (updatedAirdrop.startDate && updatedAirdrop.startDate <= now) {
-        newStatus = 'Active';
-      }
-      updatedAirdrop.status = newStatus;
+      // Status re-calculation logic moved to storeUpdateAirdrop for consistency
       try {
         await storeUpdateAirdrop(updatedAirdrop);
       } catch (error) {
@@ -425,5 +407,3 @@ function DashboardPageContent() {
 export default function DashboardPage() {
   return <DashboardPageContent />;
 }
-
-    

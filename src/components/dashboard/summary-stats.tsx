@@ -6,6 +6,7 @@ import type { Airdrop } from '@/types/airdrop';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { BarChart2 } from 'lucide-react'; // Import ikon
 
 interface SummaryStatsProps {
   airdrops: Airdrop[];
@@ -33,7 +34,10 @@ const SummaryStats = ({ airdrops, onOpenStatsModal }: SummaryStatsProps) => {
       aria-label="Lihat statistik detail airdrop"
     >
       <CardHeader className="pb-3 p-0">
-        <CardTitle className="font-headline text-xl text-foreground">Ringkasan</CardTitle>
+        <div className="flex flex-col items-center text-center">
+          <BarChart2 className="mb-2 h-8 w-8 text-gradient-theme" />
+          <CardTitle className="font-headline text-lg text-foreground">Ringkasan</CardTitle>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3 p-0 mt-3">
         <div className="space-y-1 text-sm">
