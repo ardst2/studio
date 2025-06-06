@@ -72,14 +72,12 @@ const prepareAirdropForFirestore = (airdropData: Partial<Omit<Airdrop, 'id' | 'u
   if ('userId' in airdropData && airdropData.userId !== undefined && !currentUserId) { // For updates, keep existing userId
     data.userId = airdropData.userId;
   }
-   if ('createdAt' in airdropData && airdropData.createdAt !== undefined && !currentUserId) { // For updates, keep existing createdAt if passed (though usually not modified)
+   if ('createdAt' in airdropData && airdropData.createdAt !== undefined && !currentUserId) { 
      if (airdropData.createdAt instanceof Timestamp) {
         data.createdAt = airdropData.createdAt;
      } else if (typeof airdropData.createdAt === 'number') {
         data.createdAt = Timestamp.fromMillis(airdropData.createdAt);
      }
-    // If it's not a Timestamp or number, it might be problematic, but setDoc with merge handles existing fields.
-    // For updates, createdAt is usually not part of the data sent to setDoc unless it's meant to be overwritten.
   }
 
 
@@ -136,6 +134,14 @@ export const useAirdropsStore = () => {
     }
   }, [user]);
 
+  const updateNewAirdropDraft = useCallback((data: Partial<Omit<Airdrop, 'id' | 'createdAt' | 'status'>>) => {
+    setNewAirdropDraft(prev => ({ ...prev, ...data, userId: user?.uid || GUEST_USER_ID }));
+  }, [user]);
+
+  const resetNewAirdropDraft = useCallback(() => {
+    setNewAirdropDraft(getDefaultNewAirdrop(user?.uid || GUEST_USER_ID));
+  }, [user]);
+
   const addAirdrop = useCallback(async (airdropData: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => {
     if (!user?.uid) throw new Error("User not authenticated");
 
@@ -151,19 +157,18 @@ export const useAirdropsStore = () => {
 
     const airdropForDb = {
       ...prepareAirdropForFirestore(airdropData, user.uid),
-      status, // Add the calculated status
+      status, 
     };
 
     try {
       const docRef = await addDoc(collection(db, 'users', user.uid, 'airdrops'), airdropForDb);
       const newAirdrop: Airdrop = {
-        ...airdropData, // original data from input
-        // Ensure numeric fields are correctly typed from possibly null Firestore values if we were fetching it back
+        ...airdropData, 
         tokenAmount: (airdropForDb.tokenAmount === null || airdropForDb.tokenAmount === undefined) ? undefined : Number(airdropForDb.tokenAmount),
         tasks: airdropForDb.tasks, 
         id: docRef.id,
         userId: user.uid,
-        createdAt: Date.now(), // Optimistic client time for immediate UI update
+        createdAt: Date.now(), 
         status,
       };
       setAirdrops(prev => [newAirdrop, ...prev].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
@@ -202,7 +207,7 @@ export const useAirdropsStore = () => {
       batch.set(docRef, airdropForDb);
       
       newAirdropsForState.push({
-        ...(airdropInputData as Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>), // Cast for state
+        ...(airdropInputData as Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>), 
         tokenAmount: (airdropForDb.tokenAmount === null || airdropForDb.tokenAmount === undefined) ? undefined : Number(airdropForDb.tokenAmount),
         tasks: airdropForDb.tasks,
         id: docRef.id,
@@ -227,30 +232,9 @@ export const useAirdropsStore = () => {
     
     const airdropRef = doc(db, 'users', user.uid, 'airdrops', updatedAirdropData.id);
     
-    // We pass the full updatedAirdropData to prepareAirdropForFirestore,
-    // it will handle userId and createdAt correctly for updates (by keeping existing ones if not meant to change)
-    // The status is part of updatedAirdropData and will be preserved or updated by prepareAirdropForFirestore.
     const dataForDb = prepareAirdropForFirestore(updatedAirdropData);
-    // remove userId and createdAt if they were added by prepareAirdropForFirestore, as setDoc with merge shouldn't usually set them
-    // However, prepareAirdropForFirestore is designed to handle this by checking if currentUserId is passed.
-    // For updates, we don't pass currentUserId, so it should use existing userId/createdAt from updatedAirdropData.
-    // Let's ensure `userId` and `createdAt` from the original `updatedAirdropData` are used if present,
-    // and not overwritten by serverTimestamp() etc.
-    // The `prepareAirdropForFirestore` already correctly keeps `userId` and `createdAt` from `updatedAirdropData`
-    // if `currentUserId` (the second arg) is not passed.
-    // It also handles `status` if it's part of `updatedAirdropData`.
-
-    // Fields like userId and createdAt are typically not part of the object passed to setDoc for an update,
-    // unless you intend to change them, which is rare for these fields.
-    // The prepareAirdropForFirestore function includes userId and createdAt from the input 'updatedAirdropData'.
-    // This is fine for setDoc with merge:true as it will just update existing fields or add new ones.
-
+    
     try {
-      // Only pass fields that are not id, userId, createdAt for the actual update payload unless they are meant to be changed.
-      // However, our prepareAirdropForFirestore creates the full object.
-      // For setDoc with merge: true, this is acceptable.
-      const { id, userId, createdAt, ...payloadForUpdate } = dataForDb; // Exclude these from main payload if not changing
-
       await setDoc(airdropRef, dataForDb, { merge: true }); 
       setAirdrops(prev => prev.map(a => a.id === updatedAirdropData.id ? updatedAirdropData : a)
                                .sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)));
@@ -269,14 +253,6 @@ export const useAirdropsStore = () => {
       console.error("Error deleting airdrop from Firestore: ", error);
       throw error;
     }
-  }, [user]);
-
-  const updateNewAirdropDraft = useCallback((data: Partial<Omit<Airdrop, 'id' | 'createdAt' | 'status'>>) => {
-    setNewAirdropDraft(prev => ({ ...prev, ...data, userId: user?.uid || GUEST_USER_ID }));
-  }, [user]);
-
-  const resetNewAirdropDraft = useCallback(() => {
-    setNewAirdropDraft(getDefaultNewAirdrop(user?.uid || GUEST_USER_ID));
   }, [user]);
 
   const filteredAirdrops = useMemo(() => {
@@ -311,3 +287,4 @@ export const useAirdropsStore = () => {
     resetNewAirdropDraft,
   };
 };
+
