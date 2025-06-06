@@ -7,7 +7,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/lib/firebase';
 import {
-  collection, query, where, getDocs, addDoc, doc, setDoc, deleteDoc, Timestamp, orderBy, serverTimestamp, writeBatch, getDoc
+  collection, query, where, getDocs, addDoc, doc, setDoc, deleteDoc, Timestamp, orderBy, serverTimestamp, writeBatch, getDoc, onSnapshot, Unsubscribe
 } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from "@/hooks/use-toast";
@@ -37,7 +37,7 @@ const getDefaultNewAirdrop = (userId: string): Omit<Airdrop, 'id' | 'createdAt' 
 
 // Helper to prepare data for Firestore
 const prepareAirdropForFirestore = (
-  airdropData: Partial<Omit<Airdrop, 'id' | 'userId' | 'status'>> | Partial<Airdrop>, // Allow 'createdAt' to be passed for updates
+  airdropData: Partial<Omit<Airdrop, 'id' | 'userId' | 'status'>> | Partial<Airdrop>,
   currentUserId?: string,
   isNew?: boolean
 ) => {
@@ -68,13 +68,10 @@ const prepareAirdropForFirestore = (
   if (isNew) {
     data.createdAt = serverTimestamp();
   } else if ('createdAt' in airdropData && typeof airdropData.createdAt === 'number') {
-    // For updates, if createdAt is provided as a JS timestamp, convert it
     data.createdAt = Timestamp.fromMillis(airdropData.createdAt);
   }
-  // If 'createdAt' is not in airdropData or not a number for an update, it means we don't want to change it,
-  // so it's omitted from `data` and Firestore's merge behavior will preserve the existing server value.
 
-  // Status is handled separately when calling this function
+
   if ('status' in airdropData && airdropData.status !== undefined) {
     data.status = airdropData.status;
   }
@@ -89,7 +86,7 @@ const prepareAirdropForFirestore = (
 const mapFirestoreDocToAirdrop = (docData: any, docId: string): Airdrop => {
     const createdAtMillis = docData.createdAt instanceof Timestamp
         ? docData.createdAt.toMillis()
-        : (typeof docData.createdAt === 'number' // For potentially old data before serverTimestamp
+        : (typeof docData.createdAt === 'number'
             ? docData.createdAt
             : (console.warn(`[MAP_FS_DOC] Invalid createdAt type in Firestore doc: ${docId}. Type: ${typeof docData.createdAt}, Value: ${JSON.stringify(docData.createdAt)}. Defaulting to 0.`), 0));
 
@@ -133,37 +130,6 @@ export const useAirdropsStore = () => {
 
   const [newAirdropDraft, setNewAirdropDraft] = useState<Omit<Airdrop, 'id' | 'createdAt' | 'status'>>(getDefaultNewAirdrop(user?.uid || GUEST_USER_ID));
 
-  const fetchUserAirdrops = useCallback(async (currentUserId: string) => {
-    console.log(`[STORE_FETCH] Fetching airdrops for user: ${currentUserId}`);
-    setIsLoading(true);
-    try {
-        const airdropsCol = collection(db, 'users', currentUserId, 'airdrops');
-        const q = query(airdropsCol, orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-        const fetchedAirdrops = querySnapshot.docs.map(docSnap =>
-            mapFirestoreDocToAirdrop(docSnap.data(), docSnap.id)
-        );
-        console.log(`[STORE_FETCH] Fetched ${fetchedAirdrops.length} airdrops. First item (if any):`, fetchedAirdrops[0]?.name);
-        set_Airdrops(fetchedAirdrops);
-    } catch (error) {
-        console.error(`[STORE_FETCH] Error fetching airdrops for user ${currentUserId}: `, error);
-        toast({ variant: "destructive", title: "Gagal Memuat Data", description: "Tidak dapat mengambil daftar airdrop dari database."});
-        set_Airdrops([]);
-    } finally {
-        setIsLoading(false);
-        console.log(`[STORE_FETCH] Finished fetching airdrops. isLoading is now false.`);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user?.uid) {
-      fetchUserAirdrops(user.uid);
-    } else {
-      set_Airdrops([]);
-      setIsLoading(false);
-    }
-  }, [user, fetchUserAirdrops]);
-
   const updateNewAirdropDraft = useCallback((data: Partial<Omit<Airdrop, 'id' | 'createdAt' | 'status'>>) => {
     setNewAirdropDraft(prev => ({ ...prev, ...data, userId: user?.uid || GUEST_USER_ID }));
   }, [user]);
@@ -171,6 +137,39 @@ export const useAirdropsStore = () => {
   const resetNewAirdropDraft = useCallback(() => {
     setNewAirdropDraft(getDefaultNewAirdrop(user?.uid || GUEST_USER_ID));
   }, [user]);
+
+  useEffect(() => {
+    if (!user?.uid) {
+      set_Airdrops([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    console.log(`[STORE_LISTENER] Setting up Firestore listener for user: ${user.uid}`);
+    const airdropsCol = collection(db, 'users', user.uid, 'airdrops');
+    const q = query(airdropsCol, orderBy('createdAt', 'desc'));
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const fetchedAirdrops = querySnapshot.docs.map(docSnap =>
+        mapFirestoreDocToAirdrop(docSnap.data(), docSnap.id)
+      );
+      console.log(`[STORE_LISTENER] Received ${fetchedAirdrops.length} airdrops from listener.`);
+      set_Airdrops(fetchedAirdrops);
+      setIsLoading(false);
+    }, (error) => {
+      console.error(`[STORE_LISTENER] Error with Firestore listener for user ${user.uid}: `, error);
+      toast({ variant: "destructive", title: "Gagal Memuat Data Realtime", description: "Tidak dapat menerima pembaruan airdrop." });
+      set_Airdrops([]);
+      setIsLoading(false);
+    });
+
+    return () => {
+      console.log(`[STORE_LISTENER] Unsubscribing Firestore listener for user: ${user.uid}`);
+      unsubscribe();
+    };
+  }, [user]);
+
 
   const addAirdrop = useCallback(async (airdropData: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => {
     if (!user?.uid) {
@@ -189,32 +188,20 @@ export const useAirdropsStore = () => {
         status = 'Active';
     }
 
-    const airdropForDb = prepareAirdropForFirestore(airdropData, user.uid, true); // isNew = true
+    const airdropForDb = prepareAirdropForFirestore(airdropData, user.uid, true);
     airdropForDb.status = status;
 
     try {
       console.log("[STORE_ADD] Attempting to add airdrop to Firestore:", airdropForDb.name);
-      const docRef = await addDoc(collection(db, 'users', user.uid, 'airdrops'), airdropForDb);
-      console.log("[STORE_ADD] Airdrop successfully added to Firestore, ID:", docRef.id);
-
-      // Fetch the newly added document to get server-generated fields like createdAt
-      const newDocSnapshot = await getDoc(docRef);
-      if (newDocSnapshot.exists()) {
-        const newAirdropFromDb = mapFirestoreDocToAirdrop(newDocSnapshot.data(), newDocSnapshot.id);
-        set_Airdrops(prevAirdrops =>
-          [newAirdropFromDb, ...prevAirdrops].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-        );
-        console.log("[STORE_ADD] Successfully added and updated local state with:", newAirdropFromDb.name);
-      } else {
-        console.warn("[STORE_ADD] Document was added but couldn't be fetched back immediately. Will refetch all.");
-        await fetchUserAirdrops(user.uid); // Fallback to refetch all if single fetch fails
-      }
+      await addDoc(collection(db, 'users', user.uid, 'airdrops'), airdropForDb);
+      console.log("[STORE_ADD] Airdrop successfully added to Firestore. Listener will update UI.");
       resetNewAirdropDraft();
+      // No need to manually update state, onSnapshot listener will handle it.
     } catch (error) {
       console.error("[STORE_ADD] Error adding airdrop to Firestore: ", error);
       throw error;
     }
-  }, [user, fetchUserAirdrops, resetNewAirdropDraft]);
+  }, [user, resetNewAirdropDraft]);
 
 
   const addManyAirdrops = useCallback(async (airdropsInputData: Omit<Airdrop, 'id' | 'userId' | 'createdAt'>[]) => {
@@ -225,7 +212,6 @@ export const useAirdropsStore = () => {
     if (!airdropsInputData || airdropsInputData.length === 0) return;
 
     const batch = writeBatch(db);
-    const newDocRefs: ReturnType<typeof doc>[] = [];
 
     airdropsInputData.forEach((singleAirdropInput) => {
       const now = Date.now();
@@ -241,9 +227,8 @@ export const useAirdropsStore = () => {
         }
 
       const docRef = doc(collection(db, 'users', user.uid!, 'airdrops'));
-      newDocRefs.push(docRef);
       const airdropForDb = {
-        ...prepareAirdropForFirestore(singleAirdropInput, user.uid, true), // isNew = true
+        ...prepareAirdropForFirestore(singleAirdropInput, user.uid, true),
         status,
       };
       batch.set(docRef, airdropForDb);
@@ -252,16 +237,13 @@ export const useAirdropsStore = () => {
     try {
       console.log(`[STORE_ADD_MANY] Attempting to batch add ${airdropsInputData.length} airdrops to Firestore.`);
       await batch.commit();
-      console.log(`[STORE_ADD_MANY] Successfully batch added ${airdropsInputData.length} airdrops.`);
-
-      // Instead of fetching all, try to fetch just the new ones if possible, or simplify to fetch all
-      console.log("[STORE_ADD_MANY] Refetching all airdrops after batch add.");
-      await fetchUserAirdrops(user.uid); // Simplest way to ensure consistency after batch
+      console.log(`[STORE_ADD_MANY] Successfully batch added ${airdropsInputData.length} airdrops. Listener will update UI.`);
+      // No need to manually update state, onSnapshot listener will handle it.
     } catch (error) {
       console.error("[STORE_ADD_MANY] Error batch adding airdrops to Firestore: ", error);
       throw error;
     }
-  }, [user, fetchUserAirdrops]);
+  }, [user]);
 
 
   const updateAirdrop = useCallback(async (updatedAirdropData: Airdrop) => {
@@ -271,24 +253,18 @@ export const useAirdropsStore = () => {
     }
 
     const airdropRef = doc(db, 'users', user.uid, 'airdrops', updatedAirdropData.id);
-    // Pass `updatedAirdropData.createdAt` if it exists and is a number (JS timestamp)
-    const dataForDb = prepareAirdropForFirestore(updatedAirdropData, user.uid, false); // isNew = false
-    // Ensure existing createdAt from Firestore is preserved if not explicitly changed by user
-    // `prepareAirdropForFirestore` now handles this: if createdAt is not in updatedAirdropData, it's omitted from dataForDb,
-    // and merge:true will keep the server value. If it is in updatedAirdropData (as JS timestamp), it's converted.
+    const dataForDb = prepareAirdropForFirestore(updatedAirdropData, user.uid, false);
 
     try {
       console.log("[STORE_UPDATE] Attempting to update airdrop in Firestore:", updatedAirdropData.id);
       await setDoc(airdropRef, dataForDb, { merge: true });
-      console.log("[STORE_UPDATE] Airdrop successfully updated in Firestore:", updatedAirdropData.id);
-
-      console.log("[STORE_UPDATE] Refetching all airdrops after update.");
-      await fetchUserAirdrops(user.uid);
+      console.log("[STORE_UPDATE] Airdrop successfully updated in Firestore. Listener will update UI.");
+      // No need to manually update state, onSnapshot listener will handle it.
     } catch (error) {
       console.error("[STORE_UPDATE] Error updating airdrop in Firestore: ", error);
       throw error;
     }
-  }, [user, fetchUserAirdrops]); // Removed _airdrops dependency as it's not directly used for this logic
+  }, [user]);
 
   const deleteAirdrop = useCallback(async (airdropId: string) => {
     if (!user?.uid) {
@@ -298,11 +274,8 @@ export const useAirdropsStore = () => {
     try {
       console.log("[STORE_DELETE] Attempting to delete airdrop from Firestore:", airdropId);
       await deleteDoc(doc(db, 'users', user.uid, 'airdrops', airdropId));
-      console.log("[STORE_DELETE] Airdrop successfully deleted from Firestore:", airdropId);
-      // Optimistic update for delete
-      set_Airdrops(prev => prev.filter(a => a.id !== airdropId)
-                               .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-      );
+      console.log("[STORE_DELETE] Airdrop successfully deleted from Firestore. Listener will update UI.");
+      // No need for optimistic update, onSnapshot will handle it.
     } catch (error) {
       console.error("[STORE_DELETE] Error deleting airdrop from Firestore: ", error);
       throw error;
@@ -342,3 +315,4 @@ export const useAirdropsStore = () => {
     resetNewAirdropDraft,
   };
 };
+
