@@ -9,10 +9,10 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { z } from 'zod';
 
 // --- Schemas ---
-export const ResearchAirdropInputSchema = z.object({
+const ResearchAirdropInputSchema = z.object({
   textQuery: z.string().min(3, 'Text query must be at least 3 characters long.').optional().describe('A question or text describing the airdrop/project to research.'),
   sourceUrl: z.string().url({ message: "Invalid URL format."}).optional().describe('An optional URL related to the airdrop/project for research context.'),
 }).refine(data => data.textQuery || data.sourceUrl, {
@@ -21,7 +21,7 @@ export const ResearchAirdropInputSchema = z.object({
 });
 export type ResearchAirdropInput = z.infer<typeof ResearchAirdropInputSchema>;
 
-export const ResearchAirdropOutputSchema = z.object({
+const ResearchAirdropOutputSchema = z.object({
   researchSummary: z.string().optional().describe('A detailed research summary including potential, official links (if found), and key points about the airdrop or project based on the provided input. If no information can be found or generated, this may be an empty string or a message indicating so.'),
   keyPoints: z.array(z.string()).optional().describe('A list of key bullet points from the research.'),
   officialLinks: z.array(z.string().url()).optional().describe('A list of relevant official URLs found during research (e.g., project website, social media).'),
