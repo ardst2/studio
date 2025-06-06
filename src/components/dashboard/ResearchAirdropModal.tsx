@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { FlaskConical, AlertTriangle, CheckCircle, X, RotateCcw } from 'lucide-react';
+import { FlaskConical, AlertTriangle, CheckCircle, X, RotateCcw, Save } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { researchAirdrop, type ResearchAirdropInput, type ResearchAirdropOutput } from '@/ai/flows/researchAirdropFlow';
+import { useAirdropsStore } from '@/hooks/use-airdrops-store';
+import type { Airdrop } from '@/types/airdrop';
 import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -26,9 +28,11 @@ const InputWrapper: React.FC<{ children: React.ReactNode; className?: string }> 
 
 const ResearchAirdropModal = ({ isOpen, onClose }: ResearchAirdropModalProps) => {
   const { toast } = useToast();
+  const { addAirdrop: storeAddAirdrop, isLoading: isStoreLoading } = useAirdropsStore();
   const [textQuery, setTextQuery] = useState('');
   const [sourceUrl, setSourceUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [researchResult, setResearchResult] = useState<ResearchAirdropOutput | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -90,6 +94,76 @@ const ResearchAirdropModal = ({ isOpen, onClose }: ResearchAirdropModalProps) =>
       setIsProcessing(false);
     }
   };
+
+  const handleSaveAirdrop = async () => {
+    if (!researchResult) {
+      toast({ variant: "destructive", title: "Tidak Ada Hasil", description: "Tidak ada hasil riset untuk disimpan." });
+      return;
+    }
+    setIsSaving(true);
+
+    const newAirdropData: Partial<Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>> = {
+      name: `Airdrop (Riset) ${new Date().toLocaleTimeString()}`,
+      description: researchResult.researchSummary || '',
+      notes: '',
+      tasks: [],
+      informationSource: sourceUrl || "Hasil Riset AI",
+      userDefinedStatus: researchResult.sentiment || undefined,
+    };
+
+    let notesContent = "Hasil riset AI:\n";
+    if (researchResult.researchSummary && researchResult.researchSummary.length > 200) { // if summary is long, put it in notes instead of description
+        notesContent += `Ringkasan: ${researchResult.researchSummary}\n\n`;
+        newAirdropData.description = `Riset untuk proyek terkait ${textQuery || sourceUrl}`;
+    } else {
+        newAirdropData.description = researchResult.researchSummary || `Riset untuk proyek terkait ${textQuery || sourceUrl}`;
+    }
+
+    if (researchResult.keyPoints && researchResult.keyPoints.length > 0) {
+      notesContent += "Poin Kunci:\n" + researchResult.keyPoints.map(p => `- ${p}`).join("\n") + "\n\n";
+    }
+    if (researchResult.officialLinks && researchResult.officialLinks.length > 0) {
+      notesContent += "Link Resmi:\n" + researchResult.officialLinks.map(l => `- ${l}`).join("\n") + "\n\n";
+      // Try to set the first official link as the airdropLink if it's a website
+      const websiteLink = researchResult.officialLinks.find(link => !link.includes('twitter.com') && !link.includes('discord.com') && !link.includes('t.me'));
+      newAirdropData.airdropLink = websiteLink || researchResult.officialLinks[0];
+    }
+     if (researchResult.sentiment) {
+      notesContent += `Sentimen/Potensi: ${researchResult.sentiment}\n`;
+    }
+
+    newAirdropData.notes = notesContent.trim();
+    
+    try {
+      const finalData: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'> = {
+        name: newAirdropData.name!,
+        description: newAirdropData.description,
+        startDate: newAirdropData.startDate,
+        deadline: newAirdropData.deadline,
+        tasks: newAirdropData.tasks || [],
+        blockchain: newAirdropData.blockchain,
+        registrationDate: newAirdropData.registrationDate,
+        participationRequirements: newAirdropData.participationRequirements,
+        airdropLink: newAirdropData.airdropLink,
+        userDefinedStatus: newAirdropData.userDefinedStatus,
+        notes: newAirdropData.notes,
+        walletAddress: newAirdropData.walletAddress,
+        tokenAmount: newAirdropData.tokenAmount,
+        claimDate: newAirdropData.claimDate,
+        airdropType: newAirdropData.airdropType,
+        referralCode: newAirdropData.referralCode,
+        informationSource: newAirdropData.informationSource,
+      };
+      await storeAddAirdrop(finalData);
+      toast({ title: "Airdrop Disimpan", description: `"${finalData.name}" berhasil disimpan dari hasil riset.` });
+      handleModalClose();
+    } catch (error: any) {
+      console.error("Error saving airdrop from research:", error);
+      toast({ variant: "destructive", title: "Gagal Menyimpan", description: error.message || "Terjadi kesalahan saat menyimpan airdrop." });
+    } finally {
+      setIsSaving(false);
+    }
+  };
   
   const handleModalClose = () => {
     onClose();
@@ -98,6 +172,7 @@ const ResearchAirdropModal = ({ isOpen, onClose }: ResearchAirdropModalProps) =>
     setResearchResult(null);
     setIsProcessing(false);
     setErrorMsg(null);
+    setIsSaving(false);
   };
 
   const handleModalOpenChange = (open: boolean) => {
@@ -118,7 +193,7 @@ const ResearchAirdropModal = ({ isOpen, onClose }: ResearchAirdropModalProps) =>
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
             Masukkan teks, pertanyaan, atau URL terkait airdrop. AI akan mencoba memberikan analisis.
-             <br /><span className="text-xs text-muted-foreground/70">Untuk URL, kemampuan AI saat ini terbatas pada informasi publik yang telah diindeksnya. Implementasi pengambilan konten web aktif akan meningkatkan fitur ini.</span>
+             <br /><span className="text-xs text-muted-foreground/70">Untuk URL, kemampuan AI saat ini terbatas pada informasi publik yang telah diindeksnya.</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -133,7 +208,7 @@ const ResearchAirdropModal = ({ isOpen, onClose }: ResearchAirdropModalProps) =>
                     onChange={(e) => setSourceUrl(e.target.value)}
                     placeholder="Contoh: https://blog.proyekxyz.com/airdrop-info"
                     type="url"
-                    disabled={isProcessing}
+                    disabled={isProcessing || isSaving}
                     className="text-sm"
                 />
                 </InputWrapper>
@@ -147,13 +222,13 @@ const ResearchAirdropModal = ({ isOpen, onClose }: ResearchAirdropModalProps) =>
                     onChange={(e) => setTextQuery(e.target.value)}
                     placeholder="Contoh: 'Bagaimana potensi airdrop Proyek XYZ?' atau paste teks pengumuman..."
                     rows={5}
-                    disabled={isProcessing}
+                    disabled={isProcessing || isSaving}
                     className="text-sm"
                 />
                 </InputWrapper>
             </div>
 
-            <Button onClick={handleProcessResearch} disabled={isProcessing || (textQuery.trim().length < 3 && !isValidUrl(sourceUrl))} className="w-full btn-gradient">
+            <Button onClick={handleProcessResearch} disabled={isProcessing || isSaving || (textQuery.trim().length < 3 && !isValidUrl(sourceUrl))} className="w-full btn-gradient">
                 {isProcessing ? <Loader size="sm" className="mr-1.5 border-primary-foreground" /> : <FlaskConical className="mr-1.5 h-4 w-4" />}
                 {isProcessing ? 'Meriset...' : 'Proses Riset dengan AI'}
             </Button>
@@ -207,12 +282,23 @@ const ResearchAirdropModal = ({ isOpen, onClose }: ResearchAirdropModalProps) =>
         </ScrollArea>
 
         <DialogFooter className="p-6 pt-4 border-t border-border shrink-0 flex flex-col sm:flex-row justify-between gap-2">
-            <Button type="button" variant="outline" onClick={handleModalClose} disabled={isProcessing}>
+            <Button type="button" variant="outline" onClick={handleModalClose} disabled={isProcessing || isSaving}>
                 <X className="mr-2 h-4 w-4" /> Tutup
             </Button>
-            <Button type="button" variant="outline" onClick={() => {setTextQuery(''); setSourceUrl(''); setResearchResult(null); setErrorMsg(null);}} disabled={isProcessing}>
-                <RotateCcw className="mr-2 h-4 w-4" /> Reset
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+                <Button type="button" variant="outline" onClick={() => {setTextQuery(''); setSourceUrl(''); setResearchResult(null); setErrorMsg(null);}} disabled={isProcessing || isSaving}>
+                    <RotateCcw className="mr-2 h-4 w-4" /> Reset
+                </Button>
+                 <Button
+                    type="button"
+                    className="btn-gradient"
+                    onClick={handleSaveAirdrop}
+                    disabled={isProcessing || isSaving || !researchResult || isStoreLoading || (!researchResult.researchSummary && !researchResult.keyPoints?.length && !researchResult.officialLinks?.length)}
+                >
+                    {isSaving || isStoreLoading ? <Loader size="sm" className="mr-1.5 border-primary-foreground" /> : <Save className="mr-1.5 h-4 w-4" />}
+                    {isSaving || isStoreLoading ? 'Menyimpan...' : 'Simpan sebagai Airdrop'}
+                </Button>
+            </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -220,5 +306,3 @@ const ResearchAirdropModal = ({ isOpen, onClose }: ResearchAirdropModalProps) =>
 };
 
 export default ResearchAirdropModal;
-
-    
