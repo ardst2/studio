@@ -23,7 +23,8 @@ const ExtractAirdropInputSchema = z.object({
 export type ExtractAirdropInput = z.infer<typeof ExtractAirdropInputSchema>;
 
 // Output schema disesuaikan agar cocok dengan field-field di AirdropForm/Airdrop type
-export const ExtractAirdropOutputSchema = z.object({
+// This schema is NOT exported directly from this 'use server' file.
+const ExtractAirdropOutputSchema = z.object({
   name: z.string().optional().describe('Nama proyek atau airdrop. Contoh: "Token XYZ Launch". WAJIB dalam Bahasa Indonesia.'),
   startDate: z.string().optional().describe('Tanggal mulai airdrop dalam format YYYY-MM-DD. Kosongkan jika tidak ada.'),
   deadline: z.string().optional().describe('Tanggal berakhir airdrop dalam format YYYY-MM-DD. Kosongkan jika tidak ada.'),
