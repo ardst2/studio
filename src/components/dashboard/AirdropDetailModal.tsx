@@ -64,98 +64,96 @@ const AirdropDetailModal = ({ isOpen, onClose, airdrop }: AirdropDetailModalProp
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-lg bg-card shadow-2xl border-primary/30 p-0 max-h-[85vh] overflow-hidden">
+      <DialogContent className="sm:max-w-lg bg-card shadow-2xl border-primary/30 p-0 max-h-[85vh] flex flex-col overflow-hidden">
         <div className="absolute top-0 left-0 w-1/2 h-1 bg-gradient-to-r from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-tl-lg z-[1]"></div>
         <div className="absolute bottom-0 right-0 w-1/2 h-1 bg-gradient-to-l from-[hsl(var(--gradient-theme-start))] via-[hsl(var(--gradient-theme-mid))] to-transparent rounded-br-lg z-[1]"></div>
 
-        <div className="relative flex flex-col h-full">
-          <DialogHeader className="p-6 pb-4 border-b border-border shrink-0">
-            <DialogTitle className="font-headline text-2xl text-foreground flex items-center">
-              <Info className="w-6 h-6 mr-2 text-primary" /> Detail Airdrop
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground line-clamp-1">
-              Informasi lengkap mengenai airdrop "{airdrop.name}".
-            </DialogDescription>
-          </DialogHeader>
+        <DialogHeader className="p-6 pb-4 border-b border-border shrink-0 relative z-[2]">
+          <DialogTitle className="font-headline text-2xl text-foreground flex items-center">
+            <Info className="w-6 h-6 mr-2 text-primary" /> Detail Airdrop
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground line-clamp-1">
+            Informasi lengkap mengenai airdrop "{airdrop.name}".
+          </DialogDescription>
+        </DialogHeader>
 
-          <ScrollArea className="flex-grow overflow-y-auto min-h-0">
-            <div className="p-6 space-y-5">
-              <div className="space-y-1.5">
-                <h3 className="text-xl font-semibold text-foreground">{airdrop.name}</h3>
-                <div className="flex flex-wrap gap-2 items-center">
-                    <Badge className={cn("capitalize", getStatusColorClass(airdrop.status))}>
-                    Status Sistem: {airdrop.status}
-                    </Badge>
-                    {airdrop.userDefinedStatus && (
-                        <Badge variant="secondary" className="capitalize">
-                        Status Kustom: {airdrop.userDefinedStatus}
-                        </Badge>
-                    )}
-                    {airdrop.blockchain && (
-                        <Badge variant="outline" className="capitalize flex items-center">
-                         <Globe className="w-3 h-3 mr-1"/> {airdrop.blockchain}
-                        </Badge>
-                    )}
-                </div>
+        <ScrollArea className="flex-grow overflow-y-auto min-h-0 relative z-[2]">
+          <div className="p-6 space-y-5">
+            <div className="space-y-1.5">
+              <h3 className="text-xl font-semibold text-foreground">{airdrop.name}</h3>
+              <div className="flex flex-wrap gap-2 items-center">
+                  <Badge className={cn("capitalize", getStatusColorClass(airdrop.status))}>
+                  Status Sistem: {airdrop.status}
+                  </Badge>
+                  {airdrop.userDefinedStatus && (
+                      <Badge variant="secondary" className="capitalize">
+                      Status Kustom: {airdrop.userDefinedStatus}
+                      </Badge>
+                  )}
+                  {airdrop.blockchain && (
+                      <Badge variant="outline" className="capitalize flex items-center">
+                        <Globe className="w-3 h-3 mr-1"/> {airdrop.blockchain}
+                      </Badge>
+                  )}
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <DetailItem label="Tanggal Mulai" value={formatDate(airdrop.startDate)} icon={CalendarDays} />
-                <DetailItem label="Tanggal Berakhir (Deadline)" value={formatDate(airdrop.deadline)} icon={CalendarDays} />
-                <DetailItem label="Tanggal Daftar" value={formatDateOnly(airdrop.registrationDate)} icon={CalendarDays} />
-                <DetailItem label="Tanggal Klaim" value={formatDateOnly(airdrop.claimDate)} icon={CalendarDays} />
-                <DetailItem label="Jenis Airdrop" value={airdrop.airdropType} icon={TagIcon} />
-                <DetailItem label="Sumber Informasi" value={airdrop.informationSource} icon={Briefcase} />
-                <DetailItem label="Link Airdrop" value={airdrop.airdropLink} icon={LinkIcon} isLink />
-                <DetailItem label="Alamat Wallet" value={airdrop.walletAddress} icon={Wallet} />
-                <DetailItem label="Jumlah Token (Estimasi)" value={airdrop.tokenAmount?.toLocaleString()} icon={GiftIcon} />
-                <DetailItem label="Kode Referral" value={airdrop.referralCode} icon={Share2Icon} />
-              </div>
-
-              <DetailItem label="Deskripsi Umum" value={airdrop.description} icon={MessageSquare} isPreWrap/>
-              <DetailItem label="Syarat Partisipasi" value={airdrop.participationRequirements} icon={UsersIcon} isPreWrap />
-              <DetailItem label="Catatan Tambahan" value={airdrop.notes} icon={Edit3Icon} isPreWrap />
-              
-              <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center"><Asterisk className="w-3.5 h-3.5 mr-1.5 opacity-80"/>Tanggal Dibuat di Sistem</h4>
-                <p className="text-sm text-foreground">{formatDate(airdrop.createdAt)}</p>
-              </div>
-
-              {airdrop.tasks && airdrop.tasks.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center">
-                    <CheckSquare className="w-3.5 h-3.5 mr-1.5 opacity-80" /> Checklist Tugas ({airdrop.tasks.filter(t=>t.completed).length}/{airdrop.tasks.length})
-                  </h4>
-                  <ul className="space-y-2">
-                    {airdrop.tasks.map(task => (
-                      <li key={task.id} className="flex items-center text-sm p-2 bg-input rounded-md">
-                        {task.completed ? (
-                          <CheckSquare className="w-4 h-4 mr-2 text-green-400 shrink-0" />
-                        ) : (
-                          <Square className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
-                        )}
-                        <span className={cn("flex-grow break-all", task.completed && "line-through text-muted-foreground")}>
-                          {task.text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {(!airdrop.tasks || airdrop.tasks.length === 0) && (
-                   <p className="text-xs text-muted-foreground italic">Tidak ada tugas spesifik untuk airdrop ini.</p>
-              )}
             </div>
-          </ScrollArea>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+              <DetailItem label="Tanggal Mulai" value={formatDate(airdrop.startDate)} icon={CalendarDays} />
+              <DetailItem label="Tanggal Berakhir (Deadline)" value={formatDate(airdrop.deadline)} icon={CalendarDays} />
+              <DetailItem label="Tanggal Daftar" value={formatDateOnly(airdrop.registrationDate)} icon={CalendarDays} />
+              <DetailItem label="Tanggal Klaim" value={formatDateOnly(airdrop.claimDate)} icon={CalendarDays} />
+              <DetailItem label="Jenis Airdrop" value={airdrop.airdropType} icon={TagIcon} />
+              <DetailItem label="Sumber Informasi" value={airdrop.informationSource} icon={Briefcase} />
+              <DetailItem label="Link Airdrop" value={airdrop.airdropLink} icon={LinkIcon} isLink />
+              <DetailItem label="Alamat Wallet" value={airdrop.walletAddress} icon={Wallet} />
+              <DetailItem label="Jumlah Token (Estimasi)" value={airdrop.tokenAmount?.toLocaleString()} icon={GiftIcon} />
+              <DetailItem label="Kode Referral" value={airdrop.referralCode} icon={Share2Icon} />
+            </div>
 
-          <DialogFooter className="p-6 pt-4 border-t border-border shrink-0">
-            <DialogClose asChild>
-              <Button type="button" variant="outline">
-                <X className="mr-2 h-4 w-4" /> Tutup
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </div>
+            <DetailItem label="Deskripsi Umum" value={airdrop.description} icon={MessageSquare} isPreWrap/>
+            <DetailItem label="Syarat Partisipasi" value={airdrop.participationRequirements} icon={UsersIcon} isPreWrap />
+            <DetailItem label="Catatan Tambahan" value={airdrop.notes} icon={Edit3Icon} isPreWrap />
+            
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center"><Asterisk className="w-3.5 h-3.5 mr-1.5 opacity-80"/>Tanggal Dibuat di Sistem</h4>
+              <p className="text-sm text-foreground">{formatDate(airdrop.createdAt)}</p>
+            </div>
+
+            {airdrop.tasks && airdrop.tasks.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center">
+                  <CheckSquare className="w-3.5 h-3.5 mr-1.5 opacity-80" /> Checklist Tugas ({airdrop.tasks.filter(t=>t.completed).length}/{airdrop.tasks.length})
+                </h4>
+                <ul className="space-y-2">
+                  {airdrop.tasks.map(task => (
+                    <li key={task.id} className="flex items-center text-sm p-2 bg-input rounded-md">
+                      {task.completed ? (
+                        <CheckSquare className="w-4 h-4 mr-2 text-green-400 shrink-0" />
+                      ) : (
+                        <Square className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+                      )}
+                      <span className={cn("flex-grow break-all", task.completed && "line-through text-muted-foreground")}>
+                        {task.text}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {(!airdrop.tasks || airdrop.tasks.length === 0) && (
+                  <p className="text-xs text-muted-foreground italic">Tidak ada tugas spesifik untuk airdrop ini.</p>
+            )}
+          </div>
+        </ScrollArea>
+
+        <DialogFooter className="p-6 pt-4 border-t border-border shrink-0 relative z-[2]">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              <X className="mr-2 h-4 w-4" /> Tutup
+            </Button>
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
