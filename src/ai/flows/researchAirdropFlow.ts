@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import { z } from 'zod';
+import { fetchWebpageContentTool } from '@/ai/tools/fetchWebpageTool'; // Import the new tool
 
 // --- Schemas ---
 const ResearchAirdropInputSchema = z.object({
@@ -34,30 +35,32 @@ const researchPrompt = ai.definePrompt({
   name: 'researchAirdropPrompt',
   input: { schema: ResearchAirdropInputSchema },
   output: { schema: ResearchAirdropOutputSchema },
+  tools: [fetchWebpageContentTool], // Make the tool available to this prompt
   prompt: `Anda adalah seorang peneliti airdrop kripto yang ahli. Semua output harus dalam Bahasa Indonesia.
-Analyze the following text query AND/OR the content implicitly available at the provided URL to generate a research report.
+Analyze the following text query AND/OR the content from the provided URL to generate a research report.
+If a sourceUrl is provided, use the 'fetchWebpageContent' tool to get the textual content of that URL. Then, analyze this retrieved content.
 Your goal is to assess the potential of the airdrop/project, identify key information, and find official links.
-Jika sumber informasi dalam Bahasa Inggris, terjemahkan konten yang relevan ke Bahasa Indonesia untuk ringkasan dan poin kunci Anda.
+Jika sumber informasi dalam Bahasa Inggris (baik dari textQuery atau konten URL), terjemahkan konten yang relevan ke Bahasa Indonesia untuk ringkasan dan poin kunci Anda.
 
 Input:
 {{#if textQuery}}
-Query Teks/Deskripsi:
+Query Teks/Deskripsi (jika ada):
 {{{textQuery}}}
 {{/if}}
 
 {{#if sourceUrl}}
-URL Sumber (gunakan untuk konteks atau info langsung jika model memiliki akses; CATATAN: model tidak dapat secara aktif mengambil konten web langsung dari string URL ini tanpa alat khusus, tetapi dapat menggunakannya untuk pengambilan pengetahuan jika URL atau domainnya diketahui):
+URL Sumber (gunakan alat 'fetchWebpageContent' untuk mengambil dan menganalisis kontennya):
 {{{sourceUrl}}}
 {{/if}}
 
 Output Requirements:
-1.  **researchSummary**: Berikan ringkasan yang komprehensif dalam Bahasa Indonesia. Bahas proyek, tentang apa airdrop tersebut, potensinya, tanda bahaya (jika ada), dan kelayakan jika diketahui. Jika URL adalah sumber utama, ringkas kontennya yang relevan dengan airdrop. Sajikan dalam paragraf yang terstruktur dengan baik dan mudah dibaca.
+1.  **researchSummary**: Berikan ringkasan yang komprehensif dalam Bahasa Indonesia. Bahas proyek, tentang apa airdrop tersebut, potensinya, tanda bahaya (jika ada), dan kelayakan jika diketahui. Jika konten URL adalah sumber utama, ringkas kontennya yang relevan dengan airdrop. Sajikan dalam paragraf yang terstruktur dengan baik dan mudah dibaca.
 2.  **keyPoints**: Buat daftar 3-5 poin kunci dalam Bahasa Indonesia yang berasal dari riset Anda. Poin-poin ini harus ringkas dan informatif, disajikan sebagai daftar poin (bullet points).
-3.  **officialLinks**: Jika memungkinkan, identifikasi dan daftarkan semua tautan resmi proyek seperti situs web, Twitter, Discord, atau pengumuman. Hanya daftarkan URL yang valid. Pertahankan URL dalam bahasa aslinya.
+3.  **officialLinks**: Jika memungkinkan, identifikasi dan daftarkan semua tautan resmi proyek seperti situs web, Twitter, Discord, atau pengumuman, baik dari textQuery maupun dari konten URL. Hanya daftarkan URL yang valid. Pertahankan URL dalam bahasa aslinya.
 4.  **sentiment**: Nyatakan secara singkat sentimen atau potensi yang Anda rasakan dalam Bahasa Indonesia (contoh: "Potensi Tinggi", "Spekulatif", "Informasi Kurang", "Tampak Sah").
 
-Jika Anda tidak dapat menemukan informasi substansial dari input yang diberikan, nyatakan dengan jelas dalam \`researchSummary\` (dalam Bahasa Indonesia) dan biarkan field lain kosong atau dengan catatan (misalnya, "Tidak ada poin kunci spesifik yang teridentifikasi.").
-Jangan mengarang informasi. Dasarkan laporan Anda semata-mata pada input yang diberikan atau pengetahuan yang dapat diakses publik terkait dengannya.
+Jika Anda tidak dapat menemukan informasi substansial dari input yang diberikan (atau jika pengambilan URL gagal/konten tidak relevan), nyatakan dengan jelas dalam \`researchSummary\` (dalam Bahasa Indonesia) dan biarkan field lain kosong atau dengan catatan (misalnya, "Tidak ada poin kunci spesifik yang teridentifikasi.").
+Jangan mengarang informasi. Dasarkan laporan Anda semata-mata pada input yang diberikan atau konten URL yang berhasil diambil dan relevan.
 Kembalikan hasilnya sebagai objek JSON terstruktur yang cocok dengan skema output yang ditentukan. Jika field opsional seperti \`keyPoints\` atau \`officialLinks\` tidak memiliki data, kembalikan array kosong untuknya atau hilangkan field tersebut.
 `,
 });

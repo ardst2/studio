@@ -11,6 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import { z } from 'zod';
+import { fetchWebpageContentTool } from '@/ai/tools/fetchWebpageTool'; // Import the new tool
 
 // --- Schemas ---
 const ExtractAirdropTextInputSchema = z.object({
@@ -46,29 +47,31 @@ const extractionPrompt = ai.definePrompt({
   name: 'extractAirdropInfoPrompt',
   input: { schema: ExtractAirdropTextInputSchema },
   output: { schema: ExtractAirdropTextOutputSchema },
+  tools: [fetchWebpageContentTool], // Make the tool available to this prompt
   prompt: `Anda adalah seorang ahli ekstraksi informasi airdrop. Semua output harus dalam Bahasa Indonesia.
-Analyze the following text description AND/OR the content implicitly available at the provided URL to extract key details related to a potential airdrop.
-Prioritize explicit textDescription if both are provided and seem to conflict for factual data extraction, but use the URL for broader context if needed.
+Analyze the following text description AND/OR the content from the provided URL to extract key details related to a potential airdrop.
+If a sourceUrl is provided, use the 'fetchWebpageContent' tool to get the textual content of that URL. Then, analyze this retrieved content.
+Prioritize explicit textDescription if both are provided and seem to conflict for factual data extraction, but use the URL content for broader context if needed.
 
 For each piece of information you find, create an object with three properties: "key", "nilai", and "tipe".
 - "key": Label deskriptif untuk informasi (contoh: "Nama Proyek", "Link Airdrop", "Kriteria Kelayakan", "Tanggal Mulai", "Batas Waktu", "Jumlah Token Diharapkan", "Jaringan Blockchain", "Jenis Tugas Utama"). Pastikan "key" dalam Bahasa Indonesia.
-- "nilai": Teks atau nilai aktual yang diekstrak. Jika nilai bersifat deskriptif dan berasal dari sumber berbahasa Inggris, terjemahkan ke Bahasa Indonesia. Pertahankan nama propreti, istilah teknis, dan URL dalam bahasa aslinya kecuali ada padanan umum dalam Bahasa Indonesia.
+- "nilai": Teks atau nilai aktual yang diekstrak. Jika nilai bersifat deskriptif dan berasal dari sumber berbahasa Inggris atau konten URL, terjemahkan ke Bahasa Indonesia. Pertahankan nama propreti, istilah teknis, dan URL dalam bahasa aslinya kecuali ada padanan umum dalam Bahasa Indonesia.
 - "tipe": Tipe data yang diinferensikan. Gunakan 'string_short' untuk teks singkat (seperti nama, frasa pendek), 'string_long' untuk deskripsi panjang atau teks multi-baris, 'date' (format YYYY-MM-DD jika tanggal spesifik ditemukan, jika tidak, berikan tanggal tekstual dan gunakan 'string_short'), 'url' untuk tautan web, 'number' untuk nilai numerik, 'boolean' untuk pernyataan benar/salah. Jika tipe ambigu atau tidak dapat ditentukan, gunakan 'unknown'.
 
-Only include items for which you found relevant information in the text or from the URL context. Do not make up information.
+Only include items for which you found relevant information in the text or from the URL content. Do not make up information.
 If a date is mentioned textually (e.g., "end of August", "next week"), extract that text as "nilai" and set "tipe" to "string_short".
 If a specific date like "August 15, 2024" is found, format "nilai" as "2024-08-15" and set "tipe" to "date".
 
 Place all these extracted objects into an array under the "extractedDetails" field in your JSON response.
-Jika Anda menemukan masalah atau memiliki catatan tentang ekstraksi, berikan dalam field "summary" dalam Bahasa Indonesia.
+Jika Anda menemukan masalah atau memiliki catatan tentang ekstraksi (misalnya, jika pengambilan URL gagal atau kontennya tidak relevan), berikan dalam field "summary" dalam Bahasa Indonesia.
 
 {{#if textDescription}}
-Teks Deskripsi Airdrop:
+Teks Deskripsi Airdrop (jika ada):
 {{{textDescription}}}
 {{/if}}
 
 {{#if sourceUrl}}
-URL Sumber (gunakan untuk konteks atau info langsung jika model memiliki akses; CATATAN: model tidak dapat secara aktif mengambil konten web langsung dari string URL ini tanpa alat khusus, tetapi dapat menggunakannya untuk pengambilan pengetahuan jika URL atau domainnya diketahui):
+URL Sumber (gunakan alat 'fetchWebpageContent' untuk mengambil dan menganalisis kontennya):
 {{{sourceUrl}}}
 {{/if}}
 
