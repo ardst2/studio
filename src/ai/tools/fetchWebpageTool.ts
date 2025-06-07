@@ -52,11 +52,11 @@ export const fetchWebpageContentTool = ai.defineTool(
       const html = await response.text();
       const $ = cheerio.load(html);
 
-      // Remove common non-content elements
-      $('script, style, nav, footer, header, aside, form, noscript, svg, [aria-hidden="true"]').remove();
+      // Remove common non-content elements more aggressively
+      $('script, style, nav, footer, header, aside, form, noscript, svg, img, figure, iframe, [aria-hidden="true"], .sidebar, .popup, .modal, #sidebar, #popup, #modal, .ad, .advertisement, .banner, #ad, #advertisement, #banner').remove();
       
       // Attempt to get text from main content areas, then body
-      let textContent = $('main').text() || $('article').text() || $('div[role="main"]').text() || $('body').text();
+      let textContent = $('main').text() || $('article').text() || $('div[role="main"]').text() || $('.content').text() || $('#content').text() || $('body').text();
       
       // Basic cleanup
       textContent = textContent
@@ -69,6 +69,9 @@ export const fetchWebpageContentTool = ai.defineTool(
       }
       
       console.log(`[fetchWebpageContentTool] Extracted content length: ${textContent.length} for URL: ${url}`);
+      if (textContent.length < 100 && response.ok) { // If very little text extracted from a successful fetch, it might be a dynamic page
+          console.warn(`[fetchWebpageContentTool] Very little content extracted from ${url}. It might be a dynamic SPA or have anti-scraping measures.`);
+      }
       return { extractedText: textContent };
 
     } catch (err: any) {
@@ -85,3 +88,4 @@ export const fetchWebpageContentTool = ai.defineTool(
     }
   }
 );
+
