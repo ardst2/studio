@@ -8,7 +8,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import *_cheerio from 'cheerio'; // Cheerio is CJS, often needs this import style in ESM
+import * as _cheerio from 'cheerio'; // Cheerio is CJS, often needs this import style in ESM
 const cheerio = _cheerio; // Assign to a const for easier usage
 
 const FetchWebpageInputSchema = z.object({
