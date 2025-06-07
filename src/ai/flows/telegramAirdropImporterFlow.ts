@@ -15,10 +15,22 @@ import { extractAirdropDetailsFromText, type AirdropExtractedDetailItem, type Ex
 
 // --- Schemas ---
 const TelegramAirdropImportInputSchema = z.object({
-  targetIdentifier: z.string().min(1, 'Target identifier (e.g., group ID, channel name) is required.').describe('The identifier for the Telegram target (group, channel, etc.) to fetch messages from, as required by your API.'),
+  targetIdentifier: z.string().min(1, 'Channel identifier (e.g., channel username or ID) is required.').describe('The identifier for the Telegram channel (e.g., channel username or ID) to fetch messages from, as required by your API.'),
   // Potentially add other parameters your API might need, e.g., date ranges, message limits
 });
 export type TelegramAirdropImportInput = z.infer<typeof TelegramAirdropImportInputSchema>;
+
+// Placeholder type for the schema of AirdropExtractedDetailItem if not directly available
+// This ensures the Zod schema is self-contained or correctly references an imported one.
+const ExtractedKVPairSchemaForTelegram = z.object({
+  key: z.string(),
+  nilai: z.string(),
+  tipe: z.enum(['string_short', 'string_long', 'date', 'url', 'number', 'boolean', 'unknown'])
+});
+// Use the actual AirdropExtractedDetailItem schema if it's correctly defined and exported for Zod use.
+// For now, aliasing to the explicit schema structure.
+const AirdropExtractedDetailItemSchema = ExtractedKVPairSchemaForTelegram;
+
 
 const TelegramAirdropImportOutputSchema = z.object({
   processedMessagesCount: z.number().describe('Number of messages retrieved and processed from Telegram.'),
@@ -28,15 +40,6 @@ const TelegramAirdropImportOutputSchema = z.object({
   overallSummary: z.string().describe('A summary of the import process from Telegram.'),
 });
 export type TelegramAirdropImportOutput = z.infer<typeof TelegramAirdropImportOutputSchema>;
-
-// Placeholder type for the schema of AirdropExtractedDetailItem if not directly available
-// This ensures the Zod schema is self-contained or correctly references an imported one.
-const ExtractedKVPairSchemaForTelegram = z.object({
-  key: z.string(),
-  nilai: z.string(),
-  tipe: z.enum(['string_short', 'string_long', 'date', 'url', 'number', 'boolean', 'unknown'])
-});
-const AirdropExtractedDetailItemSchema = ExtractedKVPairSchemaForTelegram; // Use the local or imported schema as appropriate
 
 
 /**
@@ -52,12 +55,12 @@ const AirdropExtractedDetailItemSchema = ExtractedKVPairSchemaForTelegram; // Us
  * @returns {Promise<string[]>} A promise that resolves to an array of raw message texts.
  */
 async function _fetchRawMessagesFromTelegramAPI(input: TelegramAirdropImportInput): Promise<string[]> {
-  console.log(`[Telegram Importer] Simulating API call for target: ${input.targetIdentifier}`);
+  console.log(`[Telegram Importer] Simulating API call for Telegram channel: ${input.targetIdentifier}`);
   
   // TODO: Replace this mock implementation with your actual Telegram API call.
   // Example:
   // const apiKey = process.env.TELEGRAM_API_KEY; // Fetch API key securely
-  // const response = await fetch(`https://your-telegram-api-endpoint.com/messages?target=${input.targetIdentifier}&limit=50`, {
+  // const response = await fetch(`https://your-telegram-api-endpoint.com/channel_messages?channel=${input.targetIdentifier}&limit=50`, {
   //   headers: { 'Authorization': `Bearer ${apiKey}` }
   // });
   // if (!response.ok) {
@@ -69,9 +72,9 @@ async function _fetchRawMessagesFromTelegramAPI(input: TelegramAirdropImportInpu
   // Mock data for demonstration:
   await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
   return [
-    "🎉 Big Airdrop Announcement! Project Alpha is giving away 1,000,000 ALPHA tokens! Deadline: 2024-12-31. Join at https://projectalpha.xyz/airdrop. Tasks: Follow Twitter, Join Discord.",
-    "Project Beta Airdrop! Get 500 BETA. Starts: 2024-11-15, Ends: 2024-11-30. Visit betaproject.io/promo. Need to stake ETH.",
-    "Just a regular chat message, not an airdrop.",
+    "🎉 Big Airdrop Announcement from Channel XYZ! Project Alpha is giving away 1,000,000 ALPHA tokens! Deadline: 2024-12-31. Join at https://projectalpha.xyz/airdrop. Tasks: Follow Twitter, Join Discord.",
+    "Channel Update: Project Beta Airdrop! Get 500 BETA. Starts: 2024-11-15, Ends: 2024-11-30. Visit betaproject.io/promo. Need to stake ETH.",
+    "Just a regular channel message, not an airdrop.",
     "🚀 Don't miss out on Gamma Airdrop! 100 GAMMA tokens for early users. Details: gammablog.com/airdrop-rules. Must complete KYC.",
   ];
 }
@@ -109,7 +112,7 @@ const telegramAirdropImporterFlow = ai.defineFlow(
         extractedAirdropsCount: 0,
         extractedDetailsList: [],
         errors: errorsEncountered,
-        overallSummary: "Tidak ada pesan yang ditemukan dari API Telegram untuk target yang diberikan."
+        overallSummary: "Tidak ada pesan yang ditemukan dari API Telegram untuk channel yang diberikan."
       };
     }
 
@@ -119,10 +122,21 @@ const telegramAirdropImporterFlow = ai.defineFlow(
           // Use the existing extractAirdropDetailsFromText flow/function
           // We only provide textDescription as we assume the message IS the source.
           const extractionInput: ExtractAirdropTextInput = { textDescription: messageText };
-          const details = await extractAirdropDetailsFromText(extractionInput);
+          // Ensure the type AirdropExtractedDetailItem matches what extractAirdropDetailsFromText returns
+          const details: AirdropExtractedDetailItem[] = await extractAirdropDetailsFromText(extractionInput); 
           
           if (details && details.length > 0) {
-            extractedDetailsList.push(details);
+             const validatedDetails: AirdropExtractedDetailItem[] = [];
+             for (const item of details) {
+                if (typeof item === 'object' && item !== null && 'key' in item && 'nilai' in item && 'tipe' in item) {
+                    validatedDetails.push({
+                        key: String(item.key),
+                        nilai: String(item.nilai),
+                        tipe: ['string_short', 'string_long', 'date', 'url', 'number', 'boolean', 'unknown'].includes(String(item.tipe)) ? String(item.tipe) as AirdropExtractedDetailItem['tipe'] : 'unknown'
+                    });
+                }
+             }
+            extractedDetailsList.push(validatedDetails);
             extractedAirdropsCount++;
           }
         } catch (extractionError: any) {
