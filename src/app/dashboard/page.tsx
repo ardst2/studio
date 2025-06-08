@@ -15,7 +15,6 @@ import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal';
 import SheetsImportModal from '@/components/dashboard/SheetsImportModal';
 import AiAssistModal from '@/components/dashboard/AiAssistModal';
 import ResearchAirdropModal from '@/components/dashboard/ResearchAirdropModal';
-// import TelegramImportModal from '@/components/dashboard/TelegramImportModal'; // Dihapus
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
@@ -28,7 +27,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import { cn } from '@/lib/utils';
-import { Target, FilePlus2, Sparkles, SearchCheck, FileSpreadsheet } from 'lucide-react'; // Send icon dihapus
+import { Target, FilePlus2, Sparkles, SearchCheck, FileSpreadsheet } from 'lucide-react';
 
 function DashboardPageContent() {
   const { user, loading: authLoading } = useAuth();
@@ -68,21 +67,18 @@ function DashboardPageContent() {
   const [isSheetsImportModalOpen, setIsSheetsImportModalOpen] = useState(false);
   const [isAiAssistModalOpen, setIsAiAssistModalOpen] = useState(false);
   const [isResearchModalOpen, setIsResearchModalOpen] = useState(false);
-  // const [isTelegramImportModalOpen, setIsTelegramImportModalOpen] = useState(false); // State dihapus
 
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
     if (airdropToEdit) {
       setEditingAirdrop(airdropToEdit);
-      // Data draft disiapkan dari newAirdropDraft yang sudah ada di store jika initialData-nya cocok,
-      // atau langsung dari airdropToEdit
       const draftData = {
-        userId: airdropToEdit.userId, // Pastikan userId selalu dari airdrop yg diedit
+        userId: airdropToEdit.userId,
         name: airdropToEdit.name,
         startDate: airdropToEdit.startDate,
         deadline: airdropToEdit.deadline,
         description: airdropToEdit.description,
-        tasks: airdropToEdit.tasks.map(task => ({ ...task })), // deep copy tasks
+        tasks: airdropToEdit.tasks.map(task => ({ ...task })),
         blockchain: airdropToEdit.blockchain,
         registrationDate: airdropToEdit.registrationDate,
         participationRequirements: airdropToEdit.participationRequirements,
@@ -95,11 +91,12 @@ function DashboardPageContent() {
         airdropType: airdropToEdit.airdropType,
         referralCode: airdropToEdit.referralCode,
         informationSource: airdropToEdit.informationSource,
+        tags: airdropToEdit.tags || [],
       };
       updateNewAirdropDraft(draftData);
     } else {
       setEditingAirdrop(null);
-      resetNewAirdropDraft(); // Reset ke default untuk airdrop baru
+      resetNewAirdropDraft();
     }
     setIsAddModalOpen(true);
   };
@@ -107,26 +104,24 @@ function DashboardPageContent() {
   const handleCloseAddModal = () => {
     setIsAddModalOpen(false);
     setEditingAirdrop(null);
-    // Tidak perlu resetNewAirdropDraft di sini karena sudah ditangani di handleOpenAddModal atau setelah save
   };
 
   const handleSaveAirdrop = async (data: Omit<Airdrop, 'id' | 'userId' | 'createdAt' | 'status'>) => {
     try {
       if (editingAirdrop) {
-        // Untuk update, kita gunakan data yang ada di editingAirdrop sebagai basis,
-        // lalu timpa dengan data dari form (yang seharusnya sudah ada di newAirdropDraft)
         const updatedData: Airdrop = {
-            ...editingAirdrop, // Ambil ID, userId, createdAt, status dari editingAirdrop
-            ...data, // Timpa dengan semua field dari form (yang sudah diproses oleh AirdropForm)
+            ...editingAirdrop,
+            ...data,
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
+            tags: data.tags || [],
         };
         await storeUpdateAirdrop(updatedData);
         toast({ title: "Airdrop Diperbarui", description: `"${updatedData.name}" berhasil diperbarui.` });
       } else {
-        // Untuk airdrop baru, data sudah lengkap dari form (yang juga sudah ada di newAirdropDraft)
          const newAirdropDataWithTaskIds = {
-            ...data, // data dari form/newAirdropDraft
+            ...data,
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
+            tags: data.tags || [],
         };
         await storeAddAirdrop(newAirdropDataWithTaskIds); 
         toast({ title: "Airdrop Ditambahkan", description: `"${data.name}" berhasil ditambahkan.` });
@@ -155,7 +150,6 @@ function DashboardPageContent() {
       const updatedTasks = airdropToUpdate.tasks.map(task =>
         task.id === taskId ? { ...task, completed: !task.completed } : task
       );
-      // Hitung ulang status berdasarkan tugas
       const allTasksCompleted = updatedTasks.length > 0 && updatedTasks.every(t => t.completed);
       let newStatus = airdropToUpdate.status;
       const now = Date.now();
@@ -163,7 +157,7 @@ function DashboardPageContent() {
       if (allTasksCompleted) {
         newStatus = 'Completed';
       } else if (airdropToUpdate.deadline && airdropToUpdate.deadline < now) {
-        newStatus = 'Completed'; // Tetap completed jika deadline lewat, meski tugas tak semua selesai (bisa jadi terlewat)
+        newStatus = 'Completed';
       } else if (airdropToUpdate.startDate && airdropToUpdate.startDate <= now) {
         newStatus = 'Active';
       } else {
@@ -174,7 +168,6 @@ function DashboardPageContent() {
       
       try {
         await storeUpdateAirdrop(updatedAirdrop);
-        // Toast bisa ditambahkan jika perlu notifikasi setiap task toggle
       } catch (error) {
         console.error("Error updating task status:", error);
         toast({ variant: "destructive", title: "Gagal Update Tugas", description: "Terjadi kesalahan." });
@@ -219,7 +212,6 @@ function DashboardPageContent() {
         displayName: data.displayName,
         photoURL: data.photoURL || auth.currentUser.photoURL,
       });
-      // Update user state in useAuth or trigger a refresh if not automatic
       toast({ title: "Profil Diperbarui", description: "Informasi profil Anda berhasil disimpan." });
       handleCloseEditProfileModal();
     } catch (error) {
@@ -238,11 +230,9 @@ function DashboardPageContent() {
   const handleCloseAiAssistModal = () => setIsAiAssistModalOpen(false);
   const handleOpenResearchModal = () => setIsResearchModalOpen(true); 
   const handleCloseResearchModal = () => setIsResearchModalOpen(false);
-  // const handleOpenTelegramImportModal = () => setIsTelegramImportModalOpen(true); // Handler dihapus
-  // const handleCloseTelegramImportModal = () => setIsTelegramImportModalOpen(false); // Handler dihapus
 
 
-  if (authLoading || airdropsLoading || (!authLoading && !user) ) { // Tambahkan pengecekan !user setelah authLoading selesai
+  if (authLoading || airdropsLoading || (!authLoading && !user) ) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader variant="page" size="lg" />
@@ -254,7 +244,6 @@ function DashboardPageContent() {
     <div className="flex min-h-screen flex-col bg-background">
       <DashboardHeader />
       <main className="flex-1 p-4 md:p-8 space-y-8">
-        {/* Top row of cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
           <div className="card-gradient-glow-wrapper h-72">
             <UserInfoCard
@@ -269,7 +258,7 @@ function DashboardPageContent() {
           <div className="card-gradient-glow-wrapper h-72">
             <EmptyAirdropDayCard
               onShowTodaysDeadlines={handleOpenTodaysDeadlinesModal}
-              onAddNewAirdrop={() => handleOpenAddModal()} // Langsung buka modal tambah manual
+              onAddNewAirdrop={() => handleOpenAddModal()}
               airdrops={allAirdrops}
             />
           </div>
@@ -279,7 +268,7 @@ function DashboardPageContent() {
                 "shadow-xl w-full h-full bg-card text-card-foreground p-6 flex flex-col items-center justify-center text-center",
                 "cursor-pointer transition-all duration-200 ease-in-out"
               )}
-              onClick={handleOpenResearchModal} // Langsung buka modal riset
+              onClick={handleOpenResearchModal}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenResearchModal(); }}
@@ -296,7 +285,6 @@ function DashboardPageContent() {
           </div>
         </div>
 
-        {/* Lacak & Kelola Airdrop Section - Full Width on md and up */}
         <div className="card-gradient-glow-wrapper">
           <Card className="w-full bg-card text-card-foreground p-6 shadow-xl">
             <CardHeader className="p-0 pb-6 text-center">
@@ -309,8 +297,7 @@ function DashboardPageContent() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4"> {/* Diubah ke md:grid-cols-3 */}
-                {/* Sub-card 1: Tambah Manual */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div className="card-gradient-glow-wrapper">
                   <Card
                     className="w-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer h-36"
@@ -326,7 +313,6 @@ function DashboardPageContent() {
                     </p>
                   </Card>
                 </div>
-                {/* Sub-card 2: Import dari Sheets */}
                 <div className="card-gradient-glow-wrapper">
                   <Card
                     className="w-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer h-36"
@@ -342,7 +328,6 @@ function DashboardPageContent() {
                     </p>
                   </Card>
                 </div>
-                {/* Sub-card 3: Bantuan AI Ekstrak */}
                 <div className="card-gradient-glow-wrapper">
                   <Card
                     className="w-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer h-36"
@@ -358,13 +343,11 @@ function DashboardPageContent() {
                     </p>
                   </Card>
                 </div>
-                {/* Card "Import Telegram" dihapus dari sini */}
               </div>
             </CardContent>
           </Card>
         </div>
         
-        {/* Airdrop List Section */}
         <div>
            <h2 className="text-2xl font-headline text-foreground mb-6 mt-10">Airdrop Aktif Anda</h2>
           <FilterSearchAirdrops
@@ -386,7 +369,7 @@ function DashboardPageContent() {
         isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
         onSave={handleSaveAirdrop}
-        initialData={editingAirdrop ? newAirdropDraft : undefined} // Gunakan newAirdropDraft yang sudah disiapkan
+        initialData={editingAirdrop ? newAirdropDraft : undefined}
       />
       <AirdropDetailModal
         isOpen={isDetailModalOpen}
@@ -423,12 +406,8 @@ function DashboardPageContent() {
         isOpen={isResearchModalOpen}
         onClose={handleCloseResearchModal}
       />
-      {/* <TelegramImportModal
-        isOpen={isTelegramImportModalOpen}
-        onClose={handleCloseTelegramImportModal}
-      /> // Dihapus */}
        <footer className="py-6 px-4 md:px-8 border-t border-border/50 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} AirdropAce. Ditenagai oleh antusiasme Web3.
+        © 2025 ArdropOne powered by Ardi Stiawan dan Gemini
       </footer>
     </div>
   );
