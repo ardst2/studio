@@ -18,7 +18,14 @@ interface AirdropDetailModalProps {
   airdrop: Airdrop | null;
 }
 
-const DetailItem: React.FC<{ label: string; value?: string | number | null; icon?: React.ElementType; isLink?: boolean; isPreWrap?: boolean }> = ({ label, value, icon: Icon, isLink, isPreWrap }) => {
+const DetailItem: React.FC<{
+  label: string;
+  value?: string | number | null;
+  icon?: React.ElementType;
+  isLink?: boolean;
+  linkText?: string; // New prop to customize link text
+  isPreWrap?: boolean;
+}> = ({ label, value, icon: Icon, isLink, linkText, isPreWrap }) => {
   if (value === undefined || value === null || value === '') return null;
   return (
     <div>
@@ -27,11 +34,16 @@ const DetailItem: React.FC<{ label: string; value?: string | number | null; icon
         {label}
       </h4>
       {isLink && typeof value === 'string' ? (
-        <a href={value} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline break-all">
-          {value}
+        <a
+          href={value}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-primary hover:underline break-words" // break-words instead of break-all for better wrapping
+        >
+          {linkText || value} {/* Use linkText if provided, else the URL value */}
         </a>
       ) : (
-        <p className={cn("text-sm text-foreground", isPreWrap && "whitespace-pre-wrap bg-input p-2 rounded-md text-xs")}>
+        <p className={cn("text-sm text-foreground break-words", isPreWrap && "whitespace-pre-wrap bg-input p-2 rounded-md text-xs")}>
           {String(value)}
         </p>
       )}
@@ -95,6 +107,13 @@ const AirdropDetailModal = ({ isOpen, onClose, airdrop }: AirdropDetailModalProp
                         <Globe className="w-3 h-3 mr-1"/> {airdrop.blockchain}
                       </Badge>
                   )}
+                  {airdrop.tags && airdrop.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                        {airdrop.tags.map(tag => (
+                            <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
+                        ))}
+                    </div>
+                )}
               </div>
             </div>
             
@@ -105,7 +124,7 @@ const AirdropDetailModal = ({ isOpen, onClose, airdrop }: AirdropDetailModalProp
               <DetailItem label="Tanggal Klaim" value={formatDateOnly(airdrop.claimDate)} icon={CalendarDays} />
               <DetailItem label="Jenis Airdrop" value={airdrop.airdropType} icon={TagIcon} />
               <DetailItem label="Sumber Informasi" value={airdrop.informationSource} icon={Briefcase} />
-              <DetailItem label="Link Airdrop" value={airdrop.airdropLink} icon={LinkIcon} isLink />
+              <DetailItem label="Link Airdrop" value={airdrop.airdropLink} icon={LinkIcon} isLink linkText="Kunjungi Situs Airdrop"/>
               <DetailItem label="Alamat Wallet" value={airdrop.walletAddress} icon={Wallet} />
               <DetailItem label="Jumlah Token (Estimasi)" value={airdrop.tokenAmount?.toLocaleString()} icon={GiftIcon} />
               <DetailItem label="Kode Referral" value={airdrop.referralCode} icon={Share2Icon} />
