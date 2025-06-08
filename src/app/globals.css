@@ -385,13 +385,11 @@ input[type="date"]::-moz-calendar-picker-indicator {
   background: linear-gradient(to right, hsl(var(--gradient-theme-start)), hsl(var(--gradient-theme-mid)), hsl(var(--gradient-theme-end)));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent !important;
+  color: transparent; /* Removed !important */
+  -webkit-text-fill-color: transparent; /* Added for consistency with .text-gradient-theme */
 }
 
-.header-icon-button:hover svg * { 
-  stroke: currentColor !important; 
-  fill: none !important; 
-}
+/* Removed the problematic .header-icon-button:hover svg * rule */
 
 .text-gradient-theme {
   background: linear-gradient(to right,
@@ -454,3 +452,4 @@ input[type="date"]::-moz-calendar-picker-indicator {
 .toast-attention-animate {
   animation: toast-attention 1.5s ease-in-out;
 }
+

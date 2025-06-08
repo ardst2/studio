@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AirdropAce',
-  description: 'Track and manage your Web3 airdrop opportunities with AirdropAce.',
+  title: 'ArdropOne',
+  description: 'Track and manage your Web3 airdrop opportunities with ArdropOne.',
 };
 
 export default function RootLayout({

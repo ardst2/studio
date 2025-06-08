@@ -23,7 +23,7 @@ function LoginPageContent() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
         <div className="gradient-spinner"></div>
-        <p className="mt-4 text-lg text-foreground">Loading AirdropAce...</p>
+        <p className="mt-4 text-lg text-foreground">Loading ArdropOne...</p>
       </div>
     );
   }
@@ -36,18 +36,18 @@ function LoginPageContent() {
           data-ai-hint="abstract crypto logo" 
         >
           <Image 
-            src="https://placehold.co/128x128.png" // Placeholder logo yang lebih jelas
-            alt="AirdropAce Modern Logo" 
+            src="https://placehold.co/128x128.png" 
+            alt="ArdropOne Modern Logo" 
             width={128} 
             height={128}
-            className="rounded-full object-cover" // Pastikan gambar mengisi wrapper bundar
+            className="rounded-full object-cover"
           />
         </div>
         
         <div>
           <h1 className={cn(
             "font-headline text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl",
-            "text-gradient-animated" // Menggunakan kelas animasi gradien yang sudah ada
+            "text-gradient-animated"
           )}>
             Assalamualaikum
           </h1>
