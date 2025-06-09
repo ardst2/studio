@@ -1,5 +1,6 @@
-
 // src/lib/firebase.ts
+'use client';
+
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup as firebaseSignInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
