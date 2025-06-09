@@ -20,7 +20,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { z } from 'zod';
 import {google} from 'googleapis';
 import type {AirdropTask, AirdropStatus} from '@/types/airdrop';
 import { format, parse, isValid } from 'date-fns';
@@ -147,3 +147,4 @@ const importAirdropsFlow = ai.defineFlow(
 export async function importAirdropsFromSheet(input: ImportAirdropsInput): Promise<ImportAirdropsOutput> {
   return importAirdropsFlow(input);
 }
+

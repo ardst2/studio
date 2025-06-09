@@ -12,9 +12,10 @@ import AirdropDetailModal from '@/components/dashboard/AirdropDetailModal';
 import TodaysDeadlinesModal from '@/components/dashboard/TodaysDeadlinesModal';
 import EditProfileModal from '@/components/dashboard/edit-profile-modal';
 import AirdropStatsModal from '@/components/dashboard/AirdropStatsModal';
-import SheetsImportModal from '@/components/dashboard/SheetsImportModal'; // Import new modal
+import SheetsImportModal from '@/components/dashboard/SheetsImportModal';
+import AiAssistModal from '@/components/dashboard/AiAssistModal';
+import ResearchAirdropModal from '@/components/dashboard/ResearchAirdropModal';
 import FilterSearchAirdrops from '@/components/dashboard/filter-search-airdrops';
-import SheetsIntegrationCard from '@/components/dashboard/sheets-integration-card';
 import Loader from '@/components/ui/loader';
 import { useAirdropsStore } from '@/hooks/use-airdrops-store';
 import type { Airdrop } from '@/types/airdrop';
@@ -26,6 +27,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import { cn } from '@/lib/utils';
+import { Target, FilePlus2, Sparkles, SearchCheck, FileSpreadsheet } from 'lucide-react';
 
 function DashboardPageContent() {
   const { user, loading: authLoading } = useAuth();
@@ -62,7 +64,9 @@ function DashboardPageContent() {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
-  const [isSheetsImportModalOpen, setIsSheetsImportModalOpen] = useState(false); // New state for SheetsImportModal
+  const [isSheetsImportModalOpen, setIsSheetsImportModalOpen] = useState(false);
+  const [isAiAssistModalOpen, setIsAiAssistModalOpen] = useState(false);
+  const [isResearchModalOpen, setIsResearchModalOpen] = useState(false);
 
 
   const handleOpenAddModal = (airdropToEdit?: Airdrop) => {
@@ -75,6 +79,19 @@ function DashboardPageContent() {
         deadline: airdropToEdit.deadline,
         description: airdropToEdit.description,
         tasks: airdropToEdit.tasks.map(task => ({ ...task })),
+        blockchain: airdropToEdit.blockchain,
+        registrationDate: airdropToEdit.registrationDate,
+        participationRequirements: airdropToEdit.participationRequirements,
+        airdropLink: airdropToEdit.airdropLink,
+        userDefinedStatus: airdropToEdit.userDefinedStatus,
+        notes: airdropToEdit.notes,
+        walletAddress: airdropToEdit.walletAddress,
+        tokenAmount: airdropToEdit.tokenAmount,
+        claimDate: airdropToEdit.claimDate,
+        airdropType: airdropToEdit.airdropType,
+        referralCode: airdropToEdit.referralCode,
+        informationSource: airdropToEdit.informationSource,
+        tags: airdropToEdit.tags || [],
       };
       updateNewAirdropDraft(draftData);
     } else {
@@ -96,26 +113,17 @@ function DashboardPageContent() {
             ...editingAirdrop,
             ...data,
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
+            tags: data.tags || [],
         };
-        const now = Date.now();
-        let status: Airdrop['status'] = 'Upcoming';
-        if (updatedData.startDate && updatedData.startDate <= now) status = 'Active';
-        const allTasksCompleted = updatedData.tasks.length > 0 && updatedData.tasks.every(t => t.completed);
-        if (allTasksCompleted || (updatedData.deadline && updatedData.deadline < now)) {
-            status = 'Completed';
-        } else if (updatedData.startDate && updatedData.startDate <= now) {
-            status = 'Active';
-        }
-        updatedData.status = status;
-
         await storeUpdateAirdrop(updatedData);
         toast({ title: "Airdrop Diperbarui", description: `"${updatedData.name}" berhasil diperbarui.` });
       } else {
-        const newAirdropDataWithTaskIds = {
+         const newAirdropDataWithTaskIds = {
             ...data,
             tasks: data.tasks ? data.tasks.map(t => ({ ...t, id: t.id || crypto.randomUUID() })) : [],
+            tags: data.tags || [],
         };
-        await storeAddAirdrop(newAirdropDataWithTaskIds);
+        await storeAddAirdrop(newAirdropDataWithTaskIds); 
         toast({ title: "Airdrop Ditambahkan", description: `"${data.name}" berhasil ditambahkan.` });
       }
       handleCloseAddModal();
@@ -142,19 +150,22 @@ function DashboardPageContent() {
       const updatedTasks = airdropToUpdate.tasks.map(task =>
         task.id === taskId ? { ...task, completed: !task.completed } : task
       );
-      let updatedAirdrop = { ...airdropToUpdate, tasks: updatedTasks };
-
-      const now = Date.now();
-      let newStatus: Airdrop['status'] = 'Upcoming';
-      if (updatedAirdrop.startDate && updatedAirdrop.startDate <= now) newStatus = 'Active';
       const allTasksCompleted = updatedTasks.length > 0 && updatedTasks.every(t => t.completed);
-      if (allTasksCompleted || (updatedAirdrop.deadline && updatedAirdrop.deadline < now)) {
-          newStatus = 'Completed';
-      } else if (updatedAirdrop.startDate && updatedAirdrop.startDate <= now) {
-        newStatus = 'Active';
-      }
-      updatedAirdrop.status = newStatus;
+      let newStatus = airdropToUpdate.status;
+      const now = Date.now();
 
+      if (allTasksCompleted) {
+        newStatus = 'Completed';
+      } else if (airdropToUpdate.deadline && airdropToUpdate.deadline < now) {
+        newStatus = 'Completed';
+      } else if (airdropToUpdate.startDate && airdropToUpdate.startDate <= now) {
+        newStatus = 'Active';
+      } else {
+        newStatus = 'Upcoming';
+      }
+      
+      let updatedAirdrop = { ...airdropToUpdate, tasks: updatedTasks, status: newStatus };
+      
       try {
         await storeUpdateAirdrop(updatedAirdrop);
       } catch (error) {
@@ -168,26 +179,17 @@ function DashboardPageContent() {
     setSelectedAirdropForDetail(airdrop);
     setIsDetailModalOpen(true);
   };
-
   const handleCloseDetailModal = () => {
     setSelectedAirdropForDetail(null);
     setIsDetailModalOpen(false);
   };
 
-  const handleOpenTodaysDeadlinesModal = () => {
-    setIsTodaysDeadlinesModalOpen(true);
-  };
-
-  const handleCloseTodaysDeadlinesModal = () => {
-    setIsTodaysDeadlinesModalOpen(false);
-  };
+  const handleOpenTodaysDeadlinesModal = () => setIsTodaysDeadlinesModalOpen(true);
+  const handleCloseTodaysDeadlinesModal = () => setIsTodaysDeadlinesModalOpen(false);
 
   const airdropsDueToday = useMemo(() => {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999);
     return allAirdrops.filter(airdrop => {
       if (!airdrop.deadline) return false;
       const deadlineDate = new Date(airdrop.deadline);
@@ -195,10 +197,7 @@ function DashboardPageContent() {
     });
   }, [allAirdrops]);
 
-  const handleSelectAirdropFromTodaysList = (airdrop: Airdrop) => {
-    handleOpenDetailModal(airdrop);
-  };
-
+  const handleSelectAirdropFromTodaysList = (airdrop: Airdrop) => handleOpenDetailModal(airdrop);
   const handleOpenEditProfileModal = () => setIsEditProfileModalOpen(true);
   const handleCloseEditProfileModal = () => setIsEditProfileModalOpen(false);
 
@@ -213,7 +212,6 @@ function DashboardPageContent() {
         displayName: data.displayName,
         photoURL: data.photoURL || auth.currentUser.photoURL,
       });
-
       toast({ title: "Profil Diperbarui", description: "Informasi profil Anda berhasil disimpan." });
       handleCloseEditProfileModal();
     } catch (error) {
@@ -226,10 +224,12 @@ function DashboardPageContent() {
 
   const handleOpenStatsModal = () => setIsStatsModalOpen(true);
   const handleCloseStatsModal = () => setIsStatsModalOpen(false);
-
-  // Handlers for SheetsImportModal
   const handleOpenSheetsImportModal = () => setIsSheetsImportModalOpen(true);
   const handleCloseSheetsImportModal = () => setIsSheetsImportModalOpen(false);
+  const handleOpenAiAssistModal = () => setIsAiAssistModalOpen(true);
+  const handleCloseAiAssistModal = () => setIsAiAssistModalOpen(false);
+  const handleOpenResearchModal = () => setIsResearchModalOpen(true); 
+  const handleCloseResearchModal = () => setIsResearchModalOpen(false);
 
 
   if (authLoading || airdropsLoading || (!authLoading && !user) ) {
@@ -244,30 +244,13 @@ function DashboardPageContent() {
     <div className="flex min-h-screen flex-col bg-background">
       <DashboardHeader />
       <main className="flex-1 p-4 md:p-8 space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 xl:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
           <div className="card-gradient-glow-wrapper h-72">
             <UserInfoCard
               airdrops={allAirdrops}
               user={user}
               onOpenProfileModal={handleOpenEditProfileModal}
             />
-          </div>
-          <div className="card-gradient-glow-wrapper h-72">
-            <Card 
-              className="w-full h-full bg-card text-card-foreground p-6 flex flex-col justify-center cursor-pointer items-center text-center"
-              onClick={() => handleOpenAddModal()}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAddModal(); }}
-              aria-label="Tambah airdrop baru"
-            >
-              <CardHeader className="p-0 pb-4 text-center">
-                <CardTitle className="font-headline text-xl text-foreground">Kelola Airdrop Anda</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Pantau peluang baru dan tugas yang sedang berjalan.
-                </CardDescription>
-              </CardHeader>
-            </Card>
           </div>
           <div className="card-gradient-glow-wrapper h-72">
             <SummaryStats airdrops={allAirdrops} onOpenStatsModal={handleOpenStatsModal} />
@@ -279,13 +262,94 @@ function DashboardPageContent() {
               airdrops={allAirdrops}
             />
           </div>
-          <div className="card-gradient-glow-wrapper h-72">
-            <SheetsIntegrationCard onClick={handleOpenSheetsImportModal} />
+          <div className="card-gradient-glow-wrapper h-72"> 
+             <Card
+              className={cn(
+                "shadow-xl w-full h-full bg-card text-card-foreground p-6 flex flex-col items-center justify-center text-center",
+                "cursor-pointer transition-all duration-200 ease-in-out"
+              )}
+              onClick={handleOpenResearchModal}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenResearchModal(); }}
+              aria-label="Buka Riset Airdrop AI"
+            >
+              <CardHeader className="p-0 pb-2 flex flex-col items-center justify-center">
+                <SearchCheck className="mb-2 h-8 w-8 text-primary" />
+                <CardTitle className="font-headline text-lg text-foreground">Riset Airdrop</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 mt-1">
+                <p className="text-xs text-muted-foreground">Analisis potensi dari teks atau URL.</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
+        <div className="card-gradient-glow-wrapper">
+          <Card className="w-full bg-card text-card-foreground p-6 shadow-xl">
+            <CardHeader className="p-0 pb-6 text-center">
+              <div className="flex items-center justify-center sm:flex-col mb-2 sm:mb-0">
+                <Target className="h-8 w-8 text-gradient-theme mr-3 sm:mr-0 sm:mb-2" />
+                <CardTitle className="font-headline text-2xl text-foreground">Lacak &amp; Kelola Airdrop</CardTitle>
+              </div>
+              <CardDescription className="text-muted-foreground text-center">
+                Pilih salah satu opsi di bawah ini untuk menambahkan dan mengelola peluang airdrop Anda.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div className="card-gradient-glow-wrapper">
+                  <Card
+                    className="w-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer h-36"
+                    onClick={() => handleOpenAddModal()}
+                    role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAddModal(); }}
+                    aria-label="Tambah airdrop baru secara manual"
+                  >
+                    <FilePlus2 className="h-7 w-7 mb-2 text-primary" />
+                    <CardTitle className="font-semibold text-base text-foreground">Tambah Manual</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Masukkan detail airdrop manual.
+                    </p>
+                  </Card>
+                </div>
+                <div className="card-gradient-glow-wrapper">
+                  <Card
+                    className="w-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer h-36"
+                    onClick={handleOpenSheetsImportModal}
+                    role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenSheetsImportModal(); }}
+                    aria-label="Impor airdrop dari Google Sheets"
+                  >
+                    <FileSpreadsheet className="h-7 w-7 mb-2 text-primary" />
+                    <CardTitle className="font-semibold text-base text-foreground">Import Sheets</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Tarik data dari Google Sheets.
+                    </p>
+                  </Card>
+                </div>
+                <div className="card-gradient-glow-wrapper">
+                  <Card
+                    className="w-full bg-input/30 hover:bg-input/70 text-card-foreground p-4 flex flex-col justify-center items-center text-center cursor-pointer h-36"
+                    onClick={handleOpenAiAssistModal}
+                    role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenAiAssistModal(); }}
+                    aria-label="Buka Bantuan AI untuk ekstraksi data"
+                  >
+                    <Sparkles className="h-7 w-7 mb-2 text-primary" />
+                    <CardTitle className="font-semibold text-base text-foreground">Bantuan AI</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Ekstrak info dari teks atau URL.
+                    </p>
+                  </Card>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
         <div>
-           <h2 className="text-2xl font-headline text-foreground mb-6 mt-10">Airdrop Anda</h2>
+           <h2 className="text-2xl font-headline text-foreground mb-6 mt-10">Airdrop Aktif Anda</h2>
           <FilterSearchAirdrops
             searchTerm={searchTerm}
             onSearchTermChange={setSearchTerm}
@@ -334,8 +398,16 @@ function DashboardPageContent() {
         isOpen={isSheetsImportModalOpen}
         onClose={handleCloseSheetsImportModal}
       />
+      <AiAssistModal
+        isOpen={isAiAssistModalOpen}
+        onClose={handleCloseAiAssistModal}
+      />
+      <ResearchAirdropModal
+        isOpen={isResearchModalOpen}
+        onClose={handleCloseResearchModal}
+      />
        <footer className="py-6 px-4 md:px-8 border-t border-border/50 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} AirdropAce. Ditenagai oleh antusiasme Web3.
+        © 2025 ArdropOne powered by Ardi Stiawan dan Gemini
       </footer>
     </div>
   );
@@ -344,3 +416,4 @@ function DashboardPageContent() {
 export default function DashboardPage() {
   return <DashboardPageContent />;
 }
+
